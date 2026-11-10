@@ -386,6 +386,12 @@ const RAW2 = [
 ["x17","Fish in black bean or soy sauce","cnmain",0,"Bhetki fillet:500g:F;Spring onion:1bunch:V;Garlic bulb:1pc:V;Soy sauce::P","Steam the fish, pour hot soy, garlic and spring onion sauce over it. 1 tsp oil."],
 ["x18","Chilli soya chunks","cnmain",1,"Soya chunks:150g:G;Capsicum:2pc:V;Onion:2pc:V;Soy sauce::P","Soak and squeeze chunks dry. Toss in sauce, no frying."],
 
+["s48","Shim posto","side",1,"Shim (flat beans):300g:V;Potato:1pc:V;Posto (poppy seeds):30g:G","Cut shim small. Cook covered with posto paste, green chilli and 2 tsp mustard oil."],
+["s49","Shim begun bori chorchori","side",1,"Shim (flat beans):250g:V;Brinjal:1pc:V;Bori:30g:G","Dry-roast the bori instead of frying. Cook all together with panch phoron in 2 tsp oil."],
+["s50","Shim tawa bhaja","side",1,"Shim (flat beans):300g:V","Slit shim, rub with turmeric and salt, roast on non-stick tawa with a brush of oil, covered."],
+["s51","Shim alu kumro ghonto","side",1,"Shim (flat beans):200g:V;Potato:1pc:V;Pumpkin:200g:V","Cook covered in its own steam with kalonji and 2 tsp oil."],
+["f36","Shim diye macher jhol","fish",0,"Rohu (rui) fish:500g:F;Shim (flat beans):200g:V;Potato:1pc:V;Tomato:1pc:V","Sear fish lightly. Thin jhol with kalonji, shim and potato."],
+["f37","Chingri shim chorchori","fish",0,"Small prawns:250g:F;Shim (flat beans):250g:V;Potato:1pc:V","Cook shim and potato covered in 2 tsp oil, add prawns for the last 5 minutes."],
 ["st3","Brown rice","staple",1,"Brown rice:400g:G","Soak 30 minutes. Pressure cook 3 whistles."],
 ["st4","Jeera rice","staple",1,"Basmati rice:400g:G","1 tsp ghee and cumin only."],
 ["st5","Phulka with multigrain atta","staple",1,"Multigrain atta:300g:G","Phulka on open flame. No ghee."],
@@ -783,18 +789,24 @@ let sheetCtx=null;
 function openSheet(html){$("sheetBody").innerHTML=html;$("sheet").hidden=false;}
 function closeSheet(){$("sheet").hidden=true;sheetCtx=null;}
 function dishInfo(d){const u=useLine(d);return '<h2>'+esc(d.name)+'</h2><p class="note">'+esc(d.note||"")+'</p>'+(u?'<p class="use">'+esc(u)+'</p>':'');}
+function ingKey(n){return String(n).toLowerCase().replace(/\(.*?\)/g,"").replace(/\b(large|small|fresh|whole)\b/g,"").trim();}
+function mainIngs(d){return d.ing.filter(x=>x.c!=="P"&&x.q&&!/^(onion|tomato|garlic|ginger|green chilli|salt|curd|milk|atta|rice|basmati rice)$/.test(ingKey(x.n))).map(x=>x.n).slice(0,5);}
+function dishesWith(name,exceptId){const k=ingKey(name);return allDishes().filter(x=>x.id!==exceptId&&x.type!=="staple"&&x.ing.some(y=>{const z=ingKey(y.n);return z===k||z.includes(k)||k.includes(z)&&z.length>3;}));}
+function twoBtnRow(x){return '<div class="lib"><span>'+esc(x.name)+' <span class="pill tag">'+esc(TYPES[x.type])+'</span>'+(x.veg?'':' •')+(x.ai?' <span class="pill tag">from Claude</span>':'')+'</span><div class="chips"><button class="btn plain small" data-act="swap" data-id="'+x.id+'">Replace</button><button class="btn plain small" data-act="addToo" data-id="'+x.id+'">Add too</button></div></div>';}
 function chipSheet(i,m,k){
   const d=dish(S.plan[i][m][k]);if(!d)return;sheetCtx={i,m,k};
   const onMenu=new Set([].concat(...S.plan.map(z=>z.b.concat(z.l,z.d))));
   const alts=allDishes().filter(x=>x.type===d.type&&x.id!==d.id&&!S.off.includes(x.id));
   const fresh=alts.filter(x=>!onMenu.has(x.id)&&!S.last.includes(x.id));
   const rest=alts.filter(x=>!fresh.includes(x));
-  const row=x=>'<button class="pick" data-act="swap" data-id="'+x.id+'">'+esc(x.name)+(x.veg?' <span class="pill veg">Veg</span>':'')+'</button>';
+  const ings=mainIngs(d);
   openSheet(dishInfo(d)+'<div class="row" style="margin:10px 0"><button class="btn ghost" data-act="rm">Remove from this meal</button><button class="btn plain" data-act="close">Close</button></div>'+
-    '<div class="row"><button class="btn plain small" data-act="likeClaude">Ask Claude for dishes like this</button></div><div class="status" id="likeMsg" hidden></div><div id="likeList"></div>'+
-    '<label class="field"><span>Swap with any dish</span><input type="search" id="swapQ" placeholder="Type to search all '+allDishes().length+' dishes"></label><div id="swapList">'+
-    (fresh.length?'<h3>'+esc(TYPES[d.type])+', not had recently</h3>'+fresh.map(row).join(""):'')+
-    (rest.length?'<h3>'+esc(TYPES[d.type])+', on this week or last week</h3>'+rest.map(row).join(""):'')+'</div>');
+    (ings.length?'<h3>Other dishes with</h3><div class="chips">'+ings.map(n=>'<button class="tog" data-act="ingFind" data-n="'+esc(n)+'">'+esc(n.replace(/\s*\(.*?\)/,""))+'</button>').join("")+'</div>':'')+
+    '<div id="ingList"></div><div class="status" id="likeMsg" hidden></div><div id="likeList"></div>'+
+    '<div class="row" style="margin-top:8px"><button class="btn plain small" data-act="likeClaude">Ask Claude for dishes like this</button></div>'+
+    '<label class="field"><span>Search all dishes</span><input type="search" id="swapQ" placeholder="Type a dish or an ingredient, e.g. shim"></label><div id="swapList">'+
+    (fresh.length?'<h3>'+esc(TYPES[d.type])+', not had recently</h3>'+fresh.map(twoBtnRow).join(""):'')+
+    (rest.length?'<h3>'+esc(TYPES[d.type])+', on this week or last week</h3>'+rest.map(twoBtnRow).join(""):'')+'</div>');
 }
 function addSheet(i,m){
   sheetCtx={i,m};
@@ -1029,6 +1041,22 @@ document.addEventListener("click",e=>{
   else if(a==="chip")chipSheet(i,b.dataset.m,+b.dataset.k);
   else if(a==="add")addSheet(i,b.dataset.m);
   else if(a==="rm"&&sheetCtx){S.plan[sheetCtx.i][sheetCtx.m].splice(sheetCtx.k,1);save();closeSheet();render();}
+  else if(a==="addToo"&&sheetCtx&&sheetCtx.k!=null){S.plan[sheetCtx.i][sheetCtx.m].push(b.dataset.id);save();closeSheet();render();}
+  else if(a==="ingFind"&&sheetCtx&&sheetCtx.k!=null){
+    const n=b.dataset.n;const cur=S.plan[sheetCtx.i][sheetCtx.m][sheetCtx.k];
+    document.querySelectorAll('[data-act="ingFind"]').forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
+    const list=dishesWith(n,cur);const short=n.replace(/\s*\(.*?\)/,"");
+    $("ingList").innerHTML='<h3>Saved dishes with '+esc(short)+'</h3>'+(list.length?list.map(twoBtnRow).join(""):'<p class="hint">No other saved dish uses '+esc(short)+'.</p>')+
+      '<div class="row" style="margin-top:6px"><button class="btn ghost small" data-act="ingClaude" data-n="'+esc(n)+'">Ask Claude for new '+esc(short)+' dishes</button></div>';}
+  else if(a==="ingClaude"&&sheetCtx&&sheetCtx.k!=null){
+    const ctx=sheetCtx;const n=b.dataset.n;const short=n.replace(/\s*\(.*?\)/,"");
+    b.disabled=true;b.textContent="Asking Claude…";setStatus("likeMsg","Asking Claude. This can take up to a minute.",false);
+    askClaude({meal:MEALKEY[ctx.m],veg:"both",count:4,wish:"Every dish must use "+n+" as a main ingredient."}).then(r=>{
+      if(sheetCtx!==ctx)return;b.disabled=false;b.textContent="Ask Claude again";
+      if(r.error){setStatus("likeMsg",r.error,true);return;}
+      setStatus("likeMsg",r.ids.length+" new "+short+" ideas from Claude. Replace the dish, or add one too."+costLine(r),false);
+      const el=$("likeList");if(el)el.innerHTML='<h3>New from Claude</h3>'+r.ids.map(dish).filter(Boolean).map(twoBtnRow).join("");
+    });}
   else if(a==="swap"&&sheetCtx){S.plan[sheetCtx.i][sheetCtx.m][sheetCtx.k]=b.dataset.id;save();closeSheet();render();}
   else if(a==="addpick"&&sheetCtx){S.plan[sheetCtx.i][sheetCtx.m].push(b.dataset.id);save();closeSheet();render();}
   else if(a==="cd"){cookV=b.dataset.id;render();}
@@ -1067,8 +1095,8 @@ document.addEventListener("click",e=>{
     askClaude({meal:MEALKEY[ctx.m],veg:d.veg?"veg":"non",count:4,wish:"Dishes similar to "+d.name+" ("+TYPES[d.type]+")."}).then(r=>{
       if(sheetCtx!==ctx)return;b.disabled=false;b.textContent="Ask Claude again";
       if(r.error){setStatus("likeMsg",r.error,true);return;}
-      setStatus("likeMsg",r.ids.length+" ideas from Claude. Tap one to swap it in."+costLine(r),false);
-      const el=$("likeList");if(el)el.innerHTML=r.ids.map(dish).filter(Boolean).map(x=>'<button class="pick" data-act="swap" data-id="'+x.id+'">'+esc(x.name)+' <span class="pill tag">'+esc(TYPES[x.type])+'</span></button>').join("");
+      setStatus("likeMsg",r.ids.length+" ideas from Claude. Replace the dish, or add one too."+costLine(r),false);
+      const el=$("likeList");if(el)el.innerHTML='<h3>New from Claude</h3>'+r.ids.map(dish).filter(Boolean).map(twoBtnRow).join("");
     });}
   else if(a==="vegN"){S.vegN=+b.dataset.n;save();render();}
   else if(a==="useList"){S.activeList=b.dataset.id;save();render();}
@@ -1111,7 +1139,7 @@ document.addEventListener("input",e=>{
   if(e.target.id==="q")$("pickList").innerHTML=pickList(e.target.value);
   else if(e.target.id==="lq"&&listDraft){listDraft.q=e.target.value.trim();$("lrows").innerHTML=listRows();}
   else if(e.target.id==="swapQ"){const q=e.target.value.trim().toLowerCase();if(!q)return;
-    $("swapList").innerHTML=allDishes().filter(x=>x.name.toLowerCase().includes(q)||TYPES[x.type].toLowerCase().includes(q)).slice(0,40).map(x=>'<button class="pick" data-act="swap" data-id="'+x.id+'">'+esc(x.name)+' <span class="pill tag">'+esc(TYPES[x.type])+'</span></button>').join("")||'<p class="hint">No dish matches. Add it from the Dishes tab.</p>';}
+    $("swapList").innerHTML=allDishes().filter(x=>x.type!=="staple"&&(x.name.toLowerCase().includes(q)||TYPES[x.type].toLowerCase().includes(q)||x.ing.some(y=>y.n.toLowerCase().includes(q)))).slice(0,40).map(twoBtnRow).join("")||'<p class="hint">No dish matches. Try Ask Claude, or add your own in the Dishes tab.</p>';}
 });
 
 load();
