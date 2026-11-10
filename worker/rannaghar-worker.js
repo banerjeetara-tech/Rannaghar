@@ -1,4 +1,4 @@
-// Rannaghar ideas worker (Cloudflare Workers), version 2
+// Rannaghar ideas worker (Cloudflare Workers), version 3
 // Holds your Anthropic API key so it never sits in the app or on GitHub.
 //
 // Secrets to set in Cloudflare (Settings > Variables and Secrets):
@@ -7,7 +7,7 @@
 // Optional plain variable:
 //   ALLOWED_ORIGIN     defaults to https://banerjeetara-tech.github.io
 
-const VERSION = 2;
+const VERSION = 3;
 const MODEL = "claude-haiku-5-5";
 // USD per million tokens for prompts under 100k tokens. Edit if Anthropic changes prices.
 const PRICE_IN = 0.10;
@@ -65,7 +65,8 @@ export default {
 
     const have = (Array.isArray(input.have) ? input.have : []).slice(0, 400).map(s => String(s).slice(0, 60));
     const wish = String(input.wish || "").slice(0, 300);
-    const count = Math.min(9, Math.max(1, parseInt(input.count, 10) || 6));
+    const count = Math.min(8, Math.max(1, parseInt(input.count, 10) || 6));
+    const search = input.search === true; // web search costs about 30 times more, so it is off unless the app asks
     const meal = ["breakfast", "lunch", "dinner"].includes(input.meal) ? input.meal : "any";
     const veg = ["veg", "non"].includes(input.veg) ? input.veg : "both";
 
@@ -77,7 +78,7 @@ export default {
       : "Make about half vegetarian and half non-vegetarian.";
 
     const prompt =
-      `Search the web (Bengali food blogs and recipe sites) and suggest ${count} home-style dishes for a Bengali family in Kolkata (3-4 people). ` +
+      (search ? "Search the web (Bengali food blogs and recipe sites) and suggest " : "Suggest ") + `${count} home-style dishes for a Bengali family in Kolkata (3-4 people). ` +
       `They must NOT be in this list the family already has: ${have.join("; ")}.\n` +
       `Bengali home food first, with the occasional home-made Chinese dish. Every dish must use very little oil and no deep frying.\n` +
       `${mealRule} ${vegRule}\n` +
@@ -86,7 +87,7 @@ export default {
       `{"name":string, "meal":"breakfast"|"lunch"|"dinner", "type":one of ${TYPES.join("|")}, "veg":boolean, ` +
       `"ing":[{"n":ingredient name, "q":number for 4 people (0 for spices), "u":"g"|"ml"|"pc"|"bunch"|"pack", ` +
       `"c":"F" fish or meat|"E" eggs|"V" vegetables and fruit|"G" grocery|"P" spices and pantry}], ` +
-      `"note":one or two short sentences telling the cook how to make it with less oil}. Main ingredients only, at most 7 per dish. ` +
+      `"note":one short sentence telling the cook how to make it with less oil}. Main ingredients only, at most 7 per dish. ` +
       `Types: bf breakfast, dal, side vegetable side, fish, chicken, egg, mutton, vegmain vegetarian main, cncarb Chinese rice or noodles, cnmain Chinese side dish.`;
 
     const call = (withSearch) => fetch("https://api.anthropic.com/v1/messages", {
@@ -98,17 +99,17 @@ export default {
       },
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 6000,
+        max_tokens: withSearch ? 4000 : 2500,
         messages: [{ role: "user", content: prompt }],
         ...(withSearch ? { tools: [{ type: "web_search_20250305", name: "web_search", max_uses: MAX_SEARCHES }] } : {}),
       }),
     });
 
-    let searched = true;
-    let r = await call(true);
+    let searched = search;
+    let r = await call(search);
     let data = await r.json().catch(() => ({}));
     // If web search is not available for this key or model, still return ideas without it.
-    if (!r.ok && r.status === 400) {
+    if (!r.ok && r.status === 400 && search) {
       searched = false;
       r = await call(false);
       data = await r.json().catch(() => ({}));

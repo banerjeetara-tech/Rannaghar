@@ -422,7 +422,7 @@ try{const t=localStorage.getItem(AIKEY);if(t)AI=Object.assign(AI,JSON.parse(t));
 function saveAI(){try{localStorage.setItem(AIKEY,JSON.stringify(AI));}catch(e){}}
 function aiReady(){return !!(AI.url&&AI.token);}
 function monthKey(){return iso(new Date()).slice(0,7);}
-let setOpen=false, S=null, tab="week", cookDay=0, ref=null, writing=false, dirty=false, saveTimer=null;
+let setOpen=false, S=null, tab="week", cookDay=0, cookV="", shopV="", ref=null, writing=false, dirty=false, saveTimer=null;
 
 function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
 function fromIso(s){const a=s.split("-").map(Number);return new Date(a[0],a[1]-1,a[2]);}
@@ -439,7 +439,40 @@ function mealsOf(d){
   return ["l","d"];
 }
 function todayIdx(){const t=iso(new Date());for(let i=0;i<7;i++)if(iso(dateOf(i))===t)return i;return 0;}
-function okDays(){return [0,1,2,3,4,5,6].filter(i=>S.ok[i]);}
+const MI={b:0,l:1,d:2}, MK=["b","l","d"], MEALLOW={b:"breakfast",l:"lunch",d:"dinner"};
+/* A cook visit covers every meal from that visit until the next one. */
+function visits(){
+  const eve=S.cookTime!=="morn", tname=eve?"evening":"morning";
+  const starts=[];
+  for(let i=0;i<7;i++)if(S.cookDays.includes(dateOf(i).getDay()))starts.push({i,at:i*3+(eve?2:0)});
+  const slotsOf=(a,b)=>{const r=[];for(let x=a;x<b;x++)r.push([Math.floor(x/3),MK[x%3]]);return r;};
+  const out=[];const first=starts.length?starts[0].at:21;
+  if(first>0){
+    let lab="Whole week (no cook days set)",sh="this week";
+    if(S.cookDays.length){for(let k=1;k<=7;k++){const d=addDays(fromIso(S.weekStart),-k);if(S.cookDays.includes(d.getDay())){lab=DAY[d.getDay()]+" "+d.getDate()+" "+MON[d.getMonth()]+" "+tname+" visit (week before)";sh=DAY[d.getDay()]+" "+(eve?"eve":"morn")+" before";break;}}}
+    out.push({id:"pre",day:-1,label:lab,short:sh,slots:slotsOf(0,first)});
+  }
+  starts.forEach((st,n)=>{const end=n+1<starts.length?starts[n+1].at:21;
+    out.push({id:"v"+st.i+(eve?"e":"m"),day:st.i,label:label(st.i)+" "+tname+" visit",short:DAY[dateOf(st.i).getDay()]+" "+(eve?"eve":"morn"),slots:slotsOf(st.at,end)});});
+  return out;
+}
+function visitById(id){return visits().find(v=>v.id===id)||null;}
+function visitOf(i,m){return visits().find(v=>v.slots.some(([a,b])=>a===i&&b===m))||null;}
+function slotOk(i,m){const v=visitOf(i,m);return !!(v&&S.okv[v.id]);}
+function okVisits(){return visits().filter(v=>S.okv[v.id]);}
+function slotName(i,m){return DAY[dateOf(i).getDay()]+" "+MEALLOW[m];}
+function covers(v){const by={};v.slots.forEach(([i,m])=>{(by[i]=by[i]||[]).push(MEALLOW[m]);});return Object.keys(by).map(i=>DAY[dateOf(+i).getDay()]+" "+by[i].join(", ")).join("; ");}
+function regenVisit(id){
+  const v=visitById(id);if(!v)return;
+  const mine=new Set(v.slots.map(([i,m])=>i+m));
+  const used=new Set();S.plan.forEach((d,j)=>MK.forEach(m=>{if(!mine.has(j+m))d[m].forEach(x=>used.add(x));}));
+  const days=[...new Set(v.slots.map(([i])=>i))];
+  days.forEach(i=>{
+    const lt=["fish","fish","chicken","egg"][Math.floor(Math.random()*4)], dt=["chicken","chicken","egg","fish"][Math.floor(Math.random()*4)];
+    const nd=genDay(i,used,lt,dt);MK.forEach(m=>{if(mine.has(i+m))S.plan[i][m]=nd[m];});
+  });
+  delete S.okv[id];
+}
 function allDishes(){return BUILTIN.concat(S.mine||[]);}
 function dish(id){return allDishes().find(d=>d.id===id);}
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
@@ -496,23 +529,23 @@ function genWeek(){
       lb=[0,1,2,3,4,5,6].map(draw);db=[0,1,2,3,4,5,6].map(draw);}
   }
   S.plan=[];for(let i=0;i<7;i++)S.plan.push(genDay(i,used,lb[i],db[i]));
-  S.ck={};S.ok=[false,false,false,false,false,false,false];
+  S.ck={};S.okv={};
 }
 function regenDay(i){
   const used=new Set();S.plan.forEach((d,j)=>{if(j!==i)["b","l","d"].forEach(m=>d[m].forEach(x=>used.add(x)));});
   const lt=["fish","fish","chicken","egg"][Math.floor(Math.random()*4)], dt=["chicken","chicken","egg","fish"][Math.floor(Math.random()*4)];
-  S.plan[i]=genDay(i,used,lt,dt);S.ok[i]=false;
+  S.plan[i]=genDay(i,used,lt,dt);
 }
 function fresh(){
-  S={v:1,ts:1,people:4,vegDays:[],vegN:1,cnDays:[6],weekStart:defaultStart(),plan:[],last:[],off:[],mine:[],ck:{},lists:[],activeList:"",ok:[false,false,false,false,false,false,false]};
+  S={v:1,ts:1,people:4,vegDays:[],vegN:1,cnDays:[6],weekStart:defaultStart(),plan:[],last:[],off:[],mine:[],ck:{},lists:[],activeList:"",okv:{},cookDays:[5,6,0,1,3],cookTime:"eve"};
   genWeek();
 }
 function normalize(o){
-  const d={v:1,ts:0,people:4,vegDays:[],vegN:1,cnDays:[6],weekStart:defaultStart(),plan:[],last:[],off:[],mine:[],ck:{},lists:[],activeList:"",ok:[false,false,false,false,false,false,false]};
+  const d={v:1,ts:0,people:4,vegDays:[],vegN:1,cnDays:[6],weekStart:defaultStart(),plan:[],last:[],off:[],mine:[],ck:{},lists:[],activeList:"",okv:{},cookDays:[5,6,0,1,3],cookTime:"eve"};
   const s=Object.assign(d,o||{});
-  ["vegDays","cnDays","last","off","mine","plan","lists"].forEach(k=>{if(!Array.isArray(s[k]))s[k]=d[k];});
+  ["vegDays","cnDays","last","off","mine","plan","lists","cookDays"].forEach(k=>{if(!Array.isArray(s[k]))s[k]=d[k];});
   if(!s.ck||typeof s.ck!=="object")s.ck={};
-  if(!Array.isArray(s.ok)||s.ok.length!==7)s.ok=[false,false,false,false,false,false,false];
+  if(!s.okv||typeof s.okv!=="object")s.okv={};
   return s;
 }
 function load(){
@@ -562,46 +595,51 @@ function fmt(q,u){
 }
 function scale(){return S.people/4;}
 function useLine(d){return d.ing.filter(x=>x.q).map(x=>x.n+" "+fmt(x.q*scale(),x.u)).join(", ");}
-function shopping(){
+function shopping(only){
   const items={},pantry=new Set(PANTRY);
-  S.plan.forEach((day,i)=>{if(!S.ok[i])return;["b","l","d"].forEach(m=>day[m].forEach(id=>{
+  okVisits().filter(v=>!only||v.id===only).forEach(v=>v.slots.forEach(([i,m])=>S.plan[i][m].forEach(id=>{
     const d=dish(id);if(!d)return;
     d.ing.forEach(x=>{
       if(x.c==="P"||!x.q){pantry.add(x.n);return;}
       const k=x.n+"|"+x.u;const it=items[k]||(items[k]={k,n:x.n,u:x.u,c:x.c,q:0,days:[]});
-      it.q+=x.q*scale();const dn=DAY[dateOf(i).getDay()];if(!it.days.includes(dn))it.days.push(dn);
+      it.q+=x.q*scale();if(!it.days.includes(v.short))it.days.push(v.short);
     });
-  }));});
+  })));
   const list=Object.values(items).sort((a,b)=>a.n.localeCompare(b.n));
   return {F:list.filter(x=>x.c==="F"),E:list.filter(x=>x.c==="E"),V:list.filter(x=>x.c==="V"),G:list.filter(x=>x.c==="G"),P:[...pantry]};
 }
-function weekTitle(){const o=okDays();return o.length===7?"week of "+label(0):o.length?o.map(i=>DAY[dateOf(i).getDay()]+" "+dateOf(i).getDate()).join(", "):"no days approved";}
+function weekTitle(){
+  const all=visits(),o=okVisits().filter(v=>!shopV||v.id===shopV);
+  if(!o.length)return "no cook visits approved";
+  if(!shopV&&o.length===all.length)return "week of "+label(0);
+  return "for "+o.map(v=>v.short).join(", ")+(o.length>1?" visits":" visit");
+}
 function bazaarText(){
-  const s=shopping();let t="*Bazaar list, "+weekTitle()+"*\n";
+  const s=shopping(shopV);let t="*Bazaar list, "+weekTitle()+"*\n";
   [["F","Fish and meat"],["E","Eggs"],["V","Vegetables and fruit"]].forEach(([c,h])=>{
     const rows=s[c].filter(x=>!S.ck[x.k]);if(!rows.length)return;
     t+="\n*"+h+"*\n";rows.forEach(x=>{t+="- "+x.n+": "+fmt(x.q,x.u)+(c==="F"?" (for "+x.days.join(", ")+")":"")+"\n";});
   });
-  t+="\nAlso ginger, garlic, green chilli and coriander leaves for the week.";
+  t+="\nAlso ginger, garlic, green chilli and coriander leaves.";
   return t;
 }
 function onlineText(){
-  const s=shopping();let t="*Grocery order, "+weekTitle()+"*\n\n";
+  const s=shopping(shopV);let t="*Grocery order, "+weekTitle()+"*\n\n";
   s.G.filter(x=>!S.ck[x.k]).forEach(x=>{t+="- "+x.n+": "+fmt(x.q,x.u)+"\n";});
   const p=s.P.filter(n=>S.ck["P|"+n]);
   if(p.length){t+="\n*Running low at home*\n";p.forEach(n=>{t+="- "+n+"\n";});}
   return t;
 }
-function cookText(i){
-  let t="*"+label(i)+"* (for "+S.people+" people)\n";
-  MEALS.forEach(([m,h])=>{
+function cookText(v){
+  let t="*"+v.label+"* (for "+S.people+" people)\nCook: "+covers(v)+"\n";
+  v.slots.forEach(([i,m])=>{
     const ids=S.plan[i][m];if(!ids.length)return;
-    t+="\n*"+h.toUpperCase()+"*\n";
+    t+="\n*"+slotName(i,m).toUpperCase()+"*\n";
     ids.forEach(id=>{const d=dish(id);if(!d)return;t+="- "+d.name+": "+d.note+"\n";const u=useLine(d);if(u)t+="  Use: "+u+"\n";});
   });
   return t;
 }
-function weekText(){return okDays().map(i=>cookText(i)).join("\n").trim();}
+function weekText(){return okVisits().map(cookText).join("\n").trim();}
 function menuText(){
   let t="*Menu, "+weekTitle()+"*\n";
   for(let i=0;i<7;i++){t+="\n*"+label(i)+"*\n";MEALS.forEach(([m,h])=>{const n=S.plan[i][m].map(id=>(dish(id)||{}).name).filter(Boolean);if(n.length)t+=h+": "+n.join(", ")+"\n";});}
@@ -628,7 +666,13 @@ function vSettings(){
    '<label class="field"><span>Worker link</span><input type="text" id="aiUrl" inputmode="url" autocapitalize="off" spellcheck="false" placeholder="https://rannaghar.yourname.workers.dev" value="'+esc(AI.url)+'"></label>'+
    '<label class="field"><span>Passcode</span><input type="text" id="aiTok" autocomplete="off" autocapitalize="off" spellcheck="false" value="'+esc(AI.token)+'"></label>'+
    '<div class="row" style="margin-top:10px"><button class="btn" data-act="aiSave">Save connection</button>'+(aiReady()?'<button class="btn ghost" data-act="aiTest">Test connection</button><button class="btn plain" data-act="aiClear">Disconnect</button>':'')+'</div><div class="status" id="testMsg" hidden></div>'+
+   '<div class="field"><span>Web search for Claude ideas</span><div class="chips"><button class="tog" data-act="aiWeb" aria-pressed="'+(!!AI.web)+'">'+(AI.web?'On, about ₹3 each time':'Off, about 10 paise each time')+'</button></div></div>'+
+   '<p class="hint">With web search off, Claude suggests dishes from what it already knows, which is much cheaper.</p>'+
    '<p class="hint" id="aiState">'+(aiReady()?'Connected. Spent this month on web ideas: about ₹'+((AI.spend[monthKey()]||0)*90).toFixed(2):'Not connected yet.')+'</p></section>'+
+   '<section class="card"><h2>Cook visits</h2>'+
+   '<div class="field"><span>Cook comes on</span><div class="chips">'+dayToggles("cookDays")+'</div></div>'+
+   '<div class="field"><span>Time of visit</span><div class="chips">'+[["eve","Evening"],["morn","Morning"]].map(([k,t])=>'<button class="tog" data-act="ctime" data-k="'+k+'" aria-pressed="'+((S.cookTime==="morn"?"morn":"eve")===k)+'">'+t+'</button>').join("")+'</div></div>'+
+   '<p class="hint">An evening visit cooks that night\'s dinner and every meal until the next visit. So Monday evening covers Monday dinner, all of Tuesday, and Wednesday breakfast and lunch. Changing these clears approvals.</p></section>'+
    '<section class="card"><h2>Family and week</h2>'+
    '<div class="field"><span>People eating</span><div class="stepper"><button data-act="ppl" data-n="-1" aria-label="Fewer people">−</button><b>'+S.people+'</b><button data-act="ppl" data-n="1" aria-label="More people">+</button></div></div>'+
    '<div class="field"><span>Veg dishes with each lunch and dinner</span><div class="chips">'+[1,2].map(n=>'<button class="tog" data-act="vegN" data-n="'+n+'" aria-pressed="'+((S.vegN||1)===n)+'">'+n+' veg dish'+(n>1?'es':'')+'</button>').join("")+'</div></div>'+
@@ -641,42 +685,43 @@ function vSettings(){
    '<div class="row"><button class="btn plain" data-act="backup">Save backup file</button><label class="btn plain" for="restore">Restore from file</label><input type="file" id="restore" accept=".json,application/json" hidden></div><p class="hint" id="bkMsg"></p></section>';
 }
 function vWeek(){
-  const today=iso(new Date());
-  const A=activeList();const n=okDays().length;
-  let h='<div class="card"><div class="row between"><b>'+n+' of 7 days approved</b>'+(n<7?'<button class="btn small" data-act="okAll">Approve all</button>':'<button class="btn plain small" data-act="okNone">Unapprove all</button>')+'</div>'+
-   '<p class="hint">Check each day. Tap a dish to swap it or get ideas. When a day looks right, tap Approve. Only approved days go to the Bazaar and Cook lists.</p></div>';
+  const A=activeList();const all=visits();const n=okVisits().length;
+  let h='<div class="card"><div class="row between"><b>'+n+' of '+all.length+' cook visits approved</b>'+(n<all.length?'<button class="btn small" data-act="okAll">Approve all</button>':'<button class="btn plain small" data-act="okNone">Unapprove all</button>')+'</div>'+
+   '<p class="hint">The menu is grouped by cook visit: each card is everything the cook makes on that visit, until the next one. Tap a dish to swap it. When a visit looks right, tap Approve. Only approved visits go to the Bazaar and Cook lists.</p></div>';
   h+='<div class="row"><button class="btn plain small" data-act="next">Plan next week</button><button class="btn plain small" data-act="shuf">Shuffle this week</button><a class="btn plain small" target="_blank" rel="noopener" href="'+esc(wa(menuText()))+'">Send menu on WhatsApp</a></div>'+
-   '<p class="hint">Shuffle follows: <b>'+(A?esc(A.name):'all dishes')+'</b>. Change it in the Ideas tab.</p>';
-  for(let i=0;i<7;i++){
-    const d=dateOf(i),wd=d.getDay(),ok=S.ok[i];
-    h+='<section class="card'+(ok?" ok":iso(d)===today?" today":"")+'"><div class="row between"><div class="row"><h2>'+label(i)+'</h2>'+
-      (ok?'<span class="pill veg">Approved</span>':'')+(S.vegDays.includes(wd)?'<span class="pill veg">Veg day</span>':'')+(S.cnDays.includes(wd)?'<span class="pill cn">Chinese night</span>':'')+
-      '</div></div>';
-    MEALS.forEach(([m,t])=>{
-      h+='<div class="mealhead"><h3>'+t+'</h3><button class="mini" data-act="slotIdeas" data-i="'+i+'" data-m="'+m+'">Ideas for '+t.toLowerCase()+'</button></div><div class="chips">'+S.plan[i][m].map((id,k)=>{const x=dish(id);return x?'<button class="chip" data-act="chip" data-i="'+i+'" data-m="'+m+'" data-k="'+k+'">'+esc(x.name)+(x.veg?'':' •')+'</button>':'';}).join("")+
+   '<p class="hint">Shuffle follows: <b>'+(A?esc(A.name):'all dishes')+'</b>. Change it in the Ideas tab. Cook days are in Settings.</p>';
+  all.forEach(v=>{
+    const ok=!!S.okv[v.id];
+    h+='<section class="card'+(ok?" ok":"")+'"><div class="row between"><h2>'+esc(v.label)+'</h2>'+(ok?'<span class="pill veg">Approved</span>':'')+'</div><p class="hint">Cooks: '+esc(covers(v))+'</p>';
+    v.slots.forEach(([i,m])=>{
+      const t=slotName(i,m);
+      h+='<div class="mealhead"><h3>'+t+'</h3><button class="mini" data-act="slotIdeas" data-i="'+i+'" data-m="'+m+'">Ideas</button></div><div class="chips">'+S.plan[i][m].map((id,k)=>{const x=dish(id);return x?'<button class="chip" data-act="chip" data-i="'+i+'" data-m="'+m+'" data-k="'+k+'">'+esc(x.name)+(x.veg?'':' •')+'</button>':'';}).join("")+
         '<button class="chip add" data-act="add" data-i="'+i+'" data-m="'+m+'" aria-label="Add a dish to '+t+'">+ add</button></div>';
     });
-    h+='<div class="row" style="margin-top:12px">'+(ok?'<button class="btn plain small" data-act="okDay" data-i="'+i+'">Unapprove</button>':'<button class="btn small" data-act="okDay" data-i="'+i+'">Approve '+DAY[wd]+'</button>')+
-      '<button class="btn plain small" data-act="day" data-i="'+i+'">Shuffle this day</button></div></section>';
-  }
+    h+='<div class="row" style="margin-top:12px">'+(ok?'<button class="btn plain small" data-act="okV" data-id="'+v.id+'">Unapprove</button>':'<button class="btn small" data-act="okV" data-id="'+v.id+'">Approve this visit</button>')+
+      '<button class="btn plain small" data-act="shufV" data-id="'+v.id+'">Shuffle these meals</button></div></section>';
+  });
   h+='<p class="hint">• marks non-veg dishes.</p>';
   return h;
 }
+function pickCookV(o){
+  if(o.some(v=>v.id===cookV))return;
+  const t=todayIdx();const up=o.find(v=>v.day>=t);cookV=(up||o[0]).id;
+}
 function vCook(){
-  const o=okDays();
-  if(!o.length)return '<div class="card"><h2>No days approved yet</h2><p class="hint">Go to the Menu tab, check each day and tap Approve. The cook instructions for approved days appear here.</p></div>';
-  if(!o.includes(cookDay))cookDay=o.includes(todayIdx())?todayIdx():o[0];
-  let h='<div class="chips">'+o.map(i=>'<button class="tog" data-act="cd" data-i="'+i+'" aria-pressed="'+(i===cookDay)+'">'+DAY[dateOf(i).getDay()]+' '+dateOf(i).getDate()+'</button>').join("")+'</div>';
-  h+='<section class="card"><h2>'+label(cookDay)+'</h2><p class="hint">Read this out to the cook. Amounts are for '+S.people+' people.</p>';
-  MEALS.forEach(([m,t])=>{
-    const ids=S.plan[cookDay][m];if(!ids.length)return;
-    h+='<h3>'+t+'</h3>';
-    ids.forEach(id=>{const d=dish(id);if(!d)return;const u=useLine(d);h+='<div class="dish"><b>'+esc(d.name)+'</b><div class="note">'+esc(d.note)+'</div>'+(u?'<div class="use">'+esc(u)+'</div>':'')+'</div>';});
+  const o=okVisits();
+  if(!o.length)return '<div class="card"><h2>No cook visits approved yet</h2><p class="hint">Go to the Menu tab, check each cook visit and tap Approve. The instructions for approved visits appear here.</p></div>';
+  pickCookV(o);const v=o.find(x=>x.id===cookV);
+  let h='<div class="chips">'+o.map(x=>'<button class="tog" data-act="cd" data-id="'+x.id+'" aria-pressed="'+(x.id===cookV)+'">'+esc(x.short)+'</button>').join("")+'</div>';
+  h+='<section class="card"><h2>'+esc(v.label)+'</h2><p class="hint">Tell the cook all of this on that visit. Amounts are for '+S.people+' people. Food for later meals goes in the fridge.</p>';
+  const soak=[];
+  v.slots.forEach(([i,m])=>{
+    const ids=S.plan[i][m];if(!ids.length)return;
+    h+='<h3>'+slotName(i,m)+'</h3>';
+    ids.forEach(id=>{const d=dish(id);if(!d)return;if(/night before|overnight/i.test(d.note))soak.push(d.name);const u=useLine(d);h+='<div class="dish"><b>'+esc(d.name)+'</b><div class="note">'+esc(d.note)+'</div>'+(u?'<div class="use">'+esc(u)+'</div>':'')+'</div>';});
   });
-  h+='</section><div class="row"><button class="btn" data-act="copy" data-what="cookday">Copy this day</button><a class="btn ghost" target="_blank" rel="noopener" href="'+esc(wa(cookText(cookDay)))+'">Send on WhatsApp</a><button class="btn plain" data-act="copy" data-what="cookweek">Copy all approved days</button></div>';
-  const prep=[];const nx=cookDay<6?S.plan[cookDay+1]:null;
-  if(nx&&S.ok[cookDay+1])["b","l","d"].forEach(m=>nx[m].forEach(id=>{const d=dish(id);if(d&&/night before|overnight/i.test(d.note))prep.push(d.name);}));
-  if(prep.length)h+='<div class="card"><h3 style="margin-top:0">Soak tonight for tomorrow</h3>'+esc(prep.join(", "))+'</div>';
+  h+='</section><div class="row"><button class="btn" data-act="copy" data-what="cookday">Copy this visit</button><a class="btn ghost" target="_blank" rel="noopener" href="'+esc(wa(cookText(v)))+'">Send on WhatsApp</a><button class="btn plain" data-act="copy" data-what="cookweek">Copy all approved visits</button></div>';
+  if(soak.length)h+='<div class="card"><h3 style="margin-top:0">Soak before this visit</h3>'+esc(soak.join(", "))+'</div>';
   return h;
 }
 function itemRow(k,name,qty,sub){
@@ -684,12 +729,14 @@ function itemRow(k,name,qty,sub){
   return '<div class="item'+(on?" done":"")+'"><input type="checkbox" id="ck_'+esc(k)+'" data-ck="'+esc(k)+'"'+(on?" checked":"")+'><label for="ck_'+esc(k)+'"><span>'+esc(name)+(sub?'<span class="d">'+esc(sub)+'</span>':'')+'</span><span class="q">'+esc(qty)+'</span></label></div>';
 }
 function vShop(){
-  const o=okDays();
-  if(!o.length)return '<div class="card"><h2>No days approved yet</h2><p class="hint">Go to the Menu tab and approve the days you are happy with. Their bazaar and grocery lists appear here and update when you change a dish.</p></div>';
-  const s=shopping();
-  let h='<p class="hint">For approved days: <b>'+esc(weekTitle())+'</b>'+(o.length<7?'. Approve more days on the Menu tab to add them.':'.')+'</p><section class="card"><h2>Bazaar</h2><p class="hint">Tick what you already have. Ticked items are left out of the WhatsApp message.</p>';
+  const o=okVisits();
+  if(!o.length)return '<div class="card"><h2>No cook visits approved yet</h2><p class="hint">Go to the Menu tab and approve the cook visits you are happy with. Their bazaar and grocery lists appear here and update when you change a dish.</p></div>';
+  if(shopV&&!o.some(v=>v.id===shopV))shopV="";
+  const s=shopping(shopV);
+  let h='<div class="chips"><button class="tog" data-act="shopV" data-id="" aria-pressed="'+(!shopV)+'">All approved</button>'+o.map(v=>'<button class="tog" data-act="shopV" data-id="'+v.id+'" aria-pressed="'+(v.id===shopV)+'">'+esc(v.short)+'</button>').join("")+'</div>'+
+   '<p class="hint">Showing: <b>'+esc(weekTitle())+'</b>. Pick one visit to shop just for that visit.</p><section class="card"><h2>Bazaar</h2><p class="hint">Tick what you already have. Ticked items are left out of the WhatsApp message.</p>';
   [["F","Fish and meat"],["E","Eggs"],["V","Vegetables and fruit"]].forEach(([c,t])=>{
-    if(!s[c].length)return;h+='<h3>'+t+'</h3>'+s[c].map(x=>itemRow(x.k,x.n,fmt(x.q,x.u),c==="F"?"for "+x.days.join(", "):"")).join("");
+    if(!s[c].length)return;h+='<h3>'+t+'</h3>'+s[c].map(x=>itemRow(x.k,x.n,fmt(x.q,x.u),c==="F"&&!shopV?"for "+x.days.join(", "):"")).join("");
   });
   h+='<div class="row" style="margin-top:12px"><button class="btn" data-act="copy" data-what="bazaar">Copy list</button><a class="btn ghost" target="_blank" rel="noopener" href="'+esc(wa(bazaarText()))+'">Send on WhatsApp</a></div></section>';
   h+='<section class="card"><h2>Order online</h2><h3>Grocery</h3>'+s.G.map(x=>itemRow(x.k,x.n,fmt(x.q,x.u),"")).join("")+
@@ -866,7 +913,7 @@ function ideasCard(){
    '<div class="field"><span>Show</span><div class="chips">'+[["both","Veg and non-veg"],["veg","Veg only"],["non","Non-veg only"]].map(([k,t])=>'<button class="tog" data-act="side" data-k="'+k+'" aria-pressed="'+(ideaSide===k)+'">'+t+'</button>').join("")+'</div></div>'+
    '<div class="row" style="margin-top:10px"><button class="btn" data-act="free">Ideas from my dishes</button><button class="btn ghost" id="ideasBtn" data-act="ideas">Ideas with Claude</button></div>'+
    '<div class="status" id="ideasMsg"'+(ideaStatus?'':' hidden')+'>'+esc(ideaStatus)+'</div>'+
-   '<p class="hint">Ideas from my dishes is free. Ideas with Claude searches the web for new dishes for breakfast, lunch and dinner, about ₹3 each time. Both are split into veg and non-veg.</p>'+
+   '<p class="hint">Ideas from my dishes is free. Ideas with Claude suggests new dishes for breakfast, lunch and dinner, '+(AI.web?'about ₹3 each time with web search on':'about 10 paise each time')+'. Both are split into veg and non-veg.</p>'+
    '<label class="field"><span>For Claude, anything in mind? (optional)</span><input type="text" id="wish" placeholder="e.g. prawn dishes, quick weekday dinners" value="'+esc(lastWish)+'"></label>'+
    '<div id="ideaList">'+ideaListHtml()+'</div></section>';
 }
@@ -876,7 +923,7 @@ function toMenuSheet(id,m){
   const d=dish(id);if(!d)return;
   const ms=m?[m]:mealsOf(d);sheetCtx={id};
   openSheet('<h2>'+esc(d.name)+'</h2>'+dishInfo(d).replace(/^<h2>.*?<\/h2>/,"")+'<p class="hint">Pick the day. The dish is added to that meal, and the Bazaar and Cook lists update for approved days.</p>'+
-   [0,1,2,3,4,5,6].map(i=>'<div class="lib"><span>'+label(i)+(S.ok[i]?' <span class="pill veg">Approved</span>':'')+'</span><div class="chips">'+ms.map(mm=>'<button class="tog" data-act="placeIt" data-i="'+i+'" data-m="'+mm+'">'+MEALNAME[mm]+'</button>').join("")+'</div></div>').join("")+
+   [0,1,2,3,4,5,6].map(i=>'<div class="lib"><span>'+label(i)+'</span><div class="chips">'+ms.map(mm=>'<button class="tog" data-act="placeIt" data-i="'+i+'" data-m="'+mm+'">'+MEALNAME[mm]+'</button>').join("")+'</div></div>').join("")+
    '<div class="row" style="margin-top:10px"><button class="btn plain" data-act="close">Cancel</button></div>');
 }
 async function showIdeas(){
@@ -916,7 +963,7 @@ async function askClaude(opts){
     let r,j;
     try{
       r=await fetch(AI.url.replace(/\/+$/,""),{method:"POST",headers:{"Content-Type":"application/json","x-rannaghar-token":AI.token},
-        body:JSON.stringify({have,meal:opts.meal,veg:opts.veg,count:opts.count,wish:[opts.wish,opts.meal!=="any"?"All for "+opts.meal+".":"",opts.veg==="veg"?"Vegetarian only.":opts.veg==="non"?"Non-vegetarian only.":"Half veg, half non-veg.","For each dish add a field meal: breakfast, lunch or dinner."].filter(Boolean).join(" ")})});
+        body:JSON.stringify({have,search:!!AI.web,meal:opts.meal,veg:opts.veg,count:opts.count,wish:[opts.wish,opts.meal!=="any"?"All for "+opts.meal+".":"",opts.veg==="veg"?"Vegetarian only.":opts.veg==="non"?"Non-vegetarian only.":"Half veg, half non-veg.","For each dish add a field meal: breakfast, lunch or dinner."].filter(Boolean).join(" ")})});
     }catch(e){return {error:"Could not reach your Worker. Check the Worker link in the Settings tab, and that you are online."};}
     j=await r.json().catch(()=>({}));
     if(r.status===401)return {error:"The passcode in Settings does not match APP_TOKEN on your Worker."};
@@ -924,8 +971,8 @@ async function askClaude(opts){
     if(j.usd){const k=monthKey();AI.spend[k]=(AI.spend[k]||0)+j.usd;saveAI();}
     let list=Array.isArray(j.dishes)&&j.dishes.length?j.dishes:findDishes(j.text);
     const ids=addIdeas(list,forceMeal);
-    if(!ids.length)return {error:"Claude answered but no dishes could be read"+(j.version?"":". Your Worker is the old version: paste the new worker code from GitHub into Cloudflare and deploy")+"."+(j.text?" Claude said: "+String(j.text).slice(0,160):""),usd:j.usd};
-    save();return {ids,usd:j.usd||0,searched:j.searched};
+    if(!ids.length)return {error:"Claude answered but no dishes could be read"+(j.version>=3?"":". Your Worker is the old version: paste the new worker code from GitHub into Cloudflare and deploy")+"."+(j.text?" Claude said: "+String(j.text).slice(0,160):""),usd:j.usd};
+    save();return {ids,usd:j.usd||0,searched:j.searched,old:!(j.version>=3)};
   }
   if(sampleFn){
     const prompt="Suggest "+opts.count+" home-style low-oil dishes for a Bengali family in Kolkata, not in this list: "+have.join("; ")+". "+(opts.wish||"")+
@@ -936,11 +983,11 @@ async function askClaude(opts){
   }
   return {error:"Claude is not connected. Open the Settings tab, paste your Worker link and passcode, and tap Save connection."};
 }
-function costLine(r){return r.usd?" Cost about ₹"+(r.usd*90).toFixed(2)+".":"";}
+function costLine(r){return r.usd?" Cost about ₹"+(r.usd*90).toFixed(2)+"."+(r.old?" Your Worker is the old, costly version: update it from GitHub to make this about 10 paise.":""):"";}
 async function ideas(btn){
   const wEl=$("wish");lastWish=wEl?wEl.value.trim():"";
-  btn.disabled=true;btn.textContent="Asking Claude…";setStatus("ideasMsg","Claude is searching the web. This can take up to a minute.",false);
-  const r=await askClaude({meal:"any",veg:ideaSide,count:ideaSide==="both"?9:6,wish:lastWish});
+  btn.disabled=true;btn.textContent="Asking Claude…";setStatus("ideasMsg","Asking Claude. This can take up to a minute.",false);
+  const r=await askClaude({meal:"any",veg:ideaSide,count:6,wish:lastWish});
   btn.disabled=false;btn.textContent="Ideas with Claude";
   if(r.error){setStatus("ideasMsg",r.error,true);return;}
   webG=groupIds(r.ids);ideaStatus=r.ids.length+" ideas from Claude, saved to your dishes."+costLine(r);render();
@@ -971,17 +1018,21 @@ document.addEventListener("click",e=>{
   const a=b.dataset.act,i=+b.dataset.i;
   if(a==="close")closeSheet();
   else if(a==="ppl"){S.people=Math.min(10,Math.max(1,S.people+(+b.dataset.n)));save();render();}
-  else if(a==="tg"){const k=b.dataset.key,wd=+b.dataset.wd;S[k]=S[k].includes(wd)?S[k].filter(x=>x!==wd):S[k].concat(wd);save();b.setAttribute("aria-pressed",String(S[k].includes(wd)));}
+  else if(a==="tg"){const k=b.dataset.key,wd=+b.dataset.wd;S[k]=S[k].includes(wd)?S[k].filter(x=>x!==wd):S[k].concat(wd);if(k==="cookDays")S.okv={};save();b.setAttribute("aria-pressed",String(S[k].includes(wd)));}
   else if(a==="shuf")twoTap(b,()=>{genWeek();save();render();});
   else if(a==="next")twoTap(b,()=>{S.last=[].concat(...S.plan.map(d=>d.b.concat(d.l,d.d)));S.weekStart=iso(addDays(fromIso(S.weekStart),7));genWeek();save();render();});
-  else if(a==="day"){regenDay(i);save();render();}
+  else if(a==="shufV"){regenVisit(b.dataset.id);save();render();}
+  else if(a==="okV"){const id=b.dataset.id;if(S.okv[id])delete S.okv[id];else S.okv[id]=true;save();render();}
+  else if(a==="shopV"){shopV=b.dataset.id;render();}
+  else if(a==="ctime"){S.cookTime=b.dataset.k;S.okv={};save();render();}
+  else if(a==="aiWeb"){AI.web=!AI.web;saveAI();render();}
   else if(a==="chip")chipSheet(i,b.dataset.m,+b.dataset.k);
   else if(a==="add")addSheet(i,b.dataset.m);
   else if(a==="rm"&&sheetCtx){S.plan[sheetCtx.i][sheetCtx.m].splice(sheetCtx.k,1);save();closeSheet();render();}
   else if(a==="swap"&&sheetCtx){S.plan[sheetCtx.i][sheetCtx.m][sheetCtx.k]=b.dataset.id;save();closeSheet();render();}
   else if(a==="addpick"&&sheetCtx){S.plan[sheetCtx.i][sheetCtx.m].push(b.dataset.id);save();closeSheet();render();}
-  else if(a==="cd"){cookDay=i;render();}
-  else if(a==="copy"){const w=b.dataset.what;copy(w==="menu"?menuText():w==="cookday"?cookText(cookDay):w==="cookweek"?weekText():w==="bazaar"?bazaarText():onlineText(),b);}
+  else if(a==="cd"){cookV=b.dataset.id;render();}
+  else if(a==="copy"){const w=b.dataset.what;copy(w==="menu"?menuText():w==="cookday"?cookText(visitById(cookV)||okVisits()[0]):w==="cookweek"?weekText():w==="bazaar"?bazaarText():onlineText(),b);}
   else if(a==="off"){const id=b.dataset.id;S.off=S.off.includes(id)?S.off.filter(x=>x!==id):S.off.concat(id);save();render();}
   else if(a==="view")viewSheet(b.dataset.id);
   else if(a==="new")editSheet(null);
@@ -997,24 +1048,23 @@ document.addEventListener("click",e=>{
   else if(a==="deldish"&&sheetCtx){const id=sheetCtx.edit;S.mine=S.mine.filter(x=>x.id!==id);S.plan.forEach(d=>["b","l","d"].forEach(m=>{d[m]=d[m].filter(x=>x!==id);}));save();closeSheet();render();}
   else if(a==="ideas")ideas(b);
   else if(a==="side"){ideaSide=b.dataset.k;if(freeG)freePick();render();}
-  else if(a==="okDay"){S.ok[i]=!S.ok[i];save();render();}
-  else if(a==="okAll"){S.ok=[true,true,true,true,true,true,true];save();render();}
-  else if(a==="okNone"){S.ok=[false,false,false,false,false,false,false];save();render();}
+  else if(a==="okAll"){S.okv={};visits().forEach(v=>{S.okv[v.id]=true;});save();render();}
+  else if(a==="okNone"){S.okv={};save();render();}
   else if(a==="slotIdeas")slotSheet(i,b.dataset.m);
   else if(a==="slotMore"&&sheetCtx)openSlot();
   else if(a==="slotAdd"&&sheetCtx&&sheetCtx.slot){S.plan[sheetCtx.i][sheetCtx.m].push(b.dataset.id);save();const ctx=sheetCtx;render();sheetCtx=ctx;b.textContent="Added";b.disabled=true;}
   else if(a==="view2"){const d=dish(b.dataset.id);if(d){const el=$("slotMsg");if(el){el.hidden=false;el.classList.remove("err");el.textContent=d.name+": "+(d.note||"")+(useLine(d)?" Uses: "+useLine(d):"");}}}
   else if(a==="slotClaude"&&sheetCtx&&sheetCtx.slot){
-    const ctx=sheetCtx;b.disabled=true;b.textContent="Asking Claude…";setStatus("slotMsg","Claude is searching the web. This can take up to a minute.",false);
-    askClaude({meal:MEALKEY[ctx.m],veg:"both",count:6,wish:""}).then(r=>{
+    const ctx=sheetCtx;b.disabled=true;b.textContent="Asking Claude…";setStatus("slotMsg","Asking Claude. This can take up to a minute.",false);
+    askClaude({meal:MEALKEY[ctx.m],veg:"both",count:4,wish:""}).then(r=>{
       if(sheetCtx!==ctx)return;
       if(r.error){b.disabled=false;b.textContent="Ask Claude again";setStatus("slotMsg",r.error,true);return;}
       slotWeb=r.ids;openSlot();setStatus("slotMsg",r.ids.length+" ideas from Claude, shown at the top."+costLine(r),false);
     });}
   else if(a==="likeClaude"&&sheetCtx&&!sheetCtx.slot){
     const ctx=sheetCtx;const d=dish(S.plan[ctx.i][ctx.m][ctx.k]);if(!d)return;
-    b.disabled=true;b.textContent="Asking Claude…";setStatus("likeMsg","Claude is searching the web. This can take up to a minute.",false);
-    askClaude({meal:MEALKEY[ctx.m],veg:d.veg?"veg":"non",count:5,wish:"Dishes similar to "+d.name+" ("+TYPES[d.type]+")."}).then(r=>{
+    b.disabled=true;b.textContent="Asking Claude…";setStatus("likeMsg","Asking Claude. This can take up to a minute.",false);
+    askClaude({meal:MEALKEY[ctx.m],veg:d.veg?"veg":"non",count:4,wish:"Dishes similar to "+d.name+" ("+TYPES[d.type]+")."}).then(r=>{
       if(sheetCtx!==ctx)return;b.disabled=false;b.textContent="Ask Claude again";
       if(r.error){setStatus("likeMsg",r.error,true);return;}
       setStatus("likeMsg",r.ids.length+" ideas from Claude. Tap one to swap it in."+costLine(r),false);
@@ -1039,14 +1089,14 @@ document.addEventListener("click",e=>{
      .then(async r=>{const j=await r.json().catch(()=>({}));
        if(r.status===401)setStatus("testMsg","Reached the Worker, but the passcode does not match APP_TOKEN.",true);
        else if(!r.ok)setStatus("testMsg","The Worker answered with an error: "+(j.error||r.status),true);
-       else if(j.ok&&j.version>=2)setStatus("testMsg","All good. Worker version "+j.version+" is connected and the passcode matches.",false);
+       else if(j.ok&&j.version>=3)setStatus("testMsg","All good. Worker version "+j.version+" is connected and the passcode matches.",false);
        else setStatus("testMsg","Connected, but your Worker is the old version (this test may have cost about ₹1). Paste the new code from worker/rannaghar-worker.js on GitHub into Cloudflare and deploy.",true);})
      .catch(()=>setStatus("testMsg","Could not reach the Worker. Check the link: it should look like https://rannaghar.yourname.workers.dev",true));}
   else if(a==="aiClear"){AI.url="";AI.token="";saveAI();render();}
   else if(a==="aiSave"){AI.url=$("aiUrl").value.trim();AI.token=$("aiTok").value.trim();saveAI();setOpen=true;render();const st=$("aiState");if(st)st.textContent=aiReady()?"Connected. Ideas through web is ready on the Dishes tab.":"Add both the Worker link and the passcode.";}
   else if(a==="free"){freePick();ideaStatus="Ideas from your saved dishes, by meal. Tap again for others.";render();}
   else if(a==="toMenu")toMenuSheet(b.dataset.id,b.dataset.m);
-  else if(a==="placeIt"&&sheetCtx){const nm=(dish(sheetCtx.id)||{}).name||"Dish";S.plan[i][b.dataset.m].push(sheetCtx.id);save();closeSheet();ideaStatus=nm+" added to "+label(i)+" "+MEALNAME[b.dataset.m].toLowerCase()+"."+(S.ok[i]?" Bazaar and Cook lists updated.":" Approve that day on the Menu tab to add it to the lists.");render();}
+  else if(a==="placeIt"&&sheetCtx){const nm=(dish(sheetCtx.id)||{}).name||"Dish";S.plan[i][b.dataset.m].push(sheetCtx.id);save();closeSheet();ideaStatus=nm+" added to "+label(i)+" "+MEALNAME[b.dataset.m].toLowerCase()+"."+(slotOk(i,b.dataset.m)?" Bazaar and Cook lists updated.":" Approve that cook visit on the Menu tab to add it to the lists.");render();}
   else if(a==="backup"){try{const bl=new Blob([JSON.stringify(S,null,1)],{type:"application/json"});const u=URL.createObjectURL(bl);const l=document.createElement("a");l.href=u;l.download="rannaghar-backup-"+iso(new Date())+".json";document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);$("bkMsg").textContent="Backup saved to your Downloads.";}catch(err){textSheet(JSON.stringify(S));}}
 });
 document.addEventListener("change",e=>{
