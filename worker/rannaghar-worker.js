@@ -1,4 +1,4 @@
-// Rannaghar ideas worker (Cloudflare Workers), version 3
+// Rannaghar ideas worker (Cloudflare Workers), version 4
 // Holds your Anthropic API key so it never sits in the app or on GitHub.
 //
 // Secrets to set in Cloudflare (Settings > Variables and Secrets):
@@ -7,7 +7,7 @@
 // Optional plain variable:
 //   ALLOWED_ORIGIN     defaults to https://banerjeetara-tech.github.io
 
-const VERSION = 3;
+const VERSION = 4;
 const MODEL = "claude-haiku-5-5";
 // USD per million tokens for prompts under 100k tokens. Edit if Anthropic changes prices.
 const PRICE_IN = 0.10;
@@ -43,12 +43,25 @@ function findDishes(text) {
   }
   // Try each "[" from the end, so citation brackets earlier in the text do not break parsing.
   const end = text.lastIndexOf("]");
-  if (end < 0) return [];
+  if (end < 0) return salvage(text);
   for (let i = text.lastIndexOf("[", end); i >= 0; i = text.lastIndexOf("[", i - 1)) {
-    try { const v = JSON.parse(text.slice(i, end + 1)); if (Array.isArray(v) && v.length && typeof v[0] === "object") return v; } catch {}
+    try { const v = JSON.parse(text.slice(i, end + 1)); if (Array.isArray(v) && v.length && v[0] && v[0].name) return v; } catch {}
     if (i === 0) break;
   }
-  return [];
+  return salvage(text);
+}
+// Pull every complete {...} dish out of an answer that was cut off.
+function salvage(t) {
+  const out = []; let depth = 0, start = -1, inStr = false, esc = false;
+  const from = Math.max(0, t.search(/<dishes>|\[\s*\{/));
+  for (let i = from; i < t.length; i++) {
+    const c = t[i];
+    if (inStr) { if (esc) esc = false; else if (c === "\\") esc = true; else if (c === '"') inStr = false; continue; }
+    if (c === '"') { inStr = true; continue; }
+    if (c === "{") { if (depth === 0) start = i; depth++; }
+    else if (c === "}" && depth > 0) { depth--; if (depth === 0 && start >= 0) { try { const o = JSON.parse(t.slice(start, i + 1)); if (o && o.name) out.push(o); } catch {} start = -1; } }
+  }
+  return out;
 }
 
 export default {
@@ -99,7 +112,7 @@ export default {
       },
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: withSearch ? 4000 : 2500,
+        max_tokens: withSearch ? 5000 : 4000,
         messages: [{ role: "user", content: prompt }],
         ...(withSearch ? { tools: [{ type: "web_search_20250305", name: "web_search", max_uses: MAX_SEARCHES }] } : {}),
       }),
@@ -125,7 +138,7 @@ export default {
     return reply(env, 200, {
       dishes, usd, searched, searches, version: VERSION,
       stop: data.stop_reason,
-      text: dishes.length ? undefined : text.slice(0, 3000),
+      text: dishes.length ? undefined : text.slice(0, 12000),
     });
   },
 };

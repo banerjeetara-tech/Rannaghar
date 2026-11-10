@@ -941,6 +941,54 @@ function toMenuSheet(id,m){
 async function showIdeas(){
   try{if(sampleFn===null){sampleFn=(window.claude&&window.claude.use)?(await window.claude.use("sample"))||false:false;}}catch(e){sampleFn=false;}
 }
+function salvage(text){
+  /* pull out every complete {...} object, even if the list was cut off */
+  const out=[];let depth=0,start=-1,inStr=false,esc2=false;
+  const t=String(text||"");const from=Math.max(0,t.search(/<dishes>|\[\s*\{/));
+  for(let i=from;i<t.length;i++){const c=t[i];
+    if(inStr){if(esc2)esc2=false;else if(c==="\\")esc2=true;else if(c==='"')inStr=false;continue;}
+    if(c==='"'){inStr=true;continue;}
+    if(c==="{"){if(depth===0)start=i;depth++;}
+    else if(c==="}"&&depth>0){depth--;if(depth===0&&start>=0){try{const o=JSON.parse(t.slice(start,i+1));if(o&&o.name)out.push(o);}catch(e){}start=-1;}}
+  }
+  return out;
+}
+const TYPEMAP={breakfast:"bf",bf:"bf",dal:"dal",lentil:"dal",lentils:"dal",side:"side",veg:"side",vegetable:"side",sabzi:"side",fish:"fish",prawn:"fish",seafood:"fish",chicken:"chicken",egg:"egg",eggs:"egg",mutton:"mutton",goat:"mutton",lamb:"mutton",vegmain:"vegmain",paneer:"vegmain",cncarb:"cncarb",noodles:"cncarb",rice:"cncarb",cnmain:"cnmain",chinese:"cnmain",soup:"cnmain"};
+function normType(o){
+  const raw=String(o.type||"").toLowerCase();
+  if(TYPES[raw]&&raw!=="staple")return raw;
+  for(const k in TYPEMAP)if(raw.includes(k))return TYPEMAP[k];
+  const meal=String(o.meal||"").toLowerCase();if(meal==="breakfast")return "bf";
+  const txt=(String(o.name||"")+" "+JSON.stringify(o.ing||o.ingredients||"")).toLowerCase();
+  if(/chingri|prawn|fish|maach|mach|ilish|rui|katla|bhetki|pabda|pomfret/.test(txt))return "fish";
+  if(/chicken|murgi/.test(txt))return "chicken";
+  if(/mutton|pathar|keema/.test(txt))return "mutton";
+  if(/\begg|dim\b|dimer/.test(txt))return "egg";
+  if(/dal\b|daal/.test(txt))return "dal";
+  return o.veg===false?"fish":"side";
+}
+let WHEREMAP=null;
+function guessWhere(n){
+  if(!WHEREMAP){WHEREMAP={};BUILTIN.forEach(d=>d.ing.forEach(x=>{WHEREMAP[ingKey(x.n)]=x.c;}));}
+  const k=ingKey(n);if(WHEREMAP[k])return WHEREMAP[k];
+  for(const key in WHEREMAP)if(key.length>3&&(k.includes(key)||key.includes(k)))return WHEREMAP[key];
+  if(/fish|prawn|chingri|chicken|mutton|maach|keema/i.test(n))return "F";
+  if(/\begg/i.test(n))return "E";
+  if(/dal|rice|flour|atta|oil|sauce|powder|seeds|masala|paneer|curd|milk|noodle|besan|suji|poha|chire/i.test(n))return "G";
+  return "V";
+}
+function normIng(list){
+  return (Array.isArray(list)?list:[]).map(x=>{
+    if(typeof x==="string")return {n:x.slice(0,40),q:0,u:"g",c:"G"};
+    if(!x)return null;
+    const n=String(x.n||x.name||x.item||"").slice(0,40);if(!n)return null;
+    let q=x.q!=null?x.q:x.qty!=null?x.qty:x.quantity;let u=x.u||x.unit||"";
+    if(typeof q==="string"){const m=q.match(/([\d.]+)\s*([a-z]*)/i);if(m){q=+m[1];if(!u)u=m[2];}else q=0;}
+    u=String(u).toLowerCase();u=/^(g|gm|gram|grams)$/.test(u)?"g":/^(kg)$/.test(u)?(q=(+q||0)*1000,"g"):/^(ml)$/.test(u)?"ml":/^(l|litre|liter)$/.test(u)?(q=(+q||0)*1000,"ml"):/bunch/.test(u)?"bunch":/pack/.test(u)?"pack":/^(pc|pcs|piece|pieces|no|nos|)$/.test(u)?"pc":"g";
+    const c=String(x.c||x.where||"").toUpperCase();
+    return {n,q:+q||0,u,c:WHERE[c]?c:guessWhere(n)};
+  }).filter(Boolean).slice(0,10);
+}
 function findDishes(text){
   text=String(text||"");const tries=[];
   const tag=text.match(/<dishes>([\s\S]*?)<\/dishes>/i);if(tag)tries.push(tag[1]);
@@ -948,7 +996,7 @@ function findDishes(text){
   for(const t of tries){try{const v=JSON.parse(t.trim());if(Array.isArray(v))return v;}catch(e){}}
   const end=text.lastIndexOf("]");if(end<0)return [];
   for(let i=text.lastIndexOf("[",end);i>=0;i=text.lastIndexOf("[",i-1)){
-    try{const v=JSON.parse(text.slice(i,end+1));if(Array.isArray(v)&&v.length&&typeof v[0]==="object")return v;}catch(e){}
+    try{const v=JSON.parse(text.slice(i,end+1));if(Array.isArray(v)&&v.length&&v[0]&&v[0].name)return v;}catch(e){}
     if(i===0)break;
   }
   return [];
@@ -956,12 +1004,14 @@ function findDishes(text){
 function addIdeas(out,forceMeal){
   const ids=[];
   (Array.isArray(out)?out:[]).forEach((o,n)=>{
-    if(!o||typeof o.name!=="string"||!TYPES[o.type]||o.type==="staple")return;
+    if(!o||typeof o.name!=="string"||!o.name.trim())return;
+    o.type=normType(o);
+    if(typeof o.veg!=="boolean")o.veg=!["fish","chicken","egg","mutton"].includes(o.type);
     const old=allDishes().find(d=>d.name.toLowerCase()===o.name.toLowerCase());
     if(old){ids.push(old.id);return;}
-    const ing=(Array.isArray(o.ing)?o.ing:[]).filter(x=>x&&typeof x.n==="string").slice(0,10).map(x=>({n:x.n.slice(0,40),q:+x.q||0,u:["g","ml","pc","bunch","pack"].includes(x.u)?x.u:"g",c:WHERE[x.c]?x.c:"G"}));
+    const ing=normIng(o.ing||o.ingredients);
     const mm=forceMeal||{breakfast:"b",lunch:"l",dinner:"d"}[String(o.meal||"").toLowerCase()]||"";
-    const d={id:"u"+Date.now().toString(36)+n,name:o.name.slice(0,60),type:o.type,veg:!!o.veg,ing,note:String(o.note||"").slice(0,300),mine:true,ai:true};
+    const d={id:"u"+Date.now().toString(36)+n,name:o.name.trim().slice(0,60),type:o.type,veg:!!o.veg,ing,note:String(o.note||o.instructions||o.tip||"").slice(0,300),mine:true,ai:true};
     if(mm)d.meal=mm;if(o.type==="bf")d.meal="b";
     S.mine.push(d);ids.push(d.id);
   });
@@ -981,9 +1031,14 @@ async function askClaude(opts){
     if(r.status===401)return {error:"The passcode in Settings does not match APP_TOKEN on your Worker."};
     if(!r.ok)return {error:(j.error||"The Worker answered with error "+r.status)+"."};
     if(j.usd){const k=monthKey();AI.spend[k]=(AI.spend[k]||0)+j.usd;saveAI();}
-    let list=Array.isArray(j.dishes)&&j.dishes.length?j.dishes:findDishes(j.text);
+    let list=Array.isArray(j.dishes)?j.dishes.filter(o=>o&&o.name):[];
+    if(!list.length)list=findDishes(j.text);
+    if(!list.length&&j.text)list=salvage(j.text);
     const ids=addIdeas(list,forceMeal);
-    if(!ids.length)return {error:"Claude answered but no dishes could be read"+(j.version>=3?"":". Your Worker is the old version: paste the new worker code from GitHub into Cloudflare and deploy")+"."+(j.text?" Claude said: "+String(j.text).slice(0,160):""),usd:j.usd};
+    if(!ids.length){
+      const why=j.stop==="max_tokens"?" Claude's answer was cut off.":list.length?" Claude sent "+list.length+" items in an unexpected shape.":"";
+      return {error:"Claude answered but no dishes could be read."+why+(j.version>=4?"":" Your Worker is an old version: update it from GitHub.")+(j.text?" Claude said: "+String(j.text).replace(/\s+/g," ").slice(0,200):"")+" Please try once more.",usd:j.usd};
+    }
     save();return {ids,usd:j.usd||0,searched:j.searched,old:!(j.version>=3)};
   }
   if(sampleFn){
@@ -1117,8 +1172,8 @@ document.addEventListener("click",e=>{
      .then(async r=>{const j=await r.json().catch(()=>({}));
        if(r.status===401)setStatus("testMsg","Reached the Worker, but the passcode does not match APP_TOKEN.",true);
        else if(!r.ok)setStatus("testMsg","The Worker answered with an error: "+(j.error||r.status),true);
-       else if(j.ok&&j.version>=3)setStatus("testMsg","All good. Worker version "+j.version+" is connected and the passcode matches.",false);
-       else setStatus("testMsg","Connected, but your Worker is the old version (this test may have cost about ₹1). Paste the new code from worker/rannaghar-worker.js on GitHub into Cloudflare and deploy.",true);})
+       else if(j.ok&&j.version>=4)setStatus("testMsg","All good. Worker version "+j.version+" is connected and the passcode matches.",false);
+       else setStatus("testMsg","Connected, but your Worker is an old version. Paste the new code from worker/rannaghar-worker.js on GitHub into Cloudflare and deploy.",true);})
      .catch(()=>setStatus("testMsg","Could not reach the Worker. Check the link: it should look like https://rannaghar.yourname.workers.dev",true));}
   else if(a==="aiClear"){AI.url="";AI.token="";saveAI();render();}
   else if(a==="aiSave"){AI.url=$("aiUrl").value.trim();AI.token=$("aiTok").value.trim();saveAI();setOpen=true;render();const st=$("aiState");if(st)st.textContent=aiReady()?"Connected. Ideas through web is ready on the Dishes tab.":"Add both the Worker link and the passcode.";}
