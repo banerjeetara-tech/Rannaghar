@@ -113,7 +113,8 @@ input[type=text],input[type=date],input[type=number],input[type=search],select,t
   <nav>
     <button data-tab="week">Menu</button>
     <button data-tab="cook">Cook</button>
-    <button data-tab="shop">Shopping</button>
+    <button data-tab="shop">Shop</button>
+    <button data-tab="ideas">Ideas</button>
     <button data-tab="dishes">Dishes</button>
     <button data-tab="settings">Settings</button>
   </nav>
@@ -385,6 +386,20 @@ const RAW2 = [
 ["st5","Phulka with multigrain atta","staple",1,"Multigrain atta:300g:G","Phulka on open flame. No ghee."],
 ["st6","Ruti and rice both","staple",1,"Rice:250g:G;Atta:200g:G","Half rice, half ruti for those who prefer."]
 ];
+const READY = [
+ {id:"r1",name:"Classic Bengali week",about:"Everyday Bengali home food: macher jhol, shorshe, posto, shukto and khichuri.",
+  ids:"bf1 bf2 bf8 bf19 bf26 bf11 d1 d2 d3 d5 d10 d11 d12 d4 s1 s2 s3 s4 s5 s13 s14 s19 s20 s26 s38 s39 s41 s9 f1 f2 f3 f4 f6 f7 f13 f14 f18 f19 f21 f15 c2 c3 c6 c17 m1 m3 e1 e5 v2 v3 v8 v12 n1 n2 x1 x2 x14"},
+ {id:"r2",name:"Light and healthy",about:"Steamed, grilled and stewed dishes, lots of greens, the least oil.",
+  ids:"bf3 bf6 bf7 bf9 bf16 bf17 bf18 bf21 bf25 d1 d2 d5 d7 d13 d14 d16 s3 s5 s10 s12 s23 s24 s31 s32 s34 s43 s44 f3 f9 f14 f18 f24 f25 f28 c1 c4 c15 c16 c24 c25 e4 e9 m2 m6 v10 v18 v21 v24 n10 n4 x8 x11 x13 x14 x15 x17"},
+ {id:"r3",name:"Fish lover's week",about:"Fish at almost every meal: rui, katla, bhetki, pabda, chingri, pomfret and more.",
+  ids:"bf1 bf4 bf10 bf15 bf8 d1 d2 d4 d12 d13 s1 s2 s3 s5 s10 s13 s14 s28 s41 f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f13 f14 f15 f16 f18 f19 f21 f22 f23 f24 f25 f26 f27 f28 f29 f30 f31 f32 f33 f34 f35 c2 c4 e1 v3 v12 n6 n2 x3 x7 x17"},
+ {id:"r4",name:"Winter specials",about:"November to February: phulkopi, koraishuti, palong, methi, carrots and hearty curries.",
+  ids:"bf11 bf26 bf22 bf6 bf28 d3 d8 d10 d17 d16 s5 s6 s7 s24 s25 s33 s34 s43 s46 s47 s4 f6 f8 f15 f3 f26 f2 c7 c11 c14 c22 c23 c10 m1 m3 m8 m7 e3 e6 v9 v12 v18 v22 v13 n1 n5 x5 x14 x16"},
+ {id:"r5",name:"Quick weekday",about:"Dishes that take about half an hour, for busy days.",
+  ids:"bf4 bf5 bf8 bf10 bf15 bf18 bf32 d1 d4 d13 d8 s5 s10 s12 s21 s23 s41 s44 s36 f9 f19 f25 f30 f10 c4 c13 c24 c5 e2 e7 e9 e11 v1 v17 v9 n2 n3 n7 n11 x10 x12 x4"},
+ {id:"r6",name:"Summer cooling",about:"For hot months: lau, jhinge, tok dal, curd and light jhol.",
+  ids:"bf8 bf32 bf16 bf19 bf21 d4 d5 d13 d18 d14 s3 s13 s15 s35 s37 s41 s42 s45 s26 f1 f12 f19 f4 f11 f17 c25 c4 c2 m4 e1 e5 v3 v15 v24 n4 n10 x13"}
+].map(r=>Object.assign(r,{ids:r.ids.split(" "),ready:true}));
 const TYPES = {bf:"Breakfast",dal:"Dal",side:"Vegetable side",fish:"Fish",chicken:"Chicken",egg:"Egg",mutton:"Mutton",vegmain:"Veg main",cncarb:"Chinese rice or noodles",cnmain:"Chinese side",staple:"Rice and ruti"};
 const WHERE = {F:"Fish and meat",E:"Eggs",V:"Vegetables and fruit",G:"Grocery",P:"Pantry"};
 const PANTRY = ["Mustard oil","Refined oil","Salt","Sugar","Turmeric","Cumin","Coriander powder","Red chilli powder","Garam masala","Ginger","Garlic","Green chilli"];
@@ -420,31 +435,51 @@ function pick(type,vegOnly,used){
   let pool=allDishes().filter(d=>d.type===type&&!NOAUTO.includes(d.id)&&!S.off.includes(d.id)&&(!vegOnly||d.veg));
   if(!pool.length)pool=allDishes().filter(d=>d.type===type&&(!vegOnly||d.veg));
   if(!pool.length)return null;
+  const L=activeList();
+  if(L){const inL=pool.filter(d=>L.ids.includes(d.id));if(inL.length)pool=inL;}
   const fresh=pool.filter(d=>!used.has(d.id));
   const pref=fresh.filter(d=>!S.last.includes(d.id));
   const from=pref.length?pref:(fresh.length?fresh:pool);
   const d=from[Math.floor(Math.random()*from.length)];
   used.add(d.id);return d.id;
 }
+function allLists(){return READY.concat(S.lists||[]);}
+function listById(id){return allLists().find(l=>l.id===id)||null;}
+function activeList(){return S.activeList?listById(S.activeList):null;}
+function listHas(type,veg){const L=activeList();return !L||L.ids.some(id=>{const d=dish(id);return d&&d.type===type&&(!veg||d.veg);});}
+function listShare(type){const L=activeList();if(!L)return 0;const ps=L.ids.map(dish).filter(d=>d&&["fish","chicken","egg","mutton"].includes(d.type));return ps.length?ps.filter(d=>d.type===type).length/ps.length:0;}
+function protein(pref){
+  if(listHas(pref))return pref;
+  const opts=["fish","chicken","egg","mutton"].filter(t=>listHas(t));
+  return opts.length?opts[Math.floor(Math.random()*opts.length)]:pref;
+}
 function genDay(i,used,lt,dt){
   const wd=dateOf(i).getDay(), veg=S.vegDays.includes(wd), cn=S.cnDays.includes(wd);
   const day={b:[],l:[],d:[]};
   const push=(arr,id)=>{if(id)arr.push(id);};
   push(day.b,pick("bf",veg,used));
-  let lType=veg?"vegmain":(wd===0?(Math.random()<.6?"mutton":"chicken"):lt);
+  let lType=veg?"vegmain":protein(wd===0?(Math.random()<.6?"mutton":"chicken"):lt);
   day.l.push("st1");push(day.l,pick("dal",true,used));push(day.l,pick("side",true,used));push(day.l,pick(lType,veg,used));
   if(cn){push(day.d,pick("cncarb",veg,used));push(day.d,pick("cnmain",veg,used));}
   else{
-    let dType=veg?"vegmain":dt;
-    if(!veg&&dType===lType)dType=["chicken","egg","fish"].filter(t=>t!==lType)[Math.floor(Math.random()*2)];
+    let dType=veg?"vegmain":protein(dt);
+    if(!veg&&dType===lType&&listShare(lType)<0.6){const o=["chicken","egg","fish","mutton"].filter(t=>t!==lType&&listHas(t));if(o.length)dType=o[Math.floor(Math.random()*o.length)];}
     day.d.push("st2");push(day.d,pick(dType,veg,used));
   }
   return day;
 }
 function genWeek(){
   const used=new Set();
-  const lb=shuffle(["fish","fish","fish","fish","chicken","egg","fish"]);
-  const db=shuffle(["chicken","chicken","chicken","egg","egg","fish","chicken"]);
+  let lb=shuffle(["fish","fish","fish","fish","chicken","egg","fish"]);
+  let db=shuffle(["chicken","chicken","chicken","egg","egg","fish","chicken"]);
+  const L=activeList();
+  if(L){
+    const w={};L.ids.forEach(id=>{const d=dish(id);if(d&&["fish","chicken","egg","mutton"].includes(d.type))w[d.type]=(w[d.type]||0)+1;});
+    const ks=Object.keys(w);
+    if(ks.length){const tot=ks.reduce((x,k)=>x+w[k],0);
+      const draw=()=>{let r=Math.random()*tot;for(const k of ks){r-=w[k];if(r<0)return k;}return ks[0];};
+      lb=[0,1,2,3,4,5,6].map(draw);db=[0,1,2,3,4,5,6].map(draw);}
+  }
   S.plan=[];for(let i=0;i<7;i++)S.plan.push(genDay(i,used,lb[i],db[i]));
   S.ck={};
 }
@@ -454,19 +489,19 @@ function regenDay(i){
   S.plan[i]=genDay(i,used,lt,dt);
 }
 function fresh(){
-  S={v:1,ts:1,people:4,vegDays:[4],cnDays:[6],weekStart:defaultStart(),plan:[],last:[],off:[],mine:[],ck:{}};
+  S={v:1,ts:1,people:4,vegDays:[4],cnDays:[6],weekStart:defaultStart(),plan:[],last:[],off:[],mine:[],ck:{},lists:[],activeList:""};
   genWeek();
 }
 function normalize(o){
-  const d={v:1,ts:0,people:4,vegDays:[4],cnDays:[6],weekStart:defaultStart(),plan:[],last:[],off:[],mine:[],ck:{}};
+  const d={v:1,ts:0,people:4,vegDays:[4],cnDays:[6],weekStart:defaultStart(),plan:[],last:[],off:[],mine:[],ck:{},lists:[],activeList:""};
   const s=Object.assign(d,o||{});
-  ["vegDays","cnDays","last","off","mine","plan"].forEach(k=>{if(!Array.isArray(s[k]))s[k]=d[k];});
+  ["vegDays","cnDays","last","off","mine","plan","lists"].forEach(k=>{if(!Array.isArray(s[k]))s[k]=d[k];});
   if(!s.ck||typeof s.ck!=="object")s.ck={};
   return s;
 }
 function load(){
   try{const t=localStorage.getItem(KEY);if(t){S=normalize(JSON.parse(t));}}catch(e){}
-  if(!S||S.plan.length!==7){const keep=S;fresh();if(keep){S.mine=keep.mine;S.off=keep.off;}}
+  if(!S||S.plan.length!==7){const keep=S;fresh();if(keep){S.mine=keep.mine;S.off=keep.off;S.lists=keep.lists||[];}}
   try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}
 }
 function save(){
@@ -565,7 +600,7 @@ function render(){
   $("weekLabel").textContent="Week of "+label(0)+", for "+S.people+" people";
   document.querySelectorAll("nav button").forEach(b=>b.setAttribute("aria-current",String(b.dataset.tab===tab)));
   const m=$("main");const top=m.scrollTop;const de=$("set");if(de)setOpen=de.open;
-  m.innerHTML={week:vWeek,cook:vCook,shop:vShop,dishes:vDishes,settings:vSettings}[tab]();
+  m.innerHTML={week:vWeek,cook:vCook,shop:vShop,ideas:vIdeas,dishes:vDishes,settings:vSettings}[tab]();
   m.scrollTop=top;
 }
 function dayToggles(key){
@@ -589,7 +624,9 @@ function vSettings(){
 }
 function vWeek(){
   const today=iso(new Date());
-  let h='<div class="row"><button class="btn" data-act="next">Plan next week</button><button class="btn ghost" data-act="shuf">Shuffle this week</button></div>';
+  const A=activeList();
+  let h='<div class="row"><button class="btn" data-act="next">Plan next week</button><button class="btn ghost" data-act="shuf">Shuffle this week</button></div>'+
+   '<p class="hint">Shuffle follows: <b>'+(A?esc(A.name):'all dishes')+'</b>. Change it in the Ideas tab.</p>';
   h+='<div class="row"><button class="btn plain small" data-act="copy" data-what="menu">Copy menu</button><a class="btn plain small" target="_blank" rel="noopener" href="'+esc(wa(menuText()))+'">Send menu on WhatsApp</a></div>';
   for(let i=0;i<7;i++){
     const d=dateOf(i),wd=d.getDay();
@@ -634,23 +671,46 @@ function vShop(){
      '<div class="row" style="margin-top:12px"><button class="btn" data-act="copy" data-what="online">Copy list</button><a class="btn ghost" target="_blank" rel="noopener" href="'+esc(wa(onlineText()))+'">Send on WhatsApp</a></div></section>';
   return h;
 }
-function vDishes(){
+function ideasCard(){
   const ai=aiReady()||!!sampleFn;
-  let h='<div class="row"><button class="btn" data-act="new">Add my dish</button></div>'+
-   '<section class="card"><h2>Ideas</h2>'+
+  return '<section class="card"><h2>Quick dish ideas</h2>'+
    '<label class="field"><span>Kind of dish</span><select id="ideaType"><option value="">Any lunch or dinner dish</option>'+Object.keys(TYPES).filter(t=>t!=="staple").map(t=>'<option value="'+t+'"'+(t===ideaType?" selected":"")+'>'+TYPES[t]+'</option>').join("")+'</select></label>'+
    '<div class="row" style="margin-top:10px"><button class="btn" data-act="free">Ideas</button><button class="btn ghost" id="ideasBtn" data-act="ideas">Ideas through web</button></div>'+
-   '<p class="hint">Ideas is free and picks from your saved dishes that are not on this week or last week. '+'Ideas through web asks Claude to search online for new dishes, about ₹3 each time.'+(ai?'':' It needs your Cloudflare Worker link and passcode, saved in the Settings tab.')+'</p>'+
-   ('<label class="field"><span>For the web search, anything in mind? (optional)</span><input type="text" id="wish" placeholder="e.g. prawn dishes, quick weekday dinners" value="'+esc(lastWish)+'"></label>')+
-   '<p class="hint" id="ideasMsg"></p><div id="ideaList">'+ideaListHtml()+'</div></section>'+
-   '<p class="hint">Tap a dish to see it. Switch one off and it stops appearing in the weekly shuffle.</p>';
+   '<p class="hint">Ideas is free and picks from your saved dishes that are not on this week or last week. Ideas through web asks Claude to search online for new dishes, about ₹3 each time.'+(ai?'':' It needs your Cloudflare Worker link and passcode, saved in the Settings tab.')+'</p>'+
+   '<label class="field"><span>For the web search, anything in mind? (optional)</span><input type="text" id="wish" placeholder="e.g. prawn dishes, quick weekday dinners" value="'+esc(lastWish)+'"></label>'+
+   '<p class="hint" id="ideasMsg"></p><div id="ideaList">'+ideaListHtml()+'</div></section>';
+}
+function listCard(L){
+  const on=S.activeList===L.id;
+  const n=L.ids.filter(id=>dish(id)).length;
+  return '<div class="card'+(on?" today":"")+'"><div class="row between"><h2>'+esc(L.name)+'</h2>'+(on?'<span class="pill veg">Next shuffle follows this</span>':'')+'</div>'+
+   (L.about?'<p class="note">'+esc(L.about)+'</p>':'')+'<p class="hint">'+n+' dishes</p>'+
+   '<div class="row">'+(on?'<button class="btn plain small" data-act="useList" data-id="">Stop following</button>':'<button class="btn small" data-act="useList" data-id="'+L.id+'">Follow next week</button>')+
+   '<button class="btn plain small" data-act="listNow" data-id="'+L.id+'">Shuffle this week with it</button>'+
+   '<button class="btn plain small" data-act="listView" data-id="'+L.id+'">'+(L.ready?'See dishes':'Edit')+'</button></div></div>';
+}
+function vIdeas(){
+  const A=activeList();
+  let h='<p class="hint">A list is a set of dishes. Choose one to follow and the next Shuffle and Plan next week pick only from it. Rice, ruti, and any kind of dish the list does not have still come from all dishes.</p>'+
+   '<div class="card"><h3 style="margin-top:0">Next week follows</h3><b>'+(A?esc(A.name):'All dishes (no list)')+'</b></div>';
+  h+='<h2>My lists</h2><div class="row"><button class="btn" data-act="listNew">Create a new list</button></div>';
+  (S.lists||[]).forEach(L=>{h+=listCard(L);});
+  if(!(S.lists||[]).length)h+='<p class="hint">You have no lists yet. Create one, or copy a ready-made list below and change it.</p>';
+  h+='<h2>Ready-made lists by Claude</h2>';
+  READY.forEach(L=>{h+=listCard(L);});
+  h+=ideasCard();
+  setTimeout(showIdeas,0);
+  return h;
+}
+function vDishes(){
+  let h='<div class="row"><button class="btn" data-act="new">Add my dish</button></div>'+
+   '<p class="hint">Tap a dish to see it. Switch one off and it stops appearing in the weekly shuffle. For new ideas, use the Ideas tab.</p>';
   Object.keys(TYPES).forEach(t=>{
     const ds=allDishes().filter(d=>d.type===t);if(!ds.length)return;
     h+='<section class="card"><h2>'+TYPES[t]+'</h2>'+ds.map(d=>{const off=S.off.includes(d.id);
       return '<div class="lib'+(off?" off":"")+'"><button class="nm" data-act="view" data-id="'+d.id+'">'+esc(d.name)+(d.mine?' <span class="pill tag">'+(d.ai?"new idea":"mine")+'</span>':'')+'</button>'+
       (t==="staple"?'':'<button class="tog" data-act="off" data-id="'+d.id+'" aria-pressed="'+(!off)+'">'+(off?"Off":"On")+'</button>')+'</div>';}).join("")+'</section>';
   });
-  setTimeout(showIdeas,0);
   return h;
 }
 
@@ -698,6 +758,33 @@ function editSheet(d){
    '<label class="field"><span>Note for the cook</span><textarea id="dnote" rows="3">'+esc(d.note)+'</textarea></label>'+
    '<p class="hint" id="editMsg"></p><div class="row" style="margin-top:8px"><button class="btn" data-act="savedish">Save dish</button>'+(sheetCtx.edit?'<button class="btn ghost" data-act="deldish">Delete</button>':'')+'<button class="btn plain" data-act="close">Cancel</button></div>');
 }
+let listDraft=null;
+function listSheet(L){
+  listDraft={id:L&&!L.ready?L.id:null,name:L?(L.ready?L.name+" (my copy)":L.name):"",ids:new Set(L?L.ids:[]),q:""};
+  openSheet('<h2>'+(listDraft.id?"Edit list":"New list")+'</h2>'+
+   '<label class="field"><span>List name</span><input type="text" id="lname" value="'+esc(listDraft.name)+'" placeholder="e.g. Durga Puja week"></label>'+
+   '<p class="hint" id="lcount"></p>'+
+   '<label class="field"><span>Find dishes</span><input type="search" id="lq" placeholder="Search by name or kind"></label>'+
+   '<div id="lrows">'+listRows()+'</div>'+
+   '<p class="hint" id="lmsg"></p><div class="row" style="margin-top:10px;position:sticky;bottom:0;background:var(--card);padding:8px 0"><button class="btn" data-act="listSave">Save list</button>'+(listDraft.id?'<button class="btn ghost" data-act="listDel">Delete</button>':'')+'<button class="btn plain" data-act="close">Cancel</button></div>');
+  countDraft();
+}
+function countDraft(){const c=$("lcount");if(c)c.textContent=listDraft.ids.size+" dishes ticked";}
+function listRows(){
+  const q=listDraft.q.toLowerCase();
+  return Object.keys(TYPES).filter(t=>t!=="staple").map(t=>{
+    const ds=allDishes().filter(d=>d.type===t&&(!q||d.name.toLowerCase().includes(q)||TYPES[t].toLowerCase().includes(q)));
+    if(!ds.length)return "";
+    return '<h3>'+TYPES[t]+'</h3>'+ds.map(d=>{const on=listDraft.ids.has(d.id);
+      return '<div class="item"><input type="checkbox" id="li_'+d.id+'" data-li="'+d.id+'"'+(on?" checked":"")+'><label for="li_'+d.id+'"><span>'+esc(d.name)+'</span>'+(d.veg?'<span class="pill veg">Veg</span>':'')+'</label></div>';}).join("");
+  }).join("");
+}
+function readyView(L){
+  sheetCtx={list:L.id};
+  const by={};L.ids.forEach(id=>{const d=dish(id);if(d)(by[d.type]=by[d.type]||[]).push(d.name);});
+  openSheet('<h2>'+esc(L.name)+'</h2><p class="note">'+esc(L.about||"")+'</p>'+Object.keys(TYPES).filter(t=>by[t]).map(t=>'<h3>'+TYPES[t]+'</h3><p>'+esc(by[t].join(", "))+'</p>').join("")+
+   '<div class="row" style="margin-top:10px"><button class="btn" data-act="listCopy" data-id="'+L.id+'">Make my copy to change</button><button class="btn plain" data-act="close">Close</button></div>');
+}
 function viewSheet(id){
   const d=dish(id);if(!d)return;
   openSheet(dishInfo(d)+'<div class="row" style="margin-top:10px">'+(d.mine?'<button class="btn" data-act="edit" data-id="'+d.id+'">Edit</button>':'')+'<button class="btn plain" data-act="close">Close</button></div>');
@@ -713,7 +800,7 @@ function copy(text,btn){
 let armed=null;
 function twoTap(btn,fn){
   if(armed===btn){armed=null;fn();return;}
-  armed=btn;const o=btn.textContent;btn.textContent="Tap again to replace the menu";
+  armed=btn;const o=btn.textContent;btn.textContent="Tap again to replace this week's menu";
   setTimeout(()=>{if(armed===btn){armed=null;if(btn.isConnected)btn.textContent=o;}},3000);
 }
 
@@ -738,7 +825,7 @@ function toMenuSheet(id){
 async function showIdeas(){
   try{
     if(sampleFn===null){sampleFn=(window.claude&&window.claude.use)?(await window.claude.use("sample"))||false:false;}
-    if(sampleFn&&!aiReady()&&tab==="dishes"&&!$("ideasBtn"))render();
+    /* button always visible */
   }catch(e){sampleFn=false;}
 }
 function addIdeas(out){
@@ -825,6 +912,18 @@ document.addEventListener("click",e=>{
   }
   else if(a==="deldish"&&sheetCtx){const id=sheetCtx.edit;S.mine=S.mine.filter(x=>x.id!==id);S.plan.forEach(d=>["b","l","d"].forEach(m=>{d[m]=d[m].filter(x=>x!==id);}));save();closeSheet();render();}
   else if(a==="ideas")ideas(b);
+  else if(a==="useList"){S.activeList=b.dataset.id;save();render();}
+  else if(a==="listNow"){const id=b.dataset.id;twoTap(b,()=>{S.activeList=id;genWeek();save();tab="week";render();});}
+  else if(a==="listView"){const L=listById(b.dataset.id);if(L){if(L.ready)readyView(L);else listSheet(L);}}
+  else if(a==="listCopy"){const L=listById(b.dataset.id);if(L)listSheet(L);}
+  else if(a==="listNew")listSheet(null);
+  else if(a==="listSave"&&listDraft){
+    const name=$("lname").value.trim();if(!name){$("lmsg").textContent="Give the list a name first.";return;}
+    if(!listDraft.ids.size){$("lmsg").textContent="Tick at least a few dishes.";return;}
+    const L={id:listDraft.id||"L"+Date.now().toString(36),name,ids:[...listDraft.ids]};
+    S.lists=S.lists||[];const at=S.lists.findIndex(x=>x.id===L.id);if(at>=0)S.lists[at]=L;else S.lists.push(L);
+    save();listDraft=null;closeSheet();render();}
+  else if(a==="listDel"&&listDraft){const id=listDraft.id;S.lists=S.lists.filter(x=>x.id!==id);if(S.activeList===id)S.activeList="";save();listDraft=null;closeSheet();render();}
   else if(a==="aiClear"){AI.url="";AI.token="";saveAI();render();}
   else if(a==="aiSave"){AI.url=$("aiUrl").value.trim();AI.token=$("aiTok").value.trim();saveAI();setOpen=true;render();const st=$("aiState");if(st)st.textContent=aiReady()?"Connected. Ideas through web is ready on the Dishes tab.":"Add both the Worker link and the passcode.";}
   else if(a==="free"){freePick();render();const m=$("ideasMsg");if(m)m.textContent=freeIdeas.length?"From your saved dishes. Tap Ideas again for others.":"No dishes of that kind are switched on.";}
@@ -834,7 +933,8 @@ document.addEventListener("click",e=>{
 });
 document.addEventListener("change",e=>{
   const t=e.target;
-  if(t.dataset&&t.dataset.ck){if(t.checked)S.ck[t.dataset.ck]=true;else delete S.ck[t.dataset.ck];save();render();}
+  if(t.dataset&&t.dataset.li&&listDraft){if(t.checked)listDraft.ids.add(t.dataset.li);else listDraft.ids.delete(t.dataset.li);countDraft();}
+  else if(t.dataset&&t.dataset.ck){if(t.checked)S.ck[t.dataset.ck]=true;else delete S.ck[t.dataset.ck];save();render();}
   else if(t.id==="restore"&&t.files&&t.files[0]){t.files[0].text().then(tx=>{const o=JSON.parse(tx);if(!Array.isArray(o.plan)||o.plan.length!==7)throw 0;S=normalize(o);save();render();setOpen=true;}).catch(()=>{const m=$("bkMsg");if(m)m.textContent="That file is not a Rannaghar backup.";});}
   else if(t.id==="ideaType"){ideaType=t.value;}
   else if(t.id==="aiUrl"||t.id==="aiTok"){AI.url=$("aiUrl").value.trim();AI.token=$("aiTok").value.trim();saveAI();}
@@ -842,6 +942,7 @@ document.addEventListener("change",e=>{
 });
 document.addEventListener("input",e=>{
   if(e.target.id==="q")$("pickList").innerHTML=pickList(e.target.value);
+  else if(e.target.id==="lq"&&listDraft){listDraft.q=e.target.value.trim();$("lrows").innerHTML=listRows();}
   else if(e.target.id==="swapQ"){const q=e.target.value.trim().toLowerCase();if(!q)return;
     $("swapList").innerHTML=allDishes().filter(x=>x.name.toLowerCase().includes(q)||TYPES[x.type].toLowerCase().includes(q)).slice(0,40).map(x=>'<button class="pick" data-act="swap" data-id="'+x.id+'">'+esc(x.name)+' <span class="pill tag">'+esc(TYPES[x.type])+'</span></button>').join("")||'<p class="hint">No dish matches. Add it from the Dishes tab.</p>';}
 });

@@ -6,9 +6,13 @@ Single HTML file with about 240 built-in dishes (Bengali, home-style Chinese, br
 
 Open the app in Chrome and choose **Add to Home screen**.
 
+## Menu lists (Ideas tab)
+
+A list is a set of dishes. Pick one to follow and the next **Shuffle** and **Plan next week** use only those dishes. Six ready-made lists are included: Classic Bengali week, Light and healthy, Fish lover's week, Winter specials, Quick weekday and Summer cooling. You can create your own lists, or copy a ready-made one and change it.
+
 ## New dish ideas (Claude API)
 
-On the Dishes tab, **Ideas** is free and picks from your saved dishes. **Ideas through web** asks Claude Haiku 5.5 to search the web for new dishes you don't have yet. Your API key stays in a Cloudflare Worker, never in the app or on GitHub. Each web request costs about ₹2-3.
+On the Ideas tab, **Ideas** is free and picks from your saved dishes. **Ideas through web** asks Claude Haiku 5.5 to search the web for new dishes you don't have yet. Your API key stays in a Cloudflare Worker, never in the app or on GitHub. Each web request costs about ₹2-3.
 
 1. **API key.** At console.anthropic.com, add a small credit, set a monthly spend limit, and create an API key.
 2. **Worker.** In the Cloudflare dashboard, go to Workers & Pages > Create > Create Worker. Name it `rannaghar`, deploy, then choose **Edit code**. Replace everything with the contents of `worker/rannaghar-worker.js` and deploy.
