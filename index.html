@@ -684,7 +684,7 @@ const READY = [
  {id:"r6",name:"Summer cooling",about:"For hot months: lau, jhinge, tok dal, curd and light jhol.",
   ids:"bf8 bf32 bf16 bf19 bf21 d4 d5 d13 d18 d14 s3 s13 s15 s35 s37 s41 s42 s45 s26 f1 f12 f19 f4 f11 f17 c25 c4 c2 m4 e1 e5 v3 v15 v24 n4 n10 x13"}
 ].map(r=>Object.assign(r,{ids:r.ids.split(" "),ready:true}));
-const TYPES = {bf:"Breakfast",dal:"Dal",side:"Vegetable side",fish:"Fish",chicken:"Chicken",egg:"Egg",mutton:"Mutton",vegmain:"Veg main",cncarb:"Chinese rice or noodles",cnmain:"Chinese side",staple:"Rice and ruti"};
+const TYPES = {bf:"Breakfast",dal:"Dal",side:"Vegetable side",fish:"Fish",chicken:"Chicken",egg:"Egg",mutton:"Mutton",vegmain:"Veg main",cncarb:"Chinese rice or noodles",cnmain:"Chinese side",staple:"Rice and ruti",snack:"Drinks, fruit and snacks",own:"My own items"};
 const WHERE = {F:"Fish and meat",E:"Eggs",V:"Vegetables and fruit",G:"Grocery",P:"Pantry"};
 const PANTRY = ["Mustard oil","Refined oil","Salt","Sugar","Turmeric","Cumin","Coriander powder","Red chilli powder","Garam masala","Ginger","Garlic","Green chilli"];
 const DAY = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
@@ -693,6 +693,82 @@ const MEALS = [["b","Breakfast"],["l","Lunch"],["d","Dinner"]];
 
 function parseIng(s){return s.split(";").filter(Boolean).map(p=>{const a=p.split(":");const m=/^([\d.]+)\s*(.*)$/.exec(a[1]||"");return {n:a[0],q:m?+m[1]:0,u:m?m[2]:"",c:a[2]||"G"};});}
 const BUILTIN = RAW.concat(RAW2).map(r=>({id:r[0],name:r[1],type:r[2],veg:!!r[3],ing:parseIng(r[4]),note:r[5]}));
+
+/* ---------- North Indian dishes ---------- */
+[
+["ni1","Rajma chawal","vegmain",1,"Rajma:200g:G;Rice:300g:G;Onion:2pc:V;Tomato:3pc:V","Soak rajma overnight, pressure cook 6 whistles till very soft. Onion, ginger garlic and tomato masala in 2 tsp oil, simmer the rajma 15 minutes and mash a few. Serve with plain rice."],
+["ni2","Chole with jeera rice","vegmain",1,"Kabuli chana:200g:G;Basmati rice:300g:G;Onion:2pc:V;Tomato:2pc:V","Soak chana overnight, pressure cook with a tea bag for colour. Chole masala with onion and tomato in 2 tsp oil, simmer 15 minutes. Jeera rice with 1 tsp ghee."],
+["ni3","Dal makhani, light","dal",1,"Whole urad:150g:G;Rajma:30g:G;Tomato:3pc:V;Milk:100ml:G","Soak overnight, pressure cook 8 whistles. Simmer with tomato puree and ginger garlic 30 minutes. Finish with milk and 1 tsp butter instead of cream."],
+["ni4","Kadhi with steamed pakori","dal",1,"Curd:400g:G;Besan:80g:G;Onion:1pc:V","Whisk curd and besan, simmer 20 minutes with turmeric. Steam small besan pakoris instead of frying and drop them in. Tempering of methi seeds and red chilli in 1 tsp ghee."],
+["ni5","Aloo gobi, Punjabi style","side",1,"Cauliflower:1pc:V;Potato:2pc:V;Tomato:1pc:V;Onion:1pc:V","Steam cauliflower 5 minutes. Cumin, onion and tomato in 2 tsp oil, add potato and cauliflower, cover and cook dry. Kasuri methi at the end."],
+["ni6","Sarson ka saag, light","side",1,"Sarson (mustard greens):2bunch:V;Spinach (palong):1bunch:V;Makki atta:30g:G","Boil greens with garlic and ginger, blend coarse with a little makki atta. Tempering of garlic and onion in 1 tsp ghee. Winter dish."],
+["ni7","Makki ki roti","staple",1,"Makki atta:300g:G","Knead with warm water, pat by hand and roast on a tawa. A little ghee only on top if wanted."],
+["ni8","Baingan bharta, Punjabi","side",1,"Brinjal (large):2pc:V;Onion:2pc:V;Tomato:2pc:V;Green peas:80g:V","Roast brinjal on flame and mash. Onion, garlic and tomato masala in 2 tsp oil, add peas and the mash, cook 5 minutes."],
+["ni9","Matar paneer, Punjabi","vegmain",1,"Paneer:250g:G;Green peas:200g:V;Onion:1pc:V;Tomato:3pc:V","Onion tomato masala in 2 tsp oil, add peas and water, then raw paneer cubes for the last 3 minutes. No frying."],
+["ni10","Palak paneer, Punjabi","vegmain",1,"Spinach (palong):3bunch:V;Paneer:250g:G;Onion:1pc:V;Tomato:1pc:V","Blanch spinach 2 minutes, blend. Onion, garlic and tomato in 2 tsp oil, add puree and raw paneer. A spoon of curd instead of cream."],
+["ni11","Shahi paneer, light","vegmain",1,"Paneer:300g:G;Onion:1pc:V;Cashew:20g:G;Curd:100g:G;Milk:100ml:G","Boil onion and cashew and blend. Cook with whole spices in 2 tsp ghee, add curd and milk, then paneer. No cream."],
+["ni12","Malai kofta, steamed","vegmain",1,"Paneer:200g:G;Potato:2pc:V;Tomato:3pc:V;Cashew:20g:G","Bind paneer and boiled potato, shape koftas and steam or air fry instead of deep frying. Tomato cashew gravy with milk, add koftas just before serving."],
+["ni13","Aloo matar","side",1,"Potato:3pc:V;Green peas:200g:V;Tomato:2pc:V","Cumin, ginger and tomato in 2 tsp oil, add potato and peas with water, pressure cook 1 whistle."],
+["ni14","Jeera aloo","side",1,"Potato:4pc:V","Boil and cube potatoes. Plenty of cumin in 2 tsp oil, add potato, turmeric, chilli and amchur, toss 5 minutes."],
+["ni15","Bhindi do pyaza","side",1,"Bhindi:350g:V;Onion:2pc:V","Cook bhindi open on high flame in 2 tsp oil till not sticky, add thick onion slices and spices for 4 minutes."],
+["ni16","Mix veg, Punjabi","side",1,"Cauliflower:1pc:V;Carrot:1pc:V;Beans:100g:V;Green peas:100g:V;Capsicum:1pc:V;Tomato:2pc:V","Steam the vegetables halfway. Onion tomato masala in 2 tsp oil, add vegetables and kasuri methi, cook 6 minutes."],
+["ni17","Dal tadka","dal",1,"Toor dal:100g:G;Moong dal:50g:G;Tomato:2pc:V;Onion:1pc:V","Pressure cook dals. Tadka of cumin, garlic, onion, tomato and red chilli in 1 tsp ghee poured on top."],
+["ni18","Dal fry","dal",1,"Toor dal:150g:G;Onion:1pc:V;Tomato:2pc:V","Cook the dal, then simmer with onion tomato masala made in 2 tsp oil. Thicker than tadka."],
+["ni19","Chana dal tadka","dal",1,"Chana dal:150g:G;Tomato:1pc:V;Onion:1pc:V","Soak 1 hour, pressure cook 3 whistles. Garlic and onion tadka in 1 tsp ghee."],
+["ni20","Moong dal tadka","dal",1,"Moong dal:150g:G;Tomato:1pc:V","Pressure cook yellow moong 2 whistles. Cumin, garlic and red chilli tadka in 1 tsp ghee."],
+["ni21","Lauki chana dal","dal",1,"Chana dal:120g:G;Lau (bottle gourd):300g:V;Tomato:1pc:V","Soak dal 1 hour. Pressure cook dal and lauki together 3 whistles. Cumin and tomato tempering in 1 tsp oil."],
+["ni22","Butter chicken with roti, light","chicken",0,"Boneless chicken:600g:F;Tomato:5pc:V;Curd:150g:G;Cashew:20g:G;Milk:100ml:G","Tawa-grill curd-marinated chicken. Tomato cashew gravy with 1 tsp butter and kasuri methi, milk instead of cream, add chicken."],
+["ni23","Punjabi chicken curry","chicken",0,"Chicken:700g:F;Onion:3pc:V;Tomato:2pc:V;Curd:100g:G","Skinless chicken. Brown onions slowly in 1 tbsp oil with splashes of water, ginger garlic, tomato, curd and chicken. Cover till tender."],
+["ni24","Chicken saagwala","chicken",0,"Chicken:600g:F;Spinach (palong):2bunch:V;Onion:2pc:V","Blanch and blend spinach. Cook chicken with onion and ginger garlic in 1 tbsp oil, add spinach and simmer 10 minutes."],
+["ni25","Tandoori chicken, oven","chicken",0,"Chicken legs:800g:F;Curd:200g:G;Lemon:1pc:V","Marinate overnight in curd, lemon and tandoori spices. Bake at 220°C 30 minutes, turning once. Onion salad on the side."],
+["ni26","Chicken tikka with mint chutney","chicken",0,"Boneless chicken:500g:F;Curd:150g:G;Mint leaves:1bunch:V;Lemon:1pc:V","Marinate 2 hours. Grill on a tawa or bake. Mint, coriander and curd chutney."],
+["ni27","Kadhai chicken, Punjabi","chicken",0,"Chicken:700g:F;Capsicum:2pc:V;Onion:2pc:V;Tomato:3pc:V","Freshly crushed coriander seeds and red chilli. Skinless chicken in 1 tbsp oil, capsicum at the end."],
+["ni28","Rogan josh, light","mutton",0,"Mutton:700g:F;Curd:200g:G;Onion:2pc:V","Trim the fat. Kashmiri chilli, fennel and ginger powder with curd. Pressure cook in 1 tbsp oil. Skim the top."],
+["ni29","Keema matar, Punjabi","mutton",0,"Mutton keema:500g:F;Green peas:200g:V;Onion:2pc:V;Tomato:2pc:V","Lean keema. Onion tomato masala in 2 tsp oil, keema in its own fat, peas at the end."],
+["ni30","Egg curry, Punjabi","egg",0,"Eggs:6pc:E;Onion:2pc:V;Tomato:3pc:V","Boiled eggs, not fried. Thick onion tomato gravy in 2 tsp oil with garam masala and kasuri methi."],
+["ni31","Amritsari fish, air fried","fish",0,"Bhetki fillet:500g:F;Besan:60g:G;Lemon:1pc:V","Marinate in lemon, ajwain, ginger garlic and chilli. Coat lightly in besan and air fry or bake 12 minutes instead of deep frying."],
+["ni32","Fish tikka, Punjabi","fish",0,"Bhetki fillet:500g:F;Curd:150g:G;Lemon:1pc:V","Marinate in curd, ajwain and tikka spices 1 hour. Bake or tawa with a brush of oil."],
+["ni33","Aloo paratha with curd","bf",1,"Atta:300g:G;Potato:4pc:V;Curd:300g:G","Mash boiled potato with onion, chilli and ajwain. Stuff, roll and dry roast. A brush of ghee only at the end."],
+["ni34","Pyaaz paratha","bf",1,"Atta:300g:G;Onion:3pc:V;Curd:300g:G","Fine-chop onion with chilli and ajwain, squeeze, stuff and dry roast on the tawa."],
+["ni35","Poha, Indori style","bf",1,"Chire (poha):250g:G;Onion:1pc:V;Peanuts:40g:G;Lemon:1pc:V","Rinse poha and steam it with turmeric and a pinch of sugar. Mustard seeds in 2 tsp oil, onion, then poha. Lemon and coriander on top."],
+["ni36","Besan chilla, Punjabi","bf",1,"Besan:200g:G;Onion:1pc:V;Tomato:1pc:V;Coriander leaves:1bunch:V","Thin batter with ajwain and chopped vegetables. Spread on a non-stick tawa with a brush of oil."],
+["ni37","Chole kulche, tawa","bf",1,"Kabuli chana:150g:G;Atta:300g:G;Onion:1pc:V;Curd:100g:G","Light chole with onion and lemon. Kulcha dough with curd, rolled thick and roasted on tawa, no butter."],
+["ni38","Moong dal halwa, light (treat)","bf",1,"Moong dal:150g:G;Milk:300ml:G;Almonds:20g:G","Weekend treat only. Soak and grind the dal, cook slowly in milk with 1 tbsp ghee and very little sugar."],
+["ni39","Dal khichdi, North Indian","vegmain",1,"Rice:200g:G;Moong dal:150g:G;Tomato:1pc:V","Pressure cook rice and dal soft with turmeric. Tadka of cumin, hing and tomato in 1 tsp ghee."],
+["ni40","Vegetable pulao, North Indian","vegmain",1,"Basmati rice:350g:G;Carrot:1pc:V;Beans:100g:V;Green peas:100g:V;Onion:1pc:V","Whole spices and onion in 2 tsp ghee, vegetables and rice, cook covered. Boondi-free raita on the side."],
+["ni41","Kadhai paneer, Punjabi","vegmain",1,"Paneer:300g:G;Capsicum:2pc:V;Onion:2pc:V;Tomato:3pc:V","Freshly crushed coriander seed and red chilli. Masala in 2 tsp oil, capsicum and raw paneer at the end."],
+["ni42","Aloo methi","side",1,"Potato:3pc:V;Methi leaves:2bunch:V","Cumin and garlic in 2 tsp oil, potato cubes covered till soft, then chopped methi for 4 minutes."],
+["ni43","Gajar matar, Punjabi","side",1,"Carrot:4pc:V;Green peas:200g:V","Cumin and ginger in 1 tsp oil, carrot and peas covered till soft. Winter dish."],
+["ni44","Arbi masala, dry","side",1,"Gathi kochu (arbi):400g:V;Onion:1pc:V","Boil and peel the arbi, flatten slightly. Roast on a tawa with ajwain, amchur and 2 tsp oil till crisp."],
+["ni45","Tinda masala","side",1,"Tinda:500g:V;Tomato:2pc:V;Onion:1pc:V","Onion tomato masala in 2 tsp oil, add quartered tinda and cover till soft."],
+["ni46","Lauki kofta, steamed","vegmain",1,"Lau (bottle gourd):500g:V;Besan:80g:G;Tomato:3pc:V","Grate and squeeze the lauki, mix with besan. Steam the koftas, then simmer briefly in tomato gravy."],
+["ni47","Boondi-free cucumber raita","side",1,"Curd:400g:G;Cucumber:2pc:V","Grated cucumber in curd with roasted cumin, salt and mint. No oil."],
+["ni48","Pindi chana, dry","vegmain",1,"Kabuli chana:200g:G;Onion:1pc:V;Lemon:1pc:V","Pressure cook chana with tea for colour. Toss with dry chole masala, ginger and 2 tsp oil. Onion and lemon on top."],
+["ni49","Dum aloo, Kashmiri light","side",1,"Baby potato:500g:V;Curd:200g:G","Boil and prick the potatoes, do not fry. Curd, fennel and ginger powder gravy in 2 tsp oil, cover 10 minutes."],
+["ni50","Chicken biryani, Lucknowi light","chicken",0,"Basmati rice:400g:G;Chicken:600g:F;Curd:200g:G;Onion:2pc:V","Mild, fragrant style. Chicken in curd and whole spices, layer with half-cooked rice, steam sealed 20 minutes. 1 tbsp ghee in total."]
+].forEach(r=>BUILTIN.push({id:r[0],name:r[1],type:r[2],veg:!!r[3],ing:parseIng(r[4]),note:r[5],ni:true}));
+
+/* ---------- Drinks, fruit and snacks: never shuffled, add them yourself ---------- */
+[
+["k1","Black coffee",5,"Coffee powder::G","No sugar, no milk."],["k2","Green tea",2,"Green tea::G","Steep 2 minutes, no sugar."],
+["k3","Tea with milk and sugar",60,"Tea leaves::G;Milk:400ml:G","One cup. Less sugar saves 20 kcal a cup."],["k4","Tea with milk, no sugar",35,"Tea leaves::G;Milk:400ml:G","One cup."],
+["k5","Coffee with milk",70,"Coffee powder::G;Milk:500ml:G","One cup with a little sugar."],["k6","Lemon water",10,"Lemon:2pc:V","Warm water, lemon, a pinch of salt."],
+["k7","Chaas (buttermilk)",40,"Curd:400g:G","Whisk curd with water, roasted cumin and salt."],["k8","Coconut water",45,"Daab (tender coconut):4pc:V","One glass."],
+["k9","Overnight oats with chia and banana",290,"Oats:200g:G;Milk:600ml:G;Chia seeds:40g:G;Banana:2pc:V","Mix oats, milk and chia at night in a jar, refrigerate. Add sliced banana in the morning. No sugar."],
+["k10","Overnight oats with apple and nuts",300,"Oats:200g:G;Milk:600ml:G;Apple:2pc:V;Almonds:40g:G","Soak oats in milk overnight. Add grated apple, cinnamon and chopped almonds in the morning."],
+["k11","Overnight oats with curd and berries",260,"Oats:200g:G;Curd:400g:G;Strawberries:200g:V","Mix oats with curd and a little milk at night. Top with berries in the morning."],
+["k12","Apple",80,"Apple:4pc:V","One medium apple."],["k13","Banana",100,"Banana:4pc:V","One banana."],["k14","Papaya bowl",60,"Papaya:600g:V","One bowl."],
+["k15","Orange or mosambi",60,"Orange:4pc:V","One fruit."],["k16","Guava",70,"Guava:4pc:V","One guava."],["k17","Seasonal fruit bowl",90,"Seasonal fruit:800g:V","One bowl."],
+["k18","Handful of almonds and walnuts",170,"Almonds:60g:G;Walnuts:40g:G","About 25 g."],["k19","Roasted makhana",110,"Makhana:100g:G","Dry roast with a pinch of salt and pepper, 1 tsp ghee for the batch."],
+["k20","Roasted chana",120,"Roasted chana:120g:G","A small bowl, about 30 g."],["k21","Muri with chanachur",180,"Muri:150g:G;Chanachur:80g:G","One bowl. Chanachur is fried, keep it small."],
+["k22","Marie biscuits (2)",60,"Marie biscuits:1pack:G","Two biscuits."],["k23","Digestive biscuits (2)",140,"Digestive biscuits:1pack:G","Two biscuits."],
+["k24","Rasgulla (1)",120,"Rasgulla:1pack:G","One piece. Squeeze out the syrup to save 30 kcal."],["k25","Sandesh (1)",110,"Sandesh:1pack:G","One piece."],
+["k26","Mishti doi (small cup)",150,"Mishti doi:1pack:G","One small cup."],["k27","Plain curd bowl",90,"Curd:600g:G","One bowl, about 150 g."],
+["k28","Sprouts chaat bowl",120,"Moong sprouts:300g:V;Onion:1pc:V;Lemon:1pc:V","Steam sprouts, toss with onion, lemon and chaat masala."],
+["k29","Boiled eggs (2)",150,"Eggs:8pc:E","Two boiled eggs."],["k30","Protein shake with milk",220,"Protein powder::G;Milk:800ml:G","One glass."],
+["k31","Glass of milk, toned",120,"Milk:800ml:G","One glass, 200 ml."],["k32","Soup bowl, clear vegetable",50,"Carrot:1pc:V;Cabbage:150g:V","One bowl."],
+["k33","Samosa (1)",260,"Samosa:4pc:G","Fried. One piece."],["k34","Phuchka (6)",200,"Phuchka:1pack:G","Six pieces."],["k35","Jhalmuri",200,"Muri:150g:G;Chanachur:50g:G","One paper cone."]
+].forEach(r=>BUILTIN.push({id:r[0],name:r[1],type:"snack",veg:!/egg/i.test(r[1]),k:r[2],ing:parseIng(r[3]),note:r[4]}));
 
 /* ---------- Generated variations: real combinations of main ingredient and cooking style ---------- */
 (function(){
@@ -826,10 +902,11 @@ const BUILTIN = RAW.concat(RAW2).map(r=>({id:r[0],name:r[1],type:r[2],veg:!!r[3]
    ["r29","Paneer and chhana","A vegetarian week built around paneer: chanar dalna, bhurji, tikka, matar paneer.",d=>has(d,/paneer/i)],
    ["r30","Breakfast variety","Every breakfast in the app, so mornings do not repeat.",d=>d.type==="bf"],
    ["r31","Lau, jhinge and light vegetables","Easy-to-digest gourds: lau, jhinge, potol, dhundul, chichinga, pepe.",d=>has(d,/lau \(|jhinge|potol|dhundul|chichinga|raw papaya|pumpkin/i)],
+   ["r33","North Indian week","Rajma chawal, chole, dal makhani, kadhi, aloo gobi, sarson ka saag, butter chicken and parathas, all made lighter.",d=>!!d.ni],
    ["r32","Monsoon comfort","Khichuri, tawa bhaja, ilish, dim and hot soups for rainy days.",d=>nm(d,/khichuri|bhaja|ilish|dim|egg|soup|chop|pakora|ghugni|muri/i)]
   ];
   defs.forEach(([id,name,about,f])=>{
-    const ids=BUILTIN.filter(d=>d.type!=="staple"&&f(d)).map(d=>d.id);
+    const ids=BUILTIN.filter(d=>(d.type!=="staple"||d.ni)&&d.type!=="snack"&&f(d)).map(d=>d.id);
     if(ids.length>=5)READY.push({id,name,about,ids,ready:true});
   });
 })();
@@ -863,22 +940,30 @@ function oilK(note){
   if(/brush of|few drops|no frying|steam/i.test(note))return 40;
   return 80;
 }
-function kcal(d){if(!d)return 0;const t=d.ing.reduce((a,x)=>a+kcalIng(x),0)+(d.type==="staple"?0:oilK(d.note));return Math.max(5,Math.round(t/4/5)*5);}
+function kcal(d){if(!d)return 0;if(d.k!=null&&d.k!=="")return +d.k;const t=d.ing.reduce((a,x)=>a+kcalIng(x),0)+(d.type==="staple"?0:oilK(d.note));return Math.max(5,Math.round(t/4/5)*5);}
 function planDayK(i){return MK.reduce((a,m)=>a+S.plan[i][m].reduce((b,id)=>b+kcal(dish(id)),0),0);}
 function mealK(i,m){return S.plan[i][m].reduce((b,id)=>b+kcal(dish(id)),0);}
+function isAuto(i){return !S.eatT[i]&&iso(dateOf(i))<=iso(new Date());}
+function effEat(i){
+  const o={};
+  if(isAuto(i)){MK.forEach(m=>S.plan[i][m].forEach(id=>{o[i+"|"+m+"|"+id]=1;}));}
+  else for(const k in S.eat)if(+k.split("|")[0]===i)o[k]=S.eat[k];
+  return o;
+}
+function touchDay(i){if(S.eatT[i])return;const o=effEat(i);for(const k in S.eat)if(+k.split("|")[0]===i)delete S.eat[k];Object.assign(S.eat,o);S.eatT[i]=true;}
 function eatenDay(i){
-  let t=0;for(const k in S.eat){const p=k.split("|");if(+p[0]===i)t+=S.eat[k]*kcal(dish(p[2]));}
+  let t=0;const E=effEat(i);for(const k in E)t+=E[k]*kcal(dish(k.split("|")[2]));
   (S.extra[i]||[]).forEach(e=>{t+=+e.k||0;});return Math.round(t);
 }
 function eatenItems(){
-  const by={};for(const k in S.eat){const id=k.split("|")[2];const d=dish(id);if(!d||!S.eat[k])continue;(by[id]=by[id]||{d,k:0,q:0});by[id].k+=S.eat[k]*kcal(d);by[id].q+=S.eat[k];}
+  const by={};for(let i=0;i<7;i++){const E=effEat(i);for(const k in E){const id=k.split("|")[2];const d=dish(id);if(!d||!E[k])continue;(by[id]=by[id]||{d,k:0,q:0});by[id].k+=E[k]*kcal(d);by[id].q+=E[k];}}
   return Object.values(by).sort((a,b)=>b.k-a.k);
 }
 function archiveWeek(){
   const days=[0,1,2,3,4,5,6].map(eatenDay);
   S.hist=S.hist||[];
   S.hist.unshift({ws:S.weekStart,days,plan:[0,1,2,3,4,5,6].map(planDayK),wt:S.wt||"",target:S.target||"",top:eatenItems().slice(0,5).map(x=>[x.d.name,Math.round(x.k)])});
-  S.hist=S.hist.slice(0,80);S.eat={};S.extra={};S.wt="";
+  S.hist=S.hist.slice(0,80);S.eat={};S.extra={};S.eatT={};S.wt="";
 }
 const nf=n=>Math.round(n).toLocaleString("en-IN");
 
@@ -899,6 +984,7 @@ function label(i,long){const d=dateOf(i);return DAY[d.getDay()]+" "+d.getDate()+
 function defaultStart(){const t=new Date();const wd=t.getDay();const back=(wd+6)%7;let m=addDays(t,-back);if(wd===0||wd>=5)m=addDays(m,7);return iso(m);}
 
 function mealsOf(d){
+  if(d.type==="snack"||d.type==="own")return d.meal?[d.meal]:["b","l","d"];
   if(d.meal==="b"||d.type==="bf")return ["b"];
   if(d.meal==="l")return ["l"];
   if(d.meal==="d"||d.type==="cncarb"||d.type==="cnmain")return ["d"];
@@ -929,6 +1015,8 @@ function slotOk(i,m){const v=visitOf(i,m);return !!(v&&S.okv[v.id]);}
 function okVisits(){return visits().filter(v=>S.okv[v.id]);}
 function slotName(i,m){return DAY[dateOf(i).getDay()]+" "+MEALLOW[m];}
 function covers(v){const by={};v.slots.forEach(([i,m])=>{(by[i]=by[i]||[]).push(MEALLOW[m]);});return Object.keys(by).map(i=>DAY[dateOf(+i).getDay()]+" "+by[i].join(", ")).join("; ");}
+function applyRepeats(){(S.rep||[]).forEach(r=>{if(!dish(r.id))return;for(let i=0;i<7;i++)if(!S.plan[i][r.m].includes(r.id))S.plan[i][r.m].push(r.id);});}
+function isRep(id,m){return (S.rep||[]).some(r=>r.id===id&&r.m===m);}
 function regenVisit(id){
   const v=visitById(id);if(!v)return;
   const mine=new Set(v.slots.map(([i,m])=>i+m));
@@ -936,7 +1024,7 @@ function regenVisit(id){
   const days=[...new Set(v.slots.map(([i])=>i))];
   days.forEach(i=>{
     const lt=["fish","fish","chicken","egg"][Math.floor(Math.random()*4)], dt=["chicken","chicken","egg","fish"][Math.floor(Math.random()*4)];
-    const nd=genDay(i,used,lt,dt);MK.forEach(m=>{if(mine.has(i+m))S.plan[i][m]=nd[m];});
+    const nd=genDay(i,used,lt,dt);MK.forEach(m=>{if(mine.has(i+m))S.plan[i][m]=nd[m].concat((S.rep||[]).filter(r=>r.m===m&&dish(r.id)&&!nd[m].includes(r.id)).map(r=>r.id));});
   });
   delete S.okv[id];
 }
@@ -998,7 +1086,8 @@ function genWeek(){
       lb=[0,1,2,3,4,5,6].map(draw);db=[0,1,2,3,4,5,6].map(draw);}
   }
   S.plan=[];for(let i=0;i<7;i++)S.plan.push(genDay(i,used,lb[i],db[i]));
-  S.ck={};S.okv={};
+  applyRepeats();
+  S.ck={};S.skip={};S.qo={};S.okv={};S.dn={};S.vn={};
 }
 function regenDay(i){
   const used=new Set();S.plan.forEach((d,j)=>{if(j!==i)["b","l","d"].forEach(m=>d[m].forEach(x=>used.add(x)));});
@@ -1006,17 +1095,18 @@ function regenDay(i){
   S.plan[i]=genDay(i,used,lt,dt);
 }
 function fresh(){
-  S={v:1,ts:1,people:4,vegDays:[],vegN:1,cnDays:[6],weekStart:defaultStart(),plan:[],last:[],off:[],mine:[],ck:{},lists:[],activeList:"",okv:{},cookDays:[5,6,0,1,3],cookTime:"eve",eat:{},extra:{},wt:"",target:"",hist:[]};
+  S={v:1,ts:1,people:4,vegDays:[],vegN:1,cnDays:[6],weekStart:defaultStart(),plan:[],last:[],off:[],mine:[],ck:{},lists:[],activeList:"",okv:{},cookDays:[5,6,0,1,3],cookTime:"eve",eat:{},extra:{},wt:"",target:"",hist:[],skip:{},qo:{},dn:{},vn:{},rep:[],eatT:{}};
   genWeek();
 }
 function normalize(o){
-  const d={v:1,ts:0,people:4,vegDays:[],vegN:1,cnDays:[6],weekStart:defaultStart(),plan:[],last:[],off:[],mine:[],ck:{},lists:[],activeList:"",okv:{},cookDays:[5,6,0,1,3],cookTime:"eve",eat:{},extra:{},wt:"",target:"",hist:[]};
+  const d={v:1,ts:0,people:4,vegDays:[],vegN:1,cnDays:[6],weekStart:defaultStart(),plan:[],last:[],off:[],mine:[],ck:{},lists:[],activeList:"",okv:{},cookDays:[5,6,0,1,3],cookTime:"eve",eat:{},extra:{},wt:"",target:"",hist:[],skip:{},qo:{},dn:{},vn:{},rep:[],eatT:{}};
   const s=Object.assign(d,o||{});
-  ["vegDays","cnDays","last","off","mine","plan","lists","cookDays","hist"].forEach(k=>{if(!Array.isArray(s[k]))s[k]=d[k];});
+  ["vegDays","cnDays","last","off","mine","plan","lists","cookDays","hist","rep"].forEach(k=>{if(!Array.isArray(s[k]))s[k]=d[k];});
   if(!s.ck||typeof s.ck!=="object")s.ck={};
   if(!s.okv||typeof s.okv!=="object")s.okv={};
   if(!s.eat||typeof s.eat!=="object")s.eat={};
   if(!s.extra||typeof s.extra!=="object")s.extra={};
+  ["skip","qo","dn","vn","eatT"].forEach(k=>{if(!s[k]||typeof s[k]!=="object"||Array.isArray(s[k]))s[k]={};});
   return s;
 }
 function load(){
@@ -1088,37 +1178,48 @@ function weekTitle(){
 function bazaarText(){
   const s=shopping(shopV);let t="*Bazaar list, "+weekTitle()+"*\n";
   [["F","Fish and meat"],["E","Eggs"],["V","Vegetables and fruit"]].forEach(([c,h])=>{
-    const rows=s[c].filter(x=>!S.ck[x.k]);if(!rows.length)return;
-    t+="\n*"+h+"*\n";rows.forEach(x=>{t+="- "+x.n+": "+fmt(x.q,x.u)+(c==="F"?" (for "+x.days.join(", ")+")":"")+"\n";});
+    const rows=s[c].filter(x=>onList(x.k));if(!rows.length)return;
+    t+="\n*"+h+"*\n";rows.forEach(x=>{t+="- "+x.n+": "+qtyOf(x)+(c==="F"?" (for "+x.days.join(", ")+")":"")+"\n";});
   });
   t+="\nAlso ginger, garlic, green chilli and coriander leaves.";
   return t;
 }
 function onlineText(){
   const s=shopping(shopV);let t="*Grocery order, "+weekTitle()+"*\n\n";
-  s.G.filter(x=>!S.ck[x.k]).forEach(x=>{t+="- "+x.n+": "+fmt(x.q,x.u)+"\n";});
-  const p=s.P.filter(n=>S.ck["P|"+n]);
-  if(p.length){t+="\n*Running low at home*\n";p.forEach(n=>{t+="- "+n+"\n";});}
+  s.G.filter(x=>onList(x.k)).forEach(x=>{t+="- "+x.n+": "+qtyOf(x)+"\n";});
+  const p=s.P.filter(n=>onList("P|"+n));
+  if(p.length){t+="\n*Running low at home*\n";p.forEach(n=>{t+="- "+n+(S.qo["P|"+n]?": "+S.qo["P|"+n]:"")+"\n";});}
   return t;
 }
 function allShopText(){
   const s=shopping(shopV);let t="*Shopping list, "+weekTitle()+"*\n";
   [["F","Fish and meat"],["E","Eggs"],["V","Vegetables and fruit"],["G","Grocery"]].forEach(([c,h])=>{
-    const rows=s[c].filter(x=>!S.ck[x.k]);if(!rows.length)return;
-    t+="\n*"+h+"*\n";rows.forEach(x=>{t+="- "+x.n+": "+fmt(x.q,x.u)+"\n";});
+    const rows=s[c].filter(x=>onList(x.k));if(!rows.length)return;
+    t+="\n*"+h+"*\n";rows.forEach(x=>{t+="- "+x.n+": "+qtyOf(x)+"\n";});
   });
-  const p=s.P.filter(n=>S.ck["P|"+n]);
-  if(p.length){t+="\n*Running low at home*\n";p.forEach(n=>{t+="- "+n+"\n";});}
+  const p=s.P.filter(n=>onList("P|"+n));
+  if(p.length){t+="\n*Running low at home*\n";p.forEach(n=>{t+="- "+n+(S.qo["P|"+n]?": "+S.qo["P|"+n]:"")+"\n";});}
   t+="\nAlso ginger, garlic, green chilli and coriander leaves.";
   return t;
 }
-function cookText(v){
-  let t="*"+v.label+"* (for "+S.people+" people)\nCook: "+covers(v)+"\n";
-  v.slots.forEach(([i,m])=>{
+function dnOf(i,m,id){return S.dn[i+"|"+m+"|"+id]||{};}
+function dayCookText(v,day){
+  let t="";
+  v.slots.filter(([i])=>i===day).forEach(([i,m])=>{
     const ids=S.plan[i][m];if(!ids.length)return;
-    t+="\n*"+slotName(i,m).toUpperCase()+"*\n";
-    ids.forEach(id=>{const d=dish(id);if(!d)return;t+="- "+d.name+": "+d.note+"\n";const u=useLine(d);if(u)t+="  Use: "+u+"\n";});
+    t+="\n*"+MEALNAME[m].toUpperCase()+"*\n";
+    ids.forEach(id=>{const d=dish(id);if(!d)return;const o=dnOf(i,m,id);
+      t+="• "+d.name+(o.q?" ("+o.q+")":"")+"\n   "+(d.note||"")+"\n";
+      const u=useLine(d);if(u&&d.type!=="snack")t+="   Use: "+u+"\n";
+      if(o.n)t+="   My note: "+o.n+"\n";});
   });
+  return t;
+}
+function cookText(v,onlyDay){
+  const days=[...new Set(v.slots.map(([i])=>i))].filter(i=>onlyDay==null||i===onlyDay);
+  let t="*"+v.label+"* (for "+S.people+" people)\n";
+  if(S.vn[v.id])t+="\n*My instructions:* "+S.vn[v.id]+"\n";
+  days.forEach(i=>{t+="\n━━━━━━━━━━━━\n*"+label(i).toUpperCase()+"*\n━━━━━━━━━━━━"+dayCookText(v,i);});
   return t;
 }
 function weekText(){return okVisits().map(cookText).join("\n").trim();}
@@ -1164,7 +1265,7 @@ function usageCard(){
 }
 let calDay=-1;
 function qtyRow(i,m,id){
-  const d=dish(id);if(!d)return "";const k=i+"|"+m+"|"+id;const q=S.eat[k]||0;
+  const d=dish(id);if(!d)return "";const k=i+"|"+m+"|"+id;const q=effEat(i)[k]||0;
   return '<div class="lib"><span>'+esc(d.name)+' <span class="kc">'+kcal(d)+' kcal each</span></span><div class="stepper" style="gap:6px"><button data-act="eq" data-k="'+k+'" data-d="-0.5" aria-label="Less">−</button><b style="min-width:30px">'+q+'</b><button data-act="eq" data-k="'+k+'" data-d="0.5" aria-label="More">+</button></div></div>';
 }
 function adviceHtml(){
@@ -1208,15 +1309,17 @@ function vMe(){
   h+='<p class="hint">'+(lg.length?'Week so far: '+nf(lg.reduce((a,b)=>a+b,0))+' kcal over '+lg.length+' logged day'+(lg.length>1?'s':'')+'.':'Nothing logged yet.')+(S.target?' Red bar means over your target.':'')+'</p></section>';
 
   const i=calDay;
-  h+='<section class="card"><h2>'+label(i)+': what I ate</h2><p class="hint">Set servings for each dish. 1 is a normal serving, 0.5 is half. '+nf(eaten[i])+' kcal logged.</p>'+
+  h+='<section class="card"><h2>'+label(i)+': what I ate</h2><p class="hint">'+(isAuto(i)?'Filled from your menu, 1 serving of each dish. Change anything you ate differently.':iso(dateOf(i))>iso(new Date())?'This day is still ahead. It fills from your menu on the day.':'Set servings for each dish. 1 is a normal serving, 0.5 is half.')+' '+nf(eaten[i])+' kcal.</p>'+
      '<div class="row"><button class="btn small" data-act="eatAll">Ate everything as planned</button><button class="btn plain small" data-act="eatClr">Clear this day</button></div>';
-  MK.forEach(m=>{
-    const ids=S.plan[i][m].slice();
-    for(const k in S.eat){const p=k.split("|");if(+p[0]===i&&p[1]===m&&!ids.includes(p[2]))ids.push(p[2]);}
+  const E=effEat(i);
+  MK.concat(["x"]).forEach(m=>{
+    const ids=m==="x"?[]:S.plan[i][m].slice();
+    for(const k in E){const p=k.split("|");if(p[1]===m&&!ids.includes(p[2]))ids.push(p[2]);}
     if(!ids.length)return;
-    h+='<h3>'+MEALNAME[m]+'</h3>'+ids.map(id=>qtyRow(i,m,id)).join("");
+    h+='<h3>'+(m==="x"?"Outside the menu":MEALNAME[m])+'</h3>'+ids.map(id=>qtyRow(i,m,id)).join("");
   });
-  h+='<h3>Anything else (tea, snacks, sweets, eating out)</h3>'+(S.extra[i]||[]).map((e,n)=>'<div class="lib"><span>'+esc(e.n)+' <span class="kc">'+nf(e.k)+' kcal</span></span><button class="btn plain small" data-act="exRm" data-n="'+n+'">Remove</button></div>').join("")+
+  h+='<h3>Add something outside the menu</h3><label class="field"><span>Search drinks, fruit, snacks and dishes</span><input type="search" id="eatQ" placeholder="e.g. black coffee, banana, rasgulla, overnight oats"></label><div id="eatList"></div>'+
+     '<p class="hint" style="margin-top:10px">Not in the list? Type it with its calories:</p>'+(S.extra[i]||[]).map((e,n)=>'<div class="lib"><span>'+esc(e.n)+' <span class="kc">'+nf(e.k)+' kcal</span></span><button class="btn plain small" data-act="exRm" data-n="'+n+'">Remove</button></div>').join("")+
      '<div class="ing" style="grid-template-columns:1fr 80px auto"><input type="text" id="exN" placeholder="e.g. 2 biscuits and tea"><input type="number" id="exK" inputmode="numeric" placeholder="kcal"><button class="btn plain small" data-act="exAdd">Add</button></div></section>';
 
   h+='<section class="card"><h2>What is adding weight</h2>'+adviceHtml()+'</section>';
@@ -1278,7 +1381,7 @@ function vWeek(){
     h+='<section class="card'+(ok?" ok":"")+'"><div class="row between"><h2>'+esc(v.label)+'</h2>'+(ok?'<span class="pill veg">Approved</span>':'')+'</div><p class="hint">Cooks: '+esc(covers(v))+'</p>';
     v.slots.forEach(([i,m])=>{
       const t=slotName(i,m);
-      h+='<div class="mealhead"><h3>'+t+' · '+nf(mealK(i,m))+' kcal</h3><button class="mini" data-act="slotIdeas" data-i="'+i+'" data-m="'+m+'">Ideas</button></div><div class="chips">'+S.plan[i][m].map((id,k)=>{const x=dish(id);return x?'<button class="chip" data-act="chip" data-i="'+i+'" data-m="'+m+'" data-k="'+k+'">'+esc(x.name)+(x.veg?'':' •')+' <span class="kc">'+kcal(x)+'</span></button>':'';}).join("")+
+      h+='<div class="mealhead"><h3>'+t+' · '+nf(mealK(i,m))+' kcal</h3><button class="mini" data-act="slotIdeas" data-i="'+i+'" data-m="'+m+'">Ideas</button></div><div class="chips">'+S.plan[i][m].map((id,k)=>{const x=dish(id);const dq=(S.dn[i+"|"+m+"|"+id]||{}).q;return x?'<button class="chip" data-act="chip" data-i="'+i+'" data-m="'+m+'" data-k="'+k+'">'+(isRep(id,m)?'↻ ':'')+esc(x.name)+(dq?' ('+esc(dq)+')':'')+(x.veg?'':' •')+' <span class="kc">'+kcal(x)+'</span></button>':'';}).join("")+
         '<button class="chip add" data-act="add" data-i="'+i+'" data-m="'+m+'" aria-label="Add a dish to '+t+'">+ add</button></div>';
     });
     h+='<div class="row" style="margin-top:12px">'+(ok?'<button class="btn plain small" data-act="okV" data-id="'+v.id+'">Unapprove</button>':'<button class="btn small" data-act="okV" data-id="'+v.id+'">Approve this visit</button>')+
@@ -1296,20 +1399,31 @@ function vCook(){
   if(!o.length)return '<div class="card"><h2>No cook visits approved yet</h2><p class="hint">Go to the Menu tab, check each cook visit and tap Approve. The instructions for approved visits appear here.</p></div>';
   pickCookV(o);const v=o.find(x=>x.id===cookV);
   let h='<div class="chips">'+o.map(x=>'<button class="tog" data-act="cd" data-id="'+x.id+'" aria-pressed="'+(x.id===cookV)+'">'+esc(x.short)+'</button>').join("")+'</div>';
-  h+='<section class="card"><h2>'+esc(v.label)+'</h2><p class="hint">Tell the cook all of this on that visit. Amounts are for '+S.people+' people. Food for later meals goes in the fridge.</p>';
+  h+='<section class="card"><h2>'+esc(v.label)+'</h2><p class="hint">Amounts are for '+S.people+' people. Add your own quantity (like 6 rutis) or instructions under any dish; they go into the message.</p>'+
+     '<label class="field"><span>My instructions for this visit</span><textarea data-vn="'+v.id+'" rows="2" placeholder="e.g. Use less salt this week. Keep lunch for Tuesday in the fridge.">'+esc(S.vn[v.id]||"")+'</textarea></label></section>';
   const soak=[];
-  v.slots.forEach(([i,m])=>{
-    const ids=S.plan[i][m];if(!ids.length)return;
-    h+='<h3>'+slotName(i,m)+'</h3>';
-    ids.forEach(id=>{const d=dish(id);if(!d)return;if(/night before|overnight/i.test(d.note))soak.push(d.name);const u=useLine(d);h+='<div class="dish"><b>'+esc(d.name)+'</b><div class="note">'+esc(d.note)+'</div>'+(u?'<div class="use">'+esc(u)+'</div>':'')+'</div>';});
+  const days=[...new Set(v.slots.map(([i])=>i))];
+  days.forEach(day=>{
+    h+='<section class="card"><div class="row between"><h2>'+label(day)+'</h2><a class="btn ghost small" target="_blank" rel="noopener" href="'+esc(wa(cookText(v,day)))+'">Send this day</a></div>';
+    v.slots.filter(([i])=>i===day).forEach(([i,m])=>{
+      const ids=S.plan[i][m];if(!ids.length)return;
+      h+='<h3>'+MEALNAME[m]+'</h3>';
+      ids.forEach(id=>{const d=dish(id);if(!d)return;if(/night before|overnight/i.test(d.note))soak.push(d.name);const u=useLine(d);const k=i+"|"+m+"|"+id;const dn=S.dn[k]||{};
+        h+='<div class="dish"><b>'+esc(d.name)+'</b><div class="note">'+esc(d.note)+'</div>'+(u&&d.type!=="snack"?'<div class="use">'+esc(u)+'</div>':'')+
+          '<div class="ing" style="grid-template-columns:110px 1fr;margin-top:6px"><input type="text" data-dq="'+esc(k)+'" value="'+esc(dn.q||"")+'" placeholder="How much, e.g. 6"><input type="text" data-dnn="'+esc(k)+'" value="'+esc(dn.n||"")+'" placeholder="My instruction for this dish"></div></div>';});
+    });
+    h+='</section>';
   });
-  h+='</section><div class="row"><button class="btn" data-act="copy" data-what="cookday">Copy this visit</button><a class="btn ghost" target="_blank" rel="noopener" href="'+esc(wa(cookText(v)))+'">Send on WhatsApp</a><button class="btn plain" data-act="copy" data-what="cookweek">Copy all approved visits</button></div>';
+  h+='<div class="row"><a class="btn" target="_blank" rel="noopener" href="'+esc(wa(cookText(v)))+'">Send whole visit on WhatsApp</a><button class="btn plain" data-act="copy" data-what="cookday">Copy this visit</button><button class="btn plain" data-act="copy" data-what="cookweek">Copy all approved visits</button></div>';
   if(soak.length)h+='<div class="card"><h3 style="margin-top:0">Soak before this visit</h3>'+esc(soak.join(", "))+'</div>';
   return h;
 }
+function onList(k){return k.startsWith("P|")?!!S.ck[k]:!S.skip[k];}
+function qtyOf(x){return S.qo[x.k]||fmt(x.q,x.u);}
 function itemRow(k,name,qty,sub){
-  const on=!!S.ck[k];
-  return '<div class="item'+(on?" done":"")+'"><input type="checkbox" id="ck_'+esc(k)+'" data-ck="'+esc(k)+'"'+(on?" checked":"")+'><label for="ck_'+esc(k)+'"><span>'+esc(name)+(sub?'<span class="d">'+esc(sub)+'</span>':'')+'</span><span class="q">'+esc(qty)+'</span></label></div>';
+  const on=onList(k);const pant=k.startsWith("P|");
+  return '<div class="item'+(on?"":" done")+'"><input type="checkbox" id="ck_'+esc(k)+'" data-tk="'+esc(k)+'"'+(on?" checked":"")+' aria-label="Buy '+esc(name)+'"><label for="ck_'+esc(k)+'" style="flex:1"><span>'+esc(name)+(sub?'<span class="d">'+esc(sub)+'</span>':'')+'</span></label>'+
+   '<input type="text" data-qo="'+esc(k)+'" value="'+esc(S.qo[k]||"")+'" placeholder="'+esc(qty||(pant?"qty":""))+'" aria-label="Quantity for '+esc(name)+'" style="width:84px;padding:5px 7px;font-size:13px;text-align:right"></div>';
 }
 function vShop(){
   const o=okVisits();
@@ -1318,12 +1432,12 @@ function vShop(){
   const one=S.shopMode==="one";
   const s=shopping(shopV);
   const sec=(cs)=>cs.map(([c,t])=>s[c].length?'<h3>'+t+'</h3>'+s[c].map(x=>itemRow(x.k,x.n,fmt(x.q,x.u),c==="F"&&(shopV.length!==1)?"for "+x.days.join(", "):"")).join(""):'').join("");
-  const stock='<h3>Check stock at home</h3><p class="hint">Tick anything running low and it joins the list.</p>'+s.P.map(n=>itemRow("P|"+n,n,"","")).join("");
+  const stock='<h3>Check stock at home</h3><p class="hint">Tick anything running low to add it.</p>'+s.P.map(n=>itemRow("P|"+n,n,"","")).join("");
   const btns=(what,fn)=>'<div class="row" style="margin-top:12px"><button class="btn" data-act="copy" data-what="'+what+'">Copy list</button><a class="btn ghost" target="_blank" rel="noopener" href="'+esc(wa(fn()))+'">Send on WhatsApp</a></div>';
   let h='<div class="card"><h3 style="margin-top:0">Shop for which cook visits?</h3><div class="chips"><button class="tog" data-act="shopV" data-id="" aria-pressed="'+(!shopV.length)+'">All approved</button>'+o.map(v=>'<button class="tog" data-act="shopV" data-id="'+v.id+'" aria-pressed="'+shopV.includes(v.id)+'">'+esc(v.short)+'</button>').join("")+'</div>'+
    '<p class="hint">Tap two or three visits to club their shopping into one trip. Showing: <b>'+esc(weekTitle())+'</b>.</p>'+
    '<h3>List style</h3><div class="chips"><button class="tog" data-act="shopMode" data-k="split" aria-pressed="'+(!one)+'">Bazaar and online separately</button><button class="tog" data-act="shopMode" data-k="one" aria-pressed="'+one+'">One combined list</button></div></div>'+
-   '<p class="hint">Tick what you already have. Ticked items are left out of the WhatsApp message.</p>';
+   '<p class="hint">Ticked items go on the list and into the WhatsApp message. Untick anything you already have. Type your own quantity in the box on the right, for example 1 kg or 6 pcs.</p>';
   if(one)h+='<section class="card"><h2>Shopping list</h2>'+sec([["F","Fish and meat"],["E","Eggs"],["V","Vegetables and fruit"],["G","Grocery"]])+stock+btns("allshop",allShopText)+'</section>';
   else h+='<section class="card"><h2>Bazaar</h2>'+sec([["F","Fish and meat"],["E","Eggs"],["V","Vegetables and fruit"]])+btns("bazaar",bazaarText)+'</section>'+
      '<section class="card"><h2>Order online</h2>'+sec([["G","Grocery"]])+stock+btns("online",onlineText)+'</section>';
@@ -1386,7 +1500,10 @@ function chipSheet(i,m,k){
   const fresh=alts.filter(x=>!onMenu.has(x.id)&&!S.last.includes(x.id));
   const rest=alts.filter(x=>!fresh.includes(x));
   const ings=mainIngs(d);
-  openSheet(dishInfo(d)+'<div class="row" style="margin:10px 0"><button class="btn ghost" data-act="rm">Remove from this meal</button><button class="btn plain" data-act="close">Close</button></div>'+
+  const dk=i+"|"+m+"|"+d.id, dn=S.dn[dk]||{}, rp=isRep(d.id,m);
+  openSheet(dishInfo(d)+
+    '<div class="ing" style="grid-template-columns:110px 1fr;margin-top:6px"><input type="text" data-dq="'+esc(dk)+'" value="'+esc(dn.q||"")+'" placeholder="How much, e.g. 6"><input type="text" data-dnn="'+esc(dk)+'" value="'+esc(dn.n||"")+'" placeholder="My instruction for the cook"></div>'+
+    '<div class="row" style="margin:10px 0"><button class="btn '+(rp?'plain':'ghost')+'" data-act="repTog">'+(rp?'Stop repeating':'Repeat every day at '+MEALNAME[m].toLowerCase())+'</button><button class="btn ghost" data-act="rm">Remove from this meal</button><button class="btn plain" data-act="close">Close</button></div>'+
     (ings.length?'<h3>Other dishes with</h3><div class="chips">'+ings.map(n=>'<button class="tog" data-act="ingFind" data-n="'+esc(n)+'">'+esc(n.replace(/\s*\(.*?\)/,""))+'</button>').join("")+'</div>':'')+
     '<div id="ingList"></div><div class="status" id="likeMsg" hidden></div><div id="likeList"></div>'+
     '<div class="row" style="margin-top:8px"><button class="btn plain small" data-act="likeClaude">Ask Claude for dishes like this</button></div>'+
@@ -1396,12 +1513,21 @@ function chipSheet(i,m,k){
 }
 function addSheet(i,m){
   sheetCtx={i,m};
-  openSheet('<h2>Add a dish</h2><label class="field"><span>Search</span><input type="search" id="q" placeholder="Type a dish name"></label><div id="pickList">'+pickList("")+'</div>');
+  openSheet('<h2>Add to '+slotName(i,m)+'</h2><label class="field"><span>Search dishes, drinks and snacks</span><input type="search" id="q" placeholder="e.g. black coffee, overnight oats, rajma"></label><div id="pickList">'+pickList("")+'</div>'+
+   '<details style="margin-top:12px" open><summary>Or add something of my own</summary>'+
+   '<label class="field"><span>What is it</span><input type="text" id="ownN" placeholder="e.g. Overnight oats with chia and apple"></label>'+
+   '<label class="field"><span>How much (optional)</span><input type="text" id="ownQ" placeholder="e.g. 1 jar, 6 rutis"></label>'+
+   '<label class="field"><span>Things to buy (optional, separate with commas)</span><input type="text" id="ownI" placeholder="e.g. oats 50 g, chia 10 g, apple 1, milk 200 ml"></label>'+
+   '<label class="field"><span>Calories per serving (optional)</span><input type="number" id="ownK" inputmode="numeric" placeholder="Leave empty to estimate"></label>'+
+   '<label class="field"><span>Instructions for the cook (optional)</span><input type="text" id="ownNote" placeholder="e.g. Soak at night, keep in fridge"></label>'+
+   '<label class="row" style="margin-top:8px"><input type="checkbox" id="ownRep"> Repeat every day at '+MEALNAME[m].toLowerCase()+'</label>'+
+   '<p class="hint" id="ownMsg"></p><div class="row"><button class="btn" data-act="ownAdd">Add</button></div></details>');
 }
 function pickList(q){
   q=q.toLowerCase();
-  return Object.keys(TYPES).map(t=>{const ds=allDishes().filter(d=>d.type===t&&d.name.toLowerCase().includes(q));
-    return ds.length?'<h3>'+TYPES[t]+'</h3>'+ds.map(x=>'<button class="pick" data-act="addpick" data-id="'+x.id+'">'+esc(x.name)+'</button>').join(""):'';}).join("");
+  if(!q){const sn=allDishes().filter(d=>d.type==="snack"||d.type==="own");return '<h3>Drinks, fruit, snacks and my own</h3>'+sn.map(x=>'<button class="pick" data-act="addpick" data-id="'+x.id+'">'+esc(x.name)+' <span class="kc">'+kcal(x)+' kcal</span></button>').join("")+'<p class="hint">Type above to search all dishes.</p>';}
+  return Object.keys(TYPES).map(t=>{const ds=allDishes().filter(d=>d.type===t&&(d.name.toLowerCase().includes(q)||d.ing.some(y=>y.n.toLowerCase().includes(q)))).slice(0,30);
+    return ds.length?'<h3>'+TYPES[t]+'</h3>'+ds.map(x=>'<button class="pick" data-act="addpick" data-id="'+x.id+'">'+esc(x.name)+' <span class="kc">'+kcal(x)+' kcal</span></button>').join(""):'';}).join("")||'<p class="hint">Nothing matches. Add it as your own below.</p>';
 }
 function ingRow(x){
   x=x||{n:"",q:"",u:"g",c:"V"};
@@ -1474,7 +1600,7 @@ const MEALNAME={b:"Breakfast",l:"Lunch",d:"Dinner"}, MEALKEY={b:"breakfast",l:"l
 let freeG=null, webG=null;
 function emptyG(){return {b:{v:[],n:[]},l:{v:[],n:[]},d:{v:[],n:[]}};}
 function recentSet(){const s1=new Set([].concat(...S.plan.map(d=>d.b.concat(d.l,d.d))));S.last.forEach(x=>s1.add(x));return s1;}
-function slotPool(m,veg){return allDishes().filter(d=>d.type!=="staple"&&!S.off.includes(d.id)&&mealsOf(d).includes(m)&&d.veg===veg);}
+function slotPool(m,veg){return allDishes().filter(d=>d.type!=="staple"&&d.type!=="snack"&&d.type!=="own"&&!S.off.includes(d.id)&&mealsOf(d).includes(m)&&d.veg===veg);}
 function grab(pool,n){const r=recentSet();const f=pool.filter(d=>!r.has(d.id));return shuffle(f.length>=n?f:pool).slice(0,n).map(d=>d.id);}
 function freePick(){
   freeG=emptyG();
@@ -1698,7 +1824,11 @@ document.addEventListener("click",e=>{
   else if(a==="aiWeb"){AI.web=!AI.web;saveAI();render();}
   else if(a==="chip")chipSheet(i,b.dataset.m,+b.dataset.k);
   else if(a==="add")addSheet(i,b.dataset.m);
-  else if(a==="rm"&&sheetCtx){S.plan[sheetCtx.i][sheetCtx.m].splice(sheetCtx.k,1);save();closeSheet();render();}
+  else if(a==="rm"&&sheetCtx){const id=S.plan[sheetCtx.i][sheetCtx.m][sheetCtx.k];S.plan[sheetCtx.i][sheetCtx.m].splice(sheetCtx.k,1);if(isRep(id,sheetCtx.m))toast("Removed from this day only. It still repeats on other days.");save();closeSheet();render();}
+  else if(a==="repTog"&&sheetCtx){const ctx=sheetCtx;const id=S.plan[ctx.i][ctx.m][ctx.k];
+    if(isRep(id,ctx.m)){S.rep=S.rep.filter(r=>!(r.id===id&&r.m===ctx.m));for(let j=0;j<7;j++)if(j!==ctx.i)S.plan[j][ctx.m]=S.plan[j][ctx.m].filter(x=>x!==id);toast("Stopped repeating. Kept on "+label(ctx.i)+" only.");}
+    else{S.rep=(S.rep||[]).concat({id,m:ctx.m});applyRepeats();toast((dish(id)||{}).name+" now repeats every day at "+MEALNAME[ctx.m].toLowerCase()+", this week and every new week.");}
+    save();closeSheet();render();}
   else if(a==="addToo"&&sheetCtx&&sheetCtx.k!=null){S.plan[sheetCtx.i][sheetCtx.m].push(b.dataset.id);save();closeSheet();render();}
   else if(a==="ingFind"&&sheetCtx&&sheetCtx.k!=null){
     const n=b.dataset.n;const cur=S.plan[sheetCtx.i][sheetCtx.m][sheetCtx.k];
@@ -1716,6 +1846,16 @@ document.addEventListener("click",e=>{
       const el=$("likeList");if(el)el.innerHTML='<h3>New from Claude</h3>'+r.ids.map(dish).filter(Boolean).map(twoBtnRow).join("");
     });}
   else if(a==="swap"&&sheetCtx){S.plan[sheetCtx.i][sheetCtx.m][sheetCtx.k]=b.dataset.id;save();closeSheet();render();}
+  else if(a==="ownAdd"&&sheetCtx){
+    const n=$("ownN").value.trim();if(!n){$("ownMsg").textContent="Type what it is first.";return;}
+    const ing=$("ownI").value.split(",").map(x=>x.trim()).filter(Boolean).map(x=>{const mm=x.match(/^(.*?)\s+([\d.]+)\s*(g|gm|kg|ml|l|pc|pcs|piece|pieces|bunch|pack)?$/i);
+      if(!mm)return {n:x.slice(0,40),q:0,u:"g",c:guessWhere(x)};let q=+mm[2],u=(mm[3]||"pc").toLowerCase();if(u==="kg"){q*=1000;u="g";}if(u==="l"){q*=1000;u="ml";}if(/^(gm)$/.test(u))u="g";if(/^(pcs|piece|pieces)$/.test(u))u="pc";
+      return {n:mm[1].slice(0,40),q:q*4/Math.max(1,S.people),u,c:guessWhere(mm[1])};});
+    const kk=$("ownK").value;const d={id:"o"+Date.now().toString(36),name:n.slice(0,60),type:"own",veg:!/(egg|chicken|fish|mutton|prawn|chingri|maach|keema)/i.test(n+" "+$("ownI").value),ing,note:$("ownNote").value.trim()||"",mine:true};
+    if(kk)d.k=+kk;S.mine.push(d);const ctx=sheetCtx;S.plan[ctx.i][ctx.m].push(d.id);
+    const q=$("ownQ").value.trim();if(q)S.dn[ctx.i+"|"+ctx.m+"|"+d.id]={q};
+    if($("ownRep").checked){S.rep=(S.rep||[]).concat({id:d.id,m:ctx.m});applyRepeats();}
+    save();closeSheet();render();toast(n+" added"+($("ownRep")&&S.rep.some(r=>r.id===d.id)?" and repeats every day":"")+". It goes into Cook and Shop like any dish.");}
   else if(a==="addpick"&&sheetCtx){S.plan[sheetCtx.i][sheetCtx.m].push(b.dataset.id);save();closeSheet();render();}
   else if(a==="cd"){cookV=b.dataset.id;render();}
   else if(a==="copy"){const w=b.dataset.what;copy(w==="menu"?menuText():w==="cookday"?cookText(visitById(cookV)||okVisits()[0]):w==="cookweek"?weekText():w==="bazaar"?bazaarText():w==="allshop"?allShopText():onlineText(),b);}
@@ -1782,10 +1922,11 @@ document.addEventListener("click",e=>{
        else setStatus("testMsg","Connected, but your Worker is an old version. Paste the new code from worker/rannaghar-worker.js on GitHub into Cloudflare and deploy.",true);})
      .catch(()=>setStatus("testMsg","Could not reach the Worker. Check the link: it should look like https://rannaghar.yourname.workers.dev",true));}
   else if(a==="calDay"){calDay=i;render();}
-  else if(a==="eq"){const k=b.dataset.k;const q=Math.max(0,(S.eat[k]||0)+(+b.dataset.d));if(q)S.eat[k]=q;else delete S.eat[k];save();render();}
-  else if(a==="eatAll"){MK.forEach(m=>S.plan[calDay][m].forEach(id=>{const k=calDay+"|"+m+"|"+id;if(!S.eat[k])S.eat[k]=1;}));save();render();}
-  else if(a==="eatClr"){for(const k in S.eat)if(+k.split("|")[0]===calDay)delete S.eat[k];delete S.extra[calDay];save();render();}
-  else if(a==="exAdd"){const n=$("exN").value.trim(),k=+$("exK").value;if(!n||!(k>0)){toast("Type what it was and its calories.");return;}(S.extra[calDay]=S.extra[calDay]||[]).push({n:n.slice(0,60),k:Math.round(k)});save();render();}
+  else if(a==="eatPick"){touchDay(calDay);const k=calDay+"|x|"+b.dataset.id;S.eat[k]=(S.eat[k]||0)+1;save();render();toast((dish(b.dataset.id)||{}).name+" added to "+label(calDay)+".");}
+  else if(a==="eq"){const k=b.dataset.k;touchDay(+k.split("|")[0]);const q=Math.max(0,(S.eat[k]||0)+(+b.dataset.d));if(q)S.eat[k]=q;else delete S.eat[k];save();render();}
+  else if(a==="eatAll"){touchDay(calDay);MK.forEach(m=>S.plan[calDay][m].forEach(id=>{const k=calDay+"|"+m+"|"+id;if(!S.eat[k])S.eat[k]=1;}));save();render();}
+  else if(a==="eatClr"){S.eatT[calDay]=true;for(const k in S.eat)if(+k.split("|")[0]===calDay)delete S.eat[k];delete S.extra[calDay];save();render();}
+  else if(a==="exAdd"){touchDay(calDay);const n=$("exN").value.trim(),k=+$("exK").value;if(!n||!(k>0)){toast("Type what it was and its calories.");return;}(S.extra[calDay]=S.extra[calDay]||[]).push({n:n.slice(0,60),k:Math.round(k)});save();render();}
   else if(a==="exRm"){(S.extra[calDay]||[]).splice(+b.dataset.n,1);save();render();}
   else if(a==="logClear"){twoTap(b,()=>{AI.log=[];saveAI();render();},"Tap again to clear");}
   else if(a==="aiClear"){AI.url="";AI.token="";saveAI();render();}
@@ -1798,7 +1939,11 @@ document.addEventListener("click",e=>{
 document.addEventListener("change",e=>{
   const t=e.target;
   if(t.dataset&&t.dataset.li&&listDraft){if(t.checked)listDraft.ids.add(t.dataset.li);else listDraft.ids.delete(t.dataset.li);countDraft();}
-  else if(t.dataset&&t.dataset.ck){if(t.checked)S.ck[t.dataset.ck]=true;else delete S.ck[t.dataset.ck];save();render();}
+  else if(t.dataset&&t.dataset.tk){const k=t.dataset.tk;if(k.startsWith("P|")){if(t.checked)S.ck[k]=true;else delete S.ck[k];}else{if(t.checked)delete S.skip[k];else S.skip[k]=true;}save();render();}
+  else if(t.dataset&&t.dataset.qo){const v=t.value.trim();if(v)S.qo[t.dataset.qo]=v;else delete S.qo[t.dataset.qo];save();render();}
+  else if(t.dataset&&t.dataset.dq){const k=t.dataset.dq;const o=S.dn[k]||{};o.q=t.value.trim();S.dn[k]=o;save();render();}
+  else if(t.dataset&&t.dataset.dnn){const k=t.dataset.dnn;const o=S.dn[k]||{};o.n=t.value.trim();S.dn[k]=o;save();render();}
+  else if(t.dataset&&t.dataset.vn){S.vn[t.dataset.vn]=t.value.trim();save();render();}
   else if(t.id==="restore"&&t.files&&t.files[0]){t.files[0].text().then(tx=>{const o=JSON.parse(tx);if(!Array.isArray(o.plan)||o.plan.length!==7)throw 0;S=normalize(o);save();render();setOpen=true;}).catch(()=>{const m=$("bkMsg");if(m)m.textContent="That file is not a Rannaghar backup.";});}
   else if(t.id==="aiUrl"||t.id==="aiTok"){AI.url=$("aiUrl").value.trim();AI.token=$("aiTok").value.trim();saveAI();}
   else if(t.id==="wt"){S.wt=t.value;save();render();}
@@ -1807,6 +1952,9 @@ document.addEventListener("change",e=>{
 });
 document.addEventListener("input",e=>{
   if(e.target.id==="q")$("pickList").innerHTML=pickList(e.target.value);
+  else if(e.target.id==="eatQ"){const q=e.target.value.trim().toLowerCase();const el=$("eatList");if(!q){el.innerHTML="";return;}
+    const hits=allDishes().filter(d=>d.name.toLowerCase().includes(q)).sort((a,b)=>(a.type==="snack"?0:1)-(b.type==="snack"?0:1)).slice(0,25);
+    el.innerHTML=hits.map(d=>'<div class="lib"><span>'+esc(d.name)+' <span class="kc">'+kcal(d)+' kcal</span></span><button class="btn plain small" data-act="eatPick" data-id="'+d.id+'">Add</button></div>').join("")||'<p class="hint">Nothing matches. Type it below with its calories.</p>';}
   else if(e.target.id==="dq"){dishQ=e.target.value.trim();$("dlist").innerHTML=dishListHtml();}
   else if(e.target.id==="slotQ"){const q=e.target.value.trim().toLowerCase();const el=$("slotList");if(!el)return;if(!q){el.innerHTML="";return;}
     el.innerHTML=allDishes().filter(x=>x.type!=="staple"&&(x.name.toLowerCase().includes(q)||TYPES[x.type].toLowerCase().includes(q)||x.ing.some(y=>y.n.toLowerCase().includes(q)))).slice(0,30).map(x=>'<div class="lib"><span>'+esc(x.name)+' <span class="pill tag">'+esc(TYPES[x.type])+'</span></span><button class="btn plain small" data-act="slotAdd" data-id="'+x.id+'">Add</button></div>').join("")||'<p class="hint">No dish matches.</p>';}
