@@ -1075,15 +1075,18 @@ function groupIds(ids){
 }
 function ideaRow(id,m){const d=dish(id);if(!d)return "";
   return '<div class="lib"><button class="nm" data-act="view" data-id="'+d.id+'">'+esc(d.name)+' <span class="pill tag">'+TYPES[d.type]+'</span>'+(d.ai?' <span class="pill tag">from Claude</span>':'')+'</button><button class="btn plain small" data-act="toMenu" data-id="'+d.id+'" data-m="'+m+'">Put on menu</button></div>';}
-let ideaMeal="l";
+let ideaMeal="l", ideaAll={v:false,n:false};
 function ideasCard(){
   const m=ideaMeal, MN=MEALNAME[m];
   const web=webG?webG[m]:{v:[],n:[]};
   const part=(k,label,pill)=>{
     if(ideaSide==="veg"&&k==="n"||ideaSide==="non"&&k==="v")return "";
-    const ids=web[k].concat(freeG[m][k].filter(id=>!web[k].includes(id)));
+    const pool=slotPool(m,k==="v").sort((a,b)=>a.name.localeCompare(b.name)).map(d=>d.id);
+    const all=!!ideaAll[k];
+    const ids=web[k].concat((all?pool:freeG[m][k]).filter(id=>!web[k].includes(id)));
     return '<div class="card" style="margin-top:10px;padding:10px 12px"><h2 style="font-size:16px"><span class="pill '+pill+'">'+label+'</span> '+MN+' ideas</h2>'+
-      (ids.length?ids.map(id=>ideaRow(id,m)).join(""):'<p class="hint">No '+label.toLowerCase()+' '+MN.toLowerCase()+' dishes saved yet. Ask Claude below.</p>')+'</div>';
+      (ids.length?ids.map(id=>ideaRow(id,m)).join(""):'<p class="hint">No '+label.toLowerCase()+' '+MN.toLowerCase()+' dishes saved yet. Ask Claude below.</p>')+
+      (pool.length>5?'<div class="row" style="margin-top:8px"><button class="btn plain small" data-act="iall" data-k="'+k+'">'+(all?'Show only 5':'Show all '+pool.length+' '+label.toLowerCase()+' '+MN.toLowerCase()+' dishes')+'</button></div>':'')+'</div>';
   };
   return '<section class="card"><h2>Dish ideas</h2>'+
    '<div class="chips" style="margin-top:8px">'+["b","l","d"].map(k=>'<button class="tog" style="font-size:15px;padding:8px 16px" data-act="imeal" data-k="'+k+'" aria-pressed="'+(m===k)+'">'+MEALNAME[k]+'</button>').join("")+'</div>'+
@@ -1302,6 +1305,7 @@ document.addEventListener("click",e=>{
   else if(a==="deldish"&&sheetCtx){const id=sheetCtx.edit;S.mine=S.mine.filter(x=>x.id!==id);S.plan.forEach(d=>["b","l","d"].forEach(m=>{d[m]=d[m].filter(x=>x!==id);}));save();closeSheet();render();}
   else if(a==="ideas")ideas(b);
   else if(a==="side"){ideaSide=b.dataset.k;render();}
+  else if(a==="iall"){ideaAll[b.dataset.k]=!ideaAll[b.dataset.k];render();}
   else if(a==="imeal"){ideaMeal=b.dataset.k;ideaStatus="";render();}
   else if(a==="okAll"){S.okv={};visits().forEach(v=>{S.okv[v.id]=true;});save();render();}
   else if(a==="okNone"){S.okv={};save();render();}
