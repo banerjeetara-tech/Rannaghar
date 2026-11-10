@@ -782,14 +782,14 @@ function listCard(L){
 }
 function vIdeas(){
   const A=activeList();
-  let h='<p class="hint">A list is a set of dishes. Choose one to follow and the next Shuffle and Plan next week pick only from it. Rice, ruti, and any kind of dish the list does not have still come from all dishes.</p>'+
+  if(!freeG)freePick();
+  let h=ideasCard()+'<h2 style="margin-top:8px">Menu lists</h2><p class="hint">A list is a set of dishes. Choose one to follow and the next Shuffle and Plan next week pick only from it. Rice, ruti, and any kind of dish the list does not have still come from all dishes.</p>'+
    '<div class="card"><h3 style="margin-top:0">Next week follows</h3><b>'+(A?esc(A.name):'All dishes (no list)')+'</b></div>';
   h+='<h2>My lists</h2><div class="row"><button class="btn" data-act="listNew">Create a new list</button></div>';
   (S.lists||[]).forEach(L=>{h+=listCard(L);});
   if(!(S.lists||[]).length)h+='<p class="hint">You have no lists yet. Create one, or copy a ready-made list below and change it.</p>';
   h+='<h2>Ready-made lists by Claude</h2>';
   READY.forEach(L=>{h+=listCard(L);});
-  h+=ideasCard();
   setTimeout(showIdeas,0);
   return h;
 }
@@ -913,8 +913,8 @@ function grab(pool,n){const r=recentSet();const f=pool.filter(d=>!r.has(d.id));r
 function freePick(){
   freeG=emptyG();
   ["b","l","d"].forEach(m=>{
-    if(ideaSide!=="non")freeG[m].v=grab(slotPool(m,true),3);
-    if(ideaSide!=="veg")freeG[m].n=grab(slotPool(m,false),3);
+    freeG[m].v=grab(slotPool(m,true),5);
+    freeG[m].n=grab(slotPool(m,false),5);
   });
 }
 function groupIds(ids){
@@ -924,39 +924,32 @@ function groupIds(ids){
 }
 function ideaRow(id,m){const d=dish(id);if(!d)return "";
   return '<div class="lib"><button class="nm" data-act="view" data-id="'+d.id+'">'+esc(d.name)+' <span class="pill tag">'+TYPES[d.type]+'</span>'+(d.ai?' <span class="pill tag">from Claude</span>':'')+'</button><button class="btn plain small" data-act="toMenu" data-id="'+d.id+'" data-m="'+m+'">Put on menu</button></div>';}
-function groupHtml(G,title){
-  if(!G)return "";
-  let h="";
-  ["b","l","d"].forEach(m=>{
-    const v=G[m].v,n=G[m].n;if(!v.length&&!n.length)return;
-    h+='<h3>'+MEALNAME[m]+(title?' · '+title:'')+'</h3>';
-    if(v.length)h+='<p class="hint" style="margin:4px 0 0"><span class="pill veg">Veg</span></p>'+v.map(id=>ideaRow(id,m)).join("");
-    if(n.length)h+='<p class="hint" style="margin:8px 0 0"><span class="pill cn">Non-veg</span></p>'+n.map(id=>ideaRow(id,m)).join("");
-  });
-  return h;
-}
-function ideaListHtml(){
-  let h="";
-  if(webG)h+='<div class="card" style="margin-top:12px;padding:10px 12px"><h2>New from Claude</h2>'+groupHtml(webG,"")+'</div>';
-  if(freeG)h+='<div style="margin-top:12px"><h2>From your saved dishes</h2>'+groupHtml(freeG,"")+'</div>';
-  return h;
-}
+let ideaMeal="l";
 function ideasCard(){
+  const m=ideaMeal, MN=MEALNAME[m];
+  const web=webG?webG[m]:{v:[],n:[]};
+  const part=(k,label,pill)=>{
+    if(ideaSide==="veg"&&k==="n"||ideaSide==="non"&&k==="v")return "";
+    const ids=web[k].concat(freeG[m][k].filter(id=>!web[k].includes(id)));
+    return '<div class="card" style="margin-top:10px;padding:10px 12px"><h2 style="font-size:16px"><span class="pill '+pill+'">'+label+'</span> '+MN+' ideas</h2>'+
+      (ids.length?ids.map(id=>ideaRow(id,m)).join(""):'<p class="hint">No '+label.toLowerCase()+' '+MN.toLowerCase()+' dishes saved yet. Ask Claude below.</p>')+'</div>';
+  };
   return '<section class="card"><h2>Dish ideas</h2>'+
-   '<div class="field"><span>Show</span><div class="chips">'+[["both","Veg and non-veg"],["veg","Veg only"],["non","Non-veg only"]].map(([k,t])=>'<button class="tog" data-act="side" data-k="'+k+'" aria-pressed="'+(ideaSide===k)+'">'+t+'</button>').join("")+'</div></div>'+
-   '<div class="row" style="margin-top:10px"><button class="btn" data-act="free">Ideas from my dishes</button><button class="btn ghost" id="ideasBtn" data-act="ideas">Ideas with Claude</button></div>'+
+   '<div class="chips" style="margin-top:8px">'+["b","l","d"].map(k=>'<button class="tog" style="font-size:15px;padding:8px 16px" data-act="imeal" data-k="'+k+'" aria-pressed="'+(m===k)+'">'+MEALNAME[k]+'</button>').join("")+'</div>'+
+   '<div class="chips" style="margin-top:8px">'+[["both","Veg and non-veg"],["veg","Veg only"],["non","Non-veg only"]].map(([k,t])=>'<button class="tog" data-act="side" data-k="'+k+'" aria-pressed="'+(ideaSide===k)+'">'+t+'</button>').join("")+'</div>'+
+   part("v","Veg","veg")+part("n","Non-veg","cn")+
+   '<div class="row" style="margin-top:12px"><button class="btn plain" data-act="free">Show other '+MN.toLowerCase()+' ideas</button><button class="btn ghost" id="ideasBtn" data-act="ideas">Ask Claude for '+MN.toLowerCase()+' ideas</button></div>'+
    '<div class="status" id="ideasMsg"'+(ideaStatus?'':' hidden')+'>'+esc(ideaStatus)+'</div>'+
-   '<p class="hint">Ideas from my dishes is free. Ideas with Claude suggests new dishes for breakfast, lunch and dinner, '+(AI.web?'about ₹3 each time with web search on':'about 10 paise each time')+'. Both are split into veg and non-veg.</p>'+
-   '<label class="field"><span>For Claude, anything in mind? (optional)</span><input type="text" id="wish" placeholder="e.g. prawn dishes, quick weekday dinners" value="'+esc(lastWish)+'"></label>'+
-   '<div id="ideaList">'+ideaListHtml()+'</div></section>';
+   '<label class="field"><span>For Claude, anything in mind? (optional)</span><input type="text" id="wish" placeholder="e.g. prawn dishes, quick, uses shim" value="'+esc(lastWish)+'"></label>'+
+   '<p class="hint">Ideas from your saved dishes are free. Claude finds new ones, '+(AI.web?'about ₹3 each time with web search on':'about 10 paise each time')+'. Put on menu works for any meal: you can put a breakfast dish at dinner.</p></section>';
 }
 let ideaStatus="";
 function setStatus(id,text,err){const el=$(id);if(id==="ideasMsg")ideaStatus=text;if(!el)return;el.hidden=!text;el.textContent=text;el.classList.toggle("err",!!err);}
 function toMenuSheet(id,m){
   const d=dish(id);if(!d)return;
-  const ms=m?[m]:mealsOf(d);sheetCtx={id};
-  openSheet('<h2>'+esc(d.name)+'</h2>'+dishInfo(d).replace(/^<h2>.*?<\/h2>/,"")+'<p class="hint">Pick the day. The dish is added to that meal, and the Bazaar and Cook lists update for approved days.</p>'+
-   [0,1,2,3,4,5,6].map(i=>'<div class="lib"><span>'+label(i)+'</span><div class="chips">'+ms.map(mm=>'<button class="tog" data-act="placeIt" data-i="'+i+'" data-m="'+mm+'">'+MEALNAME[mm]+'</button>').join("")+'</div></div>').join("")+
+  const pref=m||mealsOf(d)[0];sheetCtx={id};
+  openSheet('<h2>'+esc(d.name)+'</h2>'+dishInfo(d).replace(/^<h2>.*?<\/h2>/,"")+'<p class="hint">Tap the day and meal. Any meal works. The Bazaar and Cook lists update for approved cook visits.</p>'+
+   [0,1,2,3,4,5,6].map(i=>'<div class="lib"><span>'+label(i)+'</span><div class="chips">'+MK.map(mm=>'<button class="tog" data-act="placeIt" data-i="'+i+'" data-m="'+mm+'"'+(mm===pref?' style="border-color:var(--accent);color:var(--accent);font-weight:700"':'')+'>'+MEALNAME[mm]+'</button>').join("")+'</div></div>').join("")+
    '<div class="row" style="margin-top:10px"><button class="btn plain" data-act="close">Cancel</button></div>');
 }
 async function showIdeas(){
@@ -1078,10 +1071,11 @@ function costLine(r){return r.usd?" Cost about ₹"+(r.usd*90).toFixed(2)+"."+(r
 async function ideas(btn){
   const wEl=$("wish");lastWish=wEl?wEl.value.trim():"";
   btn.disabled=true;btn.textContent="Asking Claude…";setStatus("ideasMsg","Asking Claude. This can take up to a minute.",false);
-  const r=await askClaude({label:"Ideas tab"+(lastWish?": "+lastWish:""),meal:"any",veg:ideaSide,count:6,wish:lastWish});
-  btn.disabled=false;btn.textContent="Ideas with Claude";
+  const r=await askClaude({label:MEALNAME[ideaMeal]+" ideas"+(lastWish?": "+lastWish:""),meal:MEALKEY[ideaMeal],veg:ideaSide,count:ideaSide==="both"?6:4,wish:lastWish});
+  btn.disabled=false;btn.textContent="Ask Claude for "+MEALNAME[ideaMeal].toLowerCase()+" ideas";
   if(r.error){setStatus("ideasMsg",r.error,true);return;}
-  webG=groupIds(r.ids);ideaStatus=r.ids.length+" ideas from Claude, saved to your dishes."+costLine(r);render();
+  const g=groupIds([]);r.ids.forEach(id=>{const d=dish(id);if(d)g[ideaMeal][d.veg?"v":"n"].push(id);});
+  webG=webG||emptyG();webG[ideaMeal]=g[ideaMeal];ideaStatus=r.ids.length+" new "+MEALNAME[ideaMeal].toLowerCase()+" ideas from Claude, shown at the top and saved to your dishes."+costLine(r);render();
 }
 /* Ideas sheet for one meal of one day */
 let slotWeb=[];
@@ -1098,6 +1092,7 @@ function openSlot(){
     (slotWeb.length?'<h3>New from Claude</h3>'+slotWeb.map(row).join(""):'')+
     '<h3><span class="pill veg">Veg</span> from your dishes</h3>'+v.map(row).join("")+
     '<h3><span class="pill cn">Non-veg</span> from your dishes</h3>'+n.map(row).join("")+
+    '<label class="field"><span>Add any dish to this meal</span><input type="search" id="slotQ" placeholder="Search all dishes, e.g. uttapam"></label><div id="slotList"></div>'+
     '<div class="row" style="margin-top:12px"><button class="btn ghost" data-act="slotClaude" data-v="both">Ask Claude for '+MEALNAME[m].toLowerCase()+' ideas</button><button class="btn plain" data-act="slotMore">Show other dishes</button><button class="btn plain" data-act="close">Done</button></div>'+
     '<div class="status" id="slotMsg" hidden></div>');
 }
@@ -1154,7 +1149,8 @@ document.addEventListener("click",e=>{
   }
   else if(a==="deldish"&&sheetCtx){const id=sheetCtx.edit;S.mine=S.mine.filter(x=>x.id!==id);S.plan.forEach(d=>["b","l","d"].forEach(m=>{d[m]=d[m].filter(x=>x!==id);}));save();closeSheet();render();}
   else if(a==="ideas")ideas(b);
-  else if(a==="side"){ideaSide=b.dataset.k;if(freeG)freePick();render();}
+  else if(a==="side"){ideaSide=b.dataset.k;render();}
+  else if(a==="imeal"){ideaMeal=b.dataset.k;ideaStatus="";render();}
   else if(a==="okAll"){S.okv={};visits().forEach(v=>{S.okv[v.id]=true;});save();render();}
   else if(a==="okNone"){S.okv={};save();render();}
   else if(a==="slotIdeas")slotSheet(i,b.dataset.m);
@@ -1202,7 +1198,7 @@ document.addEventListener("click",e=>{
   else if(a==="logClear"){twoTap(b,()=>{AI.log=[];saveAI();render();},"Tap again to clear");}
   else if(a==="aiClear"){AI.url="";AI.token="";saveAI();render();}
   else if(a==="aiSave"){AI.url=$("aiUrl").value.trim();AI.token=$("aiTok").value.trim();saveAI();setOpen=true;render();const st=$("aiState");if(st)st.textContent=aiReady()?"Connected. Ideas through web is ready on the Dishes tab.":"Add both the Worker link and the passcode.";}
-  else if(a==="free"){freePick();ideaStatus="Ideas from your saved dishes, by meal. Tap again for others.";render();}
+  else if(a==="free"){const keep=freeG;freePick();["b","l","d"].forEach(k=>{if(k!==ideaMeal)freeG[k]=keep[k];});ideaStatus="";render();}
   else if(a==="toMenu")toMenuSheet(b.dataset.id,b.dataset.m);
   else if(a==="placeIt"&&sheetCtx){const nm=(dish(sheetCtx.id)||{}).name||"Dish";S.plan[i][b.dataset.m].push(sheetCtx.id);save();closeSheet();ideaStatus=nm+" added to "+label(i)+" "+MEALNAME[b.dataset.m].toLowerCase()+"."+(slotOk(i,b.dataset.m)?" Bazaar and Cook lists updated.":" Approve that cook visit on the Menu tab to add it to the lists.");render();}
   else if(a==="backup"){try{const bl=new Blob([JSON.stringify(S,null,1)],{type:"application/json"});const u=URL.createObjectURL(bl);const l=document.createElement("a");l.href=u;l.download="rannaghar-backup-"+iso(new Date())+".json";document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);$("bkMsg").textContent="Backup saved to your Downloads.";}catch(err){textSheet(JSON.stringify(S));}}
@@ -1217,6 +1213,8 @@ document.addEventListener("change",e=>{
 });
 document.addEventListener("input",e=>{
   if(e.target.id==="q")$("pickList").innerHTML=pickList(e.target.value);
+  else if(e.target.id==="slotQ"){const q=e.target.value.trim().toLowerCase();const el=$("slotList");if(!el)return;if(!q){el.innerHTML="";return;}
+    el.innerHTML=allDishes().filter(x=>x.type!=="staple"&&(x.name.toLowerCase().includes(q)||TYPES[x.type].toLowerCase().includes(q)||x.ing.some(y=>y.n.toLowerCase().includes(q)))).slice(0,30).map(x=>'<div class="lib"><span>'+esc(x.name)+' <span class="pill tag">'+esc(TYPES[x.type])+'</span></span><button class="btn plain small" data-act="slotAdd" data-id="'+x.id+'">Add</button></div>').join("")||'<p class="hint">No dish matches.</p>';}
   else if(e.target.id==="lq"&&listDraft){listDraft.q=e.target.value.trim();$("lrows").innerHTML=listRows();}
   else if(e.target.id==="swapQ"){const q=e.target.value.trim().toLowerCase();if(!q)return;
     $("swapList").innerHTML=allDishes().filter(x=>x.type!=="staple"&&(x.name.toLowerCase().includes(q)||TYPES[x.type].toLowerCase().includes(q)||x.ing.some(y=>y.n.toLowerCase().includes(q)))).slice(0,40).map(twoBtnRow).join("")||'<p class="hint">No dish matches. Try Ask Claude, or add your own in the Dishes tab.</p>';}
