@@ -11,6 +11,8 @@ const MODEL = "claude-haiku-5-5";
 // USD per million tokens for prompts under 100k tokens. Edit if Anthropic changes prices.
 const PRICE_IN = 0.10;
 const PRICE_OUT = 0.50;
+const PRICE_SEARCH = 0.01; // USD per web search
+const MAX_SEARCHES = 3;
 const TYPES = ["bf", "dal", "side", "fish", "chicken", "egg", "mutton", "vegmain", "cncarb", "cnmain"];
 
 function cors(env) {
@@ -43,7 +45,7 @@ export default {
     const count = Math.min(8, Math.max(1, parseInt(input.count, 10) || 5));
 
     const prompt =
-      `Suggest ${count} home-style dishes for a Bengali family in Kolkata (3-4 people) that are NOT already in this list: ${have.join("; ")}.\n` +
+      `Search the web (Bengali food blogs and recipe sites) and suggest ${count} home-style dishes for a Bengali family in Kolkata (3-4 people) that are NOT already in this list: ${have.join("; ")}.\n` +
       `Mostly non-vegetarian Bengali food, with an occasional home-made Chinese or vegetarian dish. Every dish must use very little oil and no deep frying.\n` +
       (wish ? `The family asked for: ${wish}\n` : "") +
       `Return ONLY a JSON array, no other text. Each element: {"name":string, "type":one of ${TYPES.join("|")}, "veg":boolean, ` +
@@ -52,7 +54,7 @@ export default {
       `"note":one or two short sentences telling the cook how to make it with less oil}. Main ingredients only, at most 7 per dish. ` +
       `Types: bf breakfast, dal, side vegetable side, fish, chicken, egg, mutton, vegmain vegetarian main, cncarb Chinese rice or noodles, cnmain Chinese side dish.`;
 
-    const r = await fetch("https://api.anthropic.com/v1/messages", {
+    const call = (withSearch) => fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "content-type": "application/json",
@@ -61,11 +63,20 @@ export default {
       },
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 3000,
+        max_tokens: 4000,
         messages: [{ role: "user", content: prompt }],
+        ...(withSearch ? { tools: [{ type: "web_search_20250305", name: "web_search", max_uses: MAX_SEARCHES }] } : {}),
       }),
     });
-    const data = await r.json().catch(() => ({}));
+    let searched = true;
+    let r = await call(true);
+    let data = await r.json().catch(() => ({}));
+    // If web search is switched off for this API key, still return ideas without it.
+    if (!r.ok && r.status === 400 && /tool|search/i.test((data.error && data.error.message) || "")) {
+      searched = false;
+      r = await call(false);
+      data = await r.json().catch(() => ({}));
+    }
     if (!r.ok) return reply(env, 502, { error: (data.error && data.error.message) || "Claude API error " + r.status });
 
     const text = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("");
@@ -74,7 +85,8 @@ export default {
     try { dishes = m ? JSON.parse(m[0]) : []; } catch { dishes = []; }
 
     const u = data.usage || {};
-    const usd = ((u.input_tokens || 0) * PRICE_IN + (u.output_tokens || 0) * PRICE_OUT) / 1e6;
-    return reply(env, 200, { dishes, usd });
+    const searches = (u.server_tool_use && u.server_tool_use.web_search_requests) || 0;
+    const usd = ((u.input_tokens || 0) * PRICE_IN + (u.output_tokens || 0) * PRICE_OUT) / 1e6 + searches * PRICE_SEARCH;
+    return reply(env, 200, { dishes, usd, searched, searches });
   },
 };

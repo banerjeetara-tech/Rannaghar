@@ -400,7 +400,7 @@ function vWeek(){
    '<h3>New dish ideas (Claude API)</h3><p class="hint">Paste your Cloudflare Worker link and the passcode you set on it.</p>'+
    '<label class="field"><span>Worker link</span><input type="text" id="aiUrl" inputmode="url" placeholder="https://rannaghar.yourname.workers.dev" value="'+esc(AI.url)+'"></label>'+
    '<label class="field"><span>Passcode</span><input type="text" id="aiTok" autocomplete="off" value="'+esc(AI.token)+'"></label>'+
-   '<p class="hint">'+(aiReady()?'Connected. Spent this month: about ₹'+((AI.spend[monthKey()]||0)*90).toFixed(2):'Not connected yet.')+'</p>'+
+   '<p class="hint">'+(aiReady()?'Connected. Spent this month on web ideas: about ₹'+((AI.spend[monthKey()]||0)*90).toFixed(2):'Not connected yet.')+'</p>'+
    '<h3>Backup</h3><p class="hint">Your menu and your own dishes live only on this phone. Save a backup now and then.</p>'+
    '<div class="row"><button class="btn plain small" data-act="backup">Save backup file</button><label class="btn plain small" for="restore">Restore from file</label><input type="file" id="restore" accept=".json,application/json" hidden></div><p class="hint" id="bkMsg"></p></details>';
   h+='<div class="row"><button class="btn plain small" data-act="copy" data-what="menu">Copy menu</button><a class="btn plain small" target="_blank" rel="noopener" href="'+esc(wa(menuText()))+'">Send menu on WhatsApp</a></div>';
@@ -448,10 +448,14 @@ function vShop(){
   return h;
 }
 function vDishes(){
+  const ai=aiReady()||!!sampleFn;
   let h='<div class="row"><button class="btn" data-act="new">Add my dish</button></div>'+
-   '<section class="card" id="ideasCard"'+(aiReady()?'':' hidden')+'><h2>New dish ideas</h2><label class="field"><span>Anything in mind? (optional)</span><input type="text" id="wish" placeholder="e.g. prawn dishes, quick weekday dinners" value="'+esc(lastWish)+'"></label>'+
-   '<div class="row" style="margin-top:10px"><button class="btn ghost" id="ideasBtn" data-act="ideas">Get 5 new ideas</button></div><p class="hint" id="ideasMsg">'+(aiReady()?'Each request costs less than ₹1.':'')+'</p></section>'+
-   (aiReady()?'':'<p class="hint" id="aiHint">To get new dish ideas from Claude, connect your Worker under Menu, Settings.</p>')+
+   '<section class="card"><h2>Ideas</h2>'+
+   '<label class="field"><span>Kind of dish</span><select id="ideaType"><option value="">Any lunch or dinner dish</option>'+Object.keys(TYPES).filter(t=>t!=="staple").map(t=>'<option value="'+t+'"'+(t===ideaType?" selected":"")+'>'+TYPES[t]+'</option>').join("")+'</select></label>'+
+   '<div class="row" style="margin-top:10px"><button class="btn" data-act="free">Ideas</button>'+(ai?'<button class="btn ghost" id="ideasBtn" data-act="ideas">Ideas through web</button>':'')+'</div>'+
+   '<p class="hint">Ideas is free and picks from your saved dishes that are not on this week or last week. '+(ai?'Ideas through web asks Claude to search online for new dishes, about ₹3 each time.':'To also get new dishes from the web, connect your Worker under Menu, Settings.')+'</p>'+
+   (ai?'<label class="field"><span>For the web search, anything in mind? (optional)</span><input type="text" id="wish" placeholder="e.g. prawn dishes, quick weekday dinners" value="'+esc(lastWish)+'"></label>':'')+
+   '<p class="hint" id="ideasMsg"></p><div id="ideaList">'+ideaListHtml()+'</div></section>'+
    '<p class="hint">Tap a dish to see it. Switch one off and it stops appearing in the weekly shuffle.</p>';
   Object.keys(TYPES).forEach(t=>{
     const ds=allDishes().filter(d=>d.type===t);if(!ds.length)return;
@@ -521,11 +525,27 @@ function twoTap(btn,fn){
 }
 
 /* ---------- New ideas from Claude ---------- */
-let sampleFn=null, lastWish="";
+let sampleFn=null, lastWish="", ideaType="", freeIdeas=[];
+function freePick(){
+  const onMenu=new Set([].concat(...S.plan.map(d=>d.b.concat(d.l,d.d))));
+  const notRecent=d=>!onMenu.has(d.id)&&!S.last.includes(d.id);
+  let pool=allDishes().filter(d=>d.type!=="staple"&&!S.off.includes(d.id)&&(ideaType?d.type===ideaType:d.type!=="bf"));
+  const fresh=pool.filter(notRecent);
+  freeIdeas=shuffle(fresh.length>=3?fresh:pool).slice(0,5).map(d=>d.id);
+}
+function ideaListHtml(){
+  return freeIdeas.map(id=>{const d=dish(id);if(!d)return "";
+    return '<div class="lib"><button class="nm" data-act="view" data-id="'+d.id+'">'+esc(d.name)+' <span class="pill tag">'+TYPES[d.type]+'</span>'+(d.ai?' <span class="pill tag">new idea</span>':'')+'</button><button class="btn plain small" data-act="toMenu" data-id="'+d.id+'">Put on menu</button></div>';}).join("");
+}
+function toMenuSheet(id){
+  const d=dish(id);if(!d)return;sheetCtx={id};
+  const def=d.type==="bf"?["b"]:["l","d"];
+  openSheet('<h2>'+esc(d.name)+'</h2><p class="hint">Pick a day and meal.</p>'+[0,1,2,3,4,5,6].map(i=>'<div class="lib"><span>'+label(i)+'</span><div class="chips">'+MEALS.filter(([m])=>def.includes(m)).map(([m,t])=>'<button class="tog" data-act="placeIt" data-i="'+i+'" data-m="'+m+'">'+t+'</button>').join("")+'</div></div>').join("")+'<div class="row" style="margin-top:10px"><button class="btn plain" data-act="close">Cancel</button></div>');
+}
 async function showIdeas(){
   try{
     if(sampleFn===null){sampleFn=(window.claude&&window.claude.use)?(await window.claude.use("sample"))||false:false;}
-    const c=$("ideasCard");if(c&&sampleFn){c.hidden=false;const h=$("aiHint");if(h)h.hidden=true;}
+    if(sampleFn&&!aiReady()&&tab==="dishes"&&!$("ideasBtn"))render();
   }catch(e){sampleFn=false;}
 }
 function addIdeas(out){
@@ -541,23 +561,23 @@ function addIdeas(out){
 async function ideas(btn){
   const msg=$("ideasMsg");const wEl=$("wish");lastWish=wEl?wEl.value.trim():"";
   if(aiReady()){
-    btn.disabled=true;btn.textContent="Thinking of dishes";
+    btn.disabled=true;btn.textContent="Searching the web";
     try{
       const r=await fetch(AI.url.replace(/\/+$/,""),{method:"POST",headers:{"Content-Type":"application/json","x-rannaghar-token":AI.token},body:JSON.stringify({have:allDishes().map(d=>d.name),wish:lastWish,count:5})});
       const j=await r.json().catch(()=>({}));
       if(!r.ok)throw new Error(r.status===401?"The passcode does not match the one on your Worker.":(j.error||"The Worker answered with error "+r.status+"."));
       if(j.usd){const k=monthKey();AI.spend[k]=(AI.spend[k]||0)+j.usd;saveAI();}
-      const n=addIdeas(j.dishes);
-      if(n){save();render();$("ideasMsg").textContent=n+" new dishes added, marked as new idea in the lists below. Cost about ₹"+((j.usd||0)*90).toFixed(2)+".";}
-      else{msg.textContent="No usable ideas came back. Try again, or change what you typed.";btn.disabled=false;btn.textContent="Get 5 new ideas";}
+      const before=S.mine.length;const n=addIdeas(j.dishes);
+      if(n){freeIdeas=S.mine.slice(before).map(d=>d.id);save();render();$("ideasMsg").textContent=n+" new dishes found on the web and saved to your list. Cost about ₹"+((j.usd||0)*90).toFixed(2)+".";}
+      else{msg.textContent="No usable ideas came back. Try again, or change what you typed.";btn.disabled=false;btn.textContent="Ideas through web";}
     }catch(e){
       msg.textContent=(e&&e.message&&!/fetch/i.test(e.message))?e.message:"Could not reach your Worker. Check the link in Menu, Settings.";
-      btn.disabled=false;btn.textContent="Get 5 new ideas";
+      btn.disabled=false;btn.textContent="Ideas through web";
     }
     return;
   }
   if(!sampleFn)return;
-  btn.disabled=true;btn.textContent="Thinking of dishes";
+  btn.disabled=true;btn.textContent="Searching the web";
   const have=allDishes().map(d=>d.name).join("; ");
   const prompt="Suggest 5 home-style dishes for a Bengali family in Kolkata that are NOT already in this list: "+have+".\n"+
    "Mostly non-vegetarian Bengali food, with one or two home-made Chinese or vegetarian dishes. Every dish must be cooked with very little oil (no deep frying).\n"+(lastWish?"The family asked for: "+lastWish+"\n":"")+
@@ -567,12 +587,12 @@ async function ideas(btn){
   try{
     let out=await sampleFn.json(prompt);
     if(out&&!Array.isArray(out)&&Array.isArray(out.dishes))out=out.dishes;
-    const n=addIdeas(out);
-    if(n){save();render();$("ideasMsg").textContent=n+" new dishes added. They are marked as new idea in the lists below.";}
-    else{msg.textContent="No usable ideas came back. Try again in a minute.";btn.disabled=false;btn.textContent="Get 5 new ideas";}
+    const before=S.mine.length;const n=addIdeas(out);
+    if(n){freeIdeas=S.mine.slice(before).map(d=>d.id);save();render();$("ideasMsg").textContent=n+" new dishes added. They are marked as new idea in the lists below.";}
+    else{msg.textContent="No usable ideas came back. Try again in a minute.";btn.disabled=false;btn.textContent="Ideas through web";}
   }catch(e){
     if(e&&e.code==="not_granted"){btn.hidden=true;msg.textContent="New ideas are switched off for this page.";}
-    else{msg.textContent="Could not get ideas just now. Try again in a minute.";btn.disabled=false;btn.textContent="Get 5 new ideas";}
+    else{msg.textContent="Could not get ideas just now. Try again in a minute.";btn.disabled=false;btn.textContent="Ideas through web";}
   }
 }
 
@@ -609,12 +629,16 @@ document.addEventListener("click",e=>{
   }
   else if(a==="deldish"&&sheetCtx){const id=sheetCtx.edit;S.mine=S.mine.filter(x=>x.id!==id);S.plan.forEach(d=>["b","l","d"].forEach(m=>{d[m]=d[m].filter(x=>x!==id);}));save();closeSheet();render();}
   else if(a==="ideas")ideas(b);
+  else if(a==="free"){freePick();render();const m=$("ideasMsg");if(m)m.textContent=freeIdeas.length?"From your saved dishes. Tap Ideas again for others.":"No dishes of that kind are switched on.";}
+  else if(a==="toMenu")toMenuSheet(b.dataset.id);
+  else if(a==="placeIt"&&sheetCtx){S.plan[i][b.dataset.m].push(sheetCtx.id);save();closeSheet();const m=$("ideasMsg");render();const m2=$("ideasMsg");if(m2)m2.textContent="Added to "+label(i)+".";}
   else if(a==="backup"){try{const bl=new Blob([JSON.stringify(S,null,1)],{type:"application/json"});const u=URL.createObjectURL(bl);const l=document.createElement("a");l.href=u;l.download="rannaghar-backup-"+iso(new Date())+".json";document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);$("bkMsg").textContent="Backup saved to your Downloads.";}catch(err){textSheet(JSON.stringify(S));}}
 });
 document.addEventListener("change",e=>{
   const t=e.target;
   if(t.dataset&&t.dataset.ck){if(t.checked)S.ck[t.dataset.ck]=true;else delete S.ck[t.dataset.ck];save();render();}
   else if(t.id==="restore"&&t.files&&t.files[0]){t.files[0].text().then(tx=>{const o=JSON.parse(tx);if(!Array.isArray(o.plan)||o.plan.length!==7)throw 0;S=normalize(o);save();render();setOpen=true;}).catch(()=>{const m=$("bkMsg");if(m)m.textContent="That file is not a Rannaghar backup.";});}
+  else if(t.id==="ideaType"){ideaType=t.value;}
   else if(t.id==="aiUrl"||t.id==="aiTok"){AI.url=$("aiUrl").value.trim();AI.token=$("aiTok").value.trim();saveAI();setOpen=true;render();}
   else if(t.id==="ws"&&t.value){S.weekStart=t.value;save();render();}
 });
