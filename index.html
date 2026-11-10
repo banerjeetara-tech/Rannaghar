@@ -47,7 +47,7 @@ h1{font-family:var(--display);font-weight:600;font-size:24px;margin:0;line-heigh
 .sync{color:var(--muted);font-size:11px;text-align:right;white-space:nowrap}
 main{flex:1;overflow-y:auto;padding:14px 16px 24px;display:flex;flex-direction:column;gap:12px}
 nav{display:flex;border-top:1px solid var(--line);background:var(--card)}
-nav button{flex:1;background:none;border:0;padding:11px 4px 12px;font-weight:600;font-size:13px;color:var(--muted);border-top:3px solid transparent}
+nav button{flex:1;background:none;border:0;padding:11px 2px 12px;font-weight:600;font-size:12.5px;color:var(--muted);border-top:3px solid transparent}
 nav button[aria-current="true"]{color:var(--accent);border-top-color:var(--accent)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
 .card.today{border-color:var(--accent)}
@@ -115,6 +115,7 @@ input[type=text],input[type=date],input[type=number],input[type=search],select,t
     <button data-tab="cook">Cook</button>
     <button data-tab="shop">Shopping</button>
     <button data-tab="dishes">Dishes</button>
+    <button data-tab="settings">Settings</button>
   </nav>
 </div>
 <div id="sheet" hidden><div class="sheet-bg" data-act="close"></div><div class="sheet-body" id="sheetBody"></div></div>
@@ -564,27 +565,31 @@ function render(){
   $("weekLabel").textContent="Week of "+label(0)+", for "+S.people+" people";
   document.querySelectorAll("nav button").forEach(b=>b.setAttribute("aria-current",String(b.dataset.tab===tab)));
   const m=$("main");const top=m.scrollTop;const de=$("set");if(de)setOpen=de.open;
-  m.innerHTML={week:vWeek,cook:vCook,shop:vShop,dishes:vDishes}[tab]();
+  m.innerHTML={week:vWeek,cook:vCook,shop:vShop,dishes:vDishes,settings:vSettings}[tab]();
   m.scrollTop=top;
 }
 function dayToggles(key){
   return [1,2,3,4,5,6,0].map(wd=>'<button class="tog" data-act="tg" data-key="'+key+'" data-wd="'+wd+'" aria-pressed="'+S[key].includes(wd)+'">'+DAY[wd]+'</button>').join("");
 }
-function vWeek(){
-  const today=iso(new Date());
-  let h='<details class="card" id="set"'+(setOpen?" open":"")+'><summary>Settings and new week</summary>'+
+function vSettings(){
+  return '<section class="card"><h2>Claude API for new dish ideas</h2>'+
+   '<p class="hint">Used only when you tap Ideas through web on the Dishes tab. Paste your Cloudflare Worker link and the passcode (APP_TOKEN) you set on it.</p>'+
+   '<label class="field"><span>Worker link</span><input type="text" id="aiUrl" inputmode="url" autocapitalize="off" spellcheck="false" placeholder="https://rannaghar.yourname.workers.dev" value="'+esc(AI.url)+'"></label>'+
+   '<label class="field"><span>Passcode</span><input type="text" id="aiTok" autocomplete="off" autocapitalize="off" spellcheck="false" value="'+esc(AI.token)+'"></label>'+
+   '<div class="row" style="margin-top:10px"><button class="btn" data-act="aiSave">Save connection</button>'+(aiReady()?'<button class="btn plain" data-act="aiClear">Disconnect</button>':'')+'</div>'+
+   '<p class="hint" id="aiState">'+(aiReady()?'Connected. Spent this month on web ideas: about ₹'+((AI.spend[monthKey()]||0)*90).toFixed(2):'Not connected yet.')+'</p></section>'+
+   '<section class="card"><h2>Family and week</h2>'+
    '<div class="field"><span>People eating</span><div class="stepper"><button data-act="ppl" data-n="-1" aria-label="Fewer people">−</button><b>'+S.people+'</b><button data-act="ppl" data-n="1" aria-label="More people">+</button></div></div>'+
    '<div class="field"><span>Vegetarian days</span><div class="chips">'+dayToggles("vegDays")+'</div></div>'+
    '<div class="field"><span>Chinese dinner nights</span><div class="chips">'+dayToggles("cnDays")+'</div></div>'+
    '<label class="field"><span>Week starts on</span><input type="date" id="ws" value="'+esc(S.weekStart)+'"></label>'+
-   '<p class="hint">Day choices apply the next time you shuffle.</p>'+
-   '<div class="row"><button class="btn" data-act="next">Plan next week</button><button class="btn ghost" data-act="shuf">Shuffle this week</button></div>'+
-   '<h3>New dish ideas (Claude API)</h3><p class="hint">Paste your Cloudflare Worker link and the passcode you set on it.</p>'+
-   '<label class="field"><span>Worker link</span><input type="text" id="aiUrl" inputmode="url" placeholder="https://rannaghar.yourname.workers.dev" value="'+esc(AI.url)+'"></label>'+
-   '<label class="field"><span>Passcode</span><input type="text" id="aiTok" autocomplete="off" value="'+esc(AI.token)+'"></label>'+
-   '<div class="row" style="margin-top:8px"><button class="btn plain small" data-act="aiSave">Save connection</button></div><p class="hint" id="aiState">'+(aiReady()?'Connected. Spent this month on web ideas: about ₹'+((AI.spend[monthKey()]||0)*90).toFixed(2):'Not connected yet.')+'</p>'+
-   '<h3>Backup</h3><p class="hint">Your menu and your own dishes live only on this phone. Save a backup now and then.</p>'+
-   '<div class="row"><button class="btn plain small" data-act="backup">Save backup file</button><label class="btn plain small" for="restore">Restore from file</label><input type="file" id="restore" accept=".json,application/json" hidden></div><p class="hint" id="bkMsg"></p></details>';
+   '<p class="hint">Day choices apply the next time you shuffle or plan a new week.</p></section>'+
+   '<section class="card"><h2>Backup</h2><p class="hint">Your menu and your own dishes live only on this phone. Save a backup now and then.</p>'+
+   '<div class="row"><button class="btn plain" data-act="backup">Save backup file</button><label class="btn plain" for="restore">Restore from file</label><input type="file" id="restore" accept=".json,application/json" hidden></div><p class="hint" id="bkMsg"></p></section>';
+}
+function vWeek(){
+  const today=iso(new Date());
+  let h='<div class="row"><button class="btn" data-act="next">Plan next week</button><button class="btn ghost" data-act="shuf">Shuffle this week</button></div>';
   h+='<div class="row"><button class="btn plain small" data-act="copy" data-what="menu">Copy menu</button><a class="btn plain small" target="_blank" rel="noopener" href="'+esc(wa(menuText()))+'">Send menu on WhatsApp</a></div>';
   for(let i=0;i<7;i++){
     const d=dateOf(i),wd=d.getDay();
@@ -635,7 +640,7 @@ function vDishes(){
    '<section class="card"><h2>Ideas</h2>'+
    '<label class="field"><span>Kind of dish</span><select id="ideaType"><option value="">Any lunch or dinner dish</option>'+Object.keys(TYPES).filter(t=>t!=="staple").map(t=>'<option value="'+t+'"'+(t===ideaType?" selected":"")+'>'+TYPES[t]+'</option>').join("")+'</select></label>'+
    '<div class="row" style="margin-top:10px"><button class="btn" data-act="free">Ideas</button><button class="btn ghost" id="ideasBtn" data-act="ideas">Ideas through web</button></div>'+
-   '<p class="hint">Ideas is free and picks from your saved dishes that are not on this week or last week. '+'Ideas through web asks Claude to search online for new dishes, about ₹3 each time.'+(ai?'':' It needs your Cloudflare Worker link and passcode, saved under Menu, Settings and new week.')+'</p>'+
+   '<p class="hint">Ideas is free and picks from your saved dishes that are not on this week or last week. '+'Ideas through web asks Claude to search online for new dishes, about ₹3 each time.'+(ai?'':' It needs your Cloudflare Worker link and passcode, saved in the Settings tab.')+'</p>'+
    ('<label class="field"><span>For the web search, anything in mind? (optional)</span><input type="text" id="wish" placeholder="e.g. prawn dishes, quick weekday dinners" value="'+esc(lastWish)+'"></label>')+
    '<p class="hint" id="ideasMsg"></p><div id="ideaList">'+ideaListHtml()+'</div></section>'+
    '<p class="hint">Tap a dish to see it. Switch one off and it stops appearing in the weekly shuffle.</p>';
@@ -759,13 +764,13 @@ async function ideas(btn){
       if(n){freeIdeas=S.mine.slice(before).map(d=>d.id);save();render();$("ideasMsg").textContent=n+" new dishes found on the web and saved to your list. Cost about ₹"+((j.usd||0)*90).toFixed(2)+".";}
       else{msg.textContent="No usable ideas came back. Try again, or change what you typed.";btn.disabled=false;btn.textContent="Ideas through web";}
     }catch(e){
-      msg.textContent=(e&&e.message&&!/fetch/i.test(e.message))?e.message:"Could not reach your Worker. Check the link in Menu, Settings.";
+      msg.textContent=(e&&e.message&&!/fetch/i.test(e.message))?e.message:"Could not reach your Worker. Check the link in the Settings tab.";
       btn.disabled=false;btn.textContent="Ideas through web";
     }
     return;
   }
   if(!sampleFn){
-    msg.textContent="Not connected yet. Go to Menu, open Settings and new week, and paste your Worker link and passcode under New dish ideas. Then come back here.";
+    msg.textContent="Not connected yet. Open the Settings tab, paste your Worker link and passcode, tap Save connection, then come back here.";
     return;
   }
   btn.disabled=true;btn.textContent="Searching the web";
@@ -820,6 +825,7 @@ document.addEventListener("click",e=>{
   }
   else if(a==="deldish"&&sheetCtx){const id=sheetCtx.edit;S.mine=S.mine.filter(x=>x.id!==id);S.plan.forEach(d=>["b","l","d"].forEach(m=>{d[m]=d[m].filter(x=>x!==id);}));save();closeSheet();render();}
   else if(a==="ideas")ideas(b);
+  else if(a==="aiClear"){AI.url="";AI.token="";saveAI();render();}
   else if(a==="aiSave"){AI.url=$("aiUrl").value.trim();AI.token=$("aiTok").value.trim();saveAI();setOpen=true;render();const st=$("aiState");if(st)st.textContent=aiReady()?"Connected. Ideas through web is ready on the Dishes tab.":"Add both the Worker link and the passcode.";}
   else if(a==="free"){freePick();render();const m=$("ideasMsg");if(m)m.textContent=freeIdeas.length?"From your saved dishes. Tap Ideas again for others.":"No dishes of that kind are switched on.";}
   else if(a==="toMenu")toMenuSheet(b.dataset.id);
@@ -831,7 +837,7 @@ document.addEventListener("change",e=>{
   if(t.dataset&&t.dataset.ck){if(t.checked)S.ck[t.dataset.ck]=true;else delete S.ck[t.dataset.ck];save();render();}
   else if(t.id==="restore"&&t.files&&t.files[0]){t.files[0].text().then(tx=>{const o=JSON.parse(tx);if(!Array.isArray(o.plan)||o.plan.length!==7)throw 0;S=normalize(o);save();render();setOpen=true;}).catch(()=>{const m=$("bkMsg");if(m)m.textContent="That file is not a Rannaghar backup.";});}
   else if(t.id==="ideaType"){ideaType=t.value;}
-  else if(t.id==="aiUrl"||t.id==="aiTok"){AI.url=$("aiUrl").value.trim();AI.token=$("aiTok").value.trim();saveAI();setOpen=true;render();}
+  else if(t.id==="aiUrl"||t.id==="aiTok"){AI.url=$("aiUrl").value.trim();AI.token=$("aiTok").value.trim();saveAI();}
   else if(t.id==="ws"&&t.value){S.weekStart=t.value;save();render();}
 });
 document.addEventListener("input",e=>{

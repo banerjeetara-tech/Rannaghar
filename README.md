@@ -2,7 +2,7 @@
 
 Weekly family meal planner: a day-wise menu (breakfast, lunch, dinner), cooking instructions for the cook, and separate bazaar and online shopping lists you can send on WhatsApp.
 
-Single HTML file with about 240 built-in dishes (Bengali, home-style Chinese, breakfasts, veg). Your menu and own dishes are saved in Chrome on your phone. Use **Menu > Settings > Save backup file** now and then.
+Single HTML file with about 240 built-in dishes (Bengali, home-style Chinese, breakfasts, veg). Your menu and own dishes are saved in Chrome on your phone. Use **Settings > Save backup file** now and then.
 
 Open the app in Chrome and choose **Add to Home screen**.
 
@@ -15,6 +15,6 @@ On the Dishes tab, **Ideas** is free and picks from your saved dishes. **Ideas t
 3. **Secrets.** In the Worker, open Settings > Variables and Secrets and add two **Secrets**:
    - `ANTHROPIC_API_KEY`: your key from step 1
    - `APP_TOKEN`: any passcode you choose
-4. **Connect the app.** Open the app, go to Menu > Settings and new week, and paste the Worker link (for example `https://rannaghar.<your-subdomain>.workers.dev`) and the same passcode.
+4. **Connect the app.** Open the app, go to the **Settings** tab, paste the Worker link (for example `https://rannaghar.<your-subdomain>.workers.dev`) and the same passcode, then tap **Save connection**.
 
-The app shows roughly what you have spent this month under Settings.
+The app shows roughly what you have spent this month in the Settings tab.
