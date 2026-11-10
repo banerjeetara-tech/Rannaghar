@@ -14,6 +14,10 @@ The menu is grouped by **cook visit**. Set the days the cook comes in Settings (
 2. **Shop** and **Cook** show only approved visits, and update when you change a dish. Shop can show one visit at a time.
 3. **Ideas with Claude** suggests new dishes by meal and by veg and non-veg. It costs about 10 paise a time; web search (about ₹3) is off unless you switch it on in Settings.
 
+## Calories tab
+
+Every dish shows an estimated kcal per serving, worked out from its ingredients and oil. The Menu tab shows planned calories per meal and per day. In the **Calories** tab you log servings eaten each day, add extras, enter your weekly weight and an optional daily target, and see which dishes add the most calories with lighter swaps. **Plan next week** archives the week under Earlier weeks.
+
 ## Menu lists (Ideas tab)
 
 A list is a set of dishes. Pick one to follow and the next **Shuffle** and **Plan next week** use only those dishes. 32 ready-made lists are included, such as Classic Bengali week, Winter specials, Vegetarian week, Prawn specials and Kids' favourites. You can create your own lists, or copy a ready-made one and change it.
