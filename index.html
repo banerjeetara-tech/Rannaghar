@@ -45,6 +45,7 @@ header{padding:14px 16px 10px;display:flex;align-items:flex-end;justify-content:
 h1{font-family:var(--display);font-weight:600;font-size:24px;margin:0;line-height:1.1;text-wrap:balance}
 .sub{color:var(--muted);font-size:13px;margin-top:2px}
 .sync{color:var(--muted);font-size:11px;text-align:right;white-space:nowrap}
+main>*{flex-shrink:0}
 main{flex:1;overflow-y:auto;padding:14px 16px 24px;display:flex;flex-direction:column;gap:12px}
 nav{display:flex;border-top:1px solid var(--line);background:var(--card)}
 nav button{flex:1;background:none;border:0;padding:11px 0 12px;font-weight:600;font-size:11.5px;color:var(--muted);border-top:3px solid transparent}
@@ -1126,7 +1127,7 @@ function genWeek(){
   S.ck={};S.skip={};S.qo={};S.okv={};S.okm={};S.dn={};S.vn={};S.nosend={};S.lo={};
 }
 function fitDay(i,force){
-  const T=+S.target;if(!T||(!S.fit&&!force))return 0;let n=0;
+  const T=Math.max(1200,+S.target||0);if(!+S.target||(!S.fit&&!force))return 0;let n=0;
   const used=new Set([].concat(...S.plan.map(d=>d.b.concat(d.l,d.d))));
   for(let g=0;g<6;g++){
     const k=planDayK(i);if(k<=T*1.05)break;
@@ -1493,6 +1494,7 @@ function goalCard(){
        '<div class="bar" style="margin-top:6px"><i style="width:'+Math.max(3,Math.min(100,st>t?done/(st-t)*100:100))+'%;background:var(--veg)"></i></div>';
   }
   if(sg&&!S.target)h+='<p class="hint" style="margin-top:10px">Suggested: about <b>'+nf(sg)+' kcal</b> a day'+(t&&t<w?', which loses roughly 0.5 kg a week':'')+'. <button class="mini" data-act="useSg">Use this</button></p>';
+  if(S.target&&+S.target<1200)h+='<div class="status err" style="margin-top:10px">'+nf(S.target)+' kcal a day is far too low to be safe and is hard to keep up. Most adults should not go below about 1,200 kcal without a doctor\'s advice. Menus are planned to at least 1,200.</div>';
   if(S.target)h+='<label class="row" style="margin-top:10px;gap:8px"><input type="checkbox" id="fit"'+(S.fit?" checked":"")+'> Plan menus around '+nf(S.target)+' kcal a day</label>'+(S.fit?'<div class="row" style="margin-top:6px"><button class="btn plain small" data-act="fitNow">Lighten this week now</button></div>':'');
   h+='<p class="hint">The suggestion is a rough estimate from your weight only. A doctor or dietitian can set a target suited to you.</p></section>';
   return h;
@@ -1554,7 +1556,7 @@ function wtChart(){
 function vMe(){
   if(calDay<0)calDay=todayIdx();
   let h=goalCard();
-  h+='<div class="chips" style="flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px">'+[0,1,2,3,4,5,6].map(i=>{const k=eatenDay(i);const over=+S.target&&k>+S.target;
+  h+='<div class="chips" style="flex-wrap:nowrap;overflow-x:auto;padding:2px 0 4px;flex-shrink:0">'+[0,1,2,3,4,5,6].map(i=>{const k=eatenDay(i);const over=+S.target&&k>+S.target;
     return '<button class="tog" data-act="calDay" data-i="'+i+'" aria-pressed="'+(i===calDay)+'" style="flex:none;text-align:center;line-height:1.25">'+DAY[dateOf(i).getDay()]+'<br><span style="font-size:11px;'+(over?'color:#b3261e;font-weight:700':'')+'">'+(k?nf(k):'–')+'</span></button>';}).join("")+'</div>';
 
   const i=calDay;
