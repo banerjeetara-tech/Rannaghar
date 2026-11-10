@@ -1,4 +1,4 @@
-// Rannaghar ideas worker (Cloudflare Workers), version 4
+// Rannaghar ideas worker (Cloudflare Workers), version 5
 // Holds your Anthropic API key so it never sits in the app or on GitHub.
 //
 // Secrets to set in Cloudflare (Settings > Variables and Secrets):
@@ -7,7 +7,7 @@
 // Optional plain variable:
 //   ALLOWED_ORIGIN     defaults to https://banerjeetara-tech.github.io
 
-const VERSION = 4;
+const VERSION = 5;
 const MODEL = "claude-haiku-5-5";
 // USD per million tokens for prompts under 100k tokens. Edit if Anthropic changes prices.
 const PRICE_IN = 0.10;
@@ -137,6 +137,7 @@ export default {
     const usd = ((u.input_tokens || 0) * PRICE_IN + (u.output_tokens || 0) * PRICE_OUT) / 1e6 + searches * PRICE_SEARCH;
     return reply(env, 200, {
       dishes, usd, searched, searches, version: VERSION,
+      tin: u.input_tokens || 0, tout: u.output_tokens || 0,
       stop: data.stop_reason,
       text: dishes.length ? undefined : text.slice(0, 12000),
     });
