@@ -582,7 +582,7 @@ function vWeek(){
    '<h3>New dish ideas (Claude API)</h3><p class="hint">Paste your Cloudflare Worker link and the passcode you set on it.</p>'+
    '<label class="field"><span>Worker link</span><input type="text" id="aiUrl" inputmode="url" placeholder="https://rannaghar.yourname.workers.dev" value="'+esc(AI.url)+'"></label>'+
    '<label class="field"><span>Passcode</span><input type="text" id="aiTok" autocomplete="off" value="'+esc(AI.token)+'"></label>'+
-   '<p class="hint">'+(aiReady()?'Connected. Spent this month on web ideas: about ₹'+((AI.spend[monthKey()]||0)*90).toFixed(2):'Not connected yet.')+'</p>'+
+   '<div class="row" style="margin-top:8px"><button class="btn plain small" data-act="aiSave">Save connection</button></div><p class="hint" id="aiState">'+(aiReady()?'Connected. Spent this month on web ideas: about ₹'+((AI.spend[monthKey()]||0)*90).toFixed(2):'Not connected yet.')+'</p>'+
    '<h3>Backup</h3><p class="hint">Your menu and your own dishes live only on this phone. Save a backup now and then.</p>'+
    '<div class="row"><button class="btn plain small" data-act="backup">Save backup file</button><label class="btn plain small" for="restore">Restore from file</label><input type="file" id="restore" accept=".json,application/json" hidden></div><p class="hint" id="bkMsg"></p></details>';
   h+='<div class="row"><button class="btn plain small" data-act="copy" data-what="menu">Copy menu</button><a class="btn plain small" target="_blank" rel="noopener" href="'+esc(wa(menuText()))+'">Send menu on WhatsApp</a></div>';
@@ -634,9 +634,9 @@ function vDishes(){
   let h='<div class="row"><button class="btn" data-act="new">Add my dish</button></div>'+
    '<section class="card"><h2>Ideas</h2>'+
    '<label class="field"><span>Kind of dish</span><select id="ideaType"><option value="">Any lunch or dinner dish</option>'+Object.keys(TYPES).filter(t=>t!=="staple").map(t=>'<option value="'+t+'"'+(t===ideaType?" selected":"")+'>'+TYPES[t]+'</option>').join("")+'</select></label>'+
-   '<div class="row" style="margin-top:10px"><button class="btn" data-act="free">Ideas</button>'+(ai?'<button class="btn ghost" id="ideasBtn" data-act="ideas">Ideas through web</button>':'')+'</div>'+
-   '<p class="hint">Ideas is free and picks from your saved dishes that are not on this week or last week. '+(ai?'Ideas through web asks Claude to search online for new dishes, about ₹3 each time.':'To also get new dishes from the web, connect your Worker under Menu, Settings.')+'</p>'+
-   (ai?'<label class="field"><span>For the web search, anything in mind? (optional)</span><input type="text" id="wish" placeholder="e.g. prawn dishes, quick weekday dinners" value="'+esc(lastWish)+'"></label>':'')+
+   '<div class="row" style="margin-top:10px"><button class="btn" data-act="free">Ideas</button><button class="btn ghost" id="ideasBtn" data-act="ideas">Ideas through web</button></div>'+
+   '<p class="hint">Ideas is free and picks from your saved dishes that are not on this week or last week. '+'Ideas through web asks Claude to search online for new dishes, about ₹3 each time.'+(ai?'':' It needs your Cloudflare Worker link and passcode, saved under Menu, Settings and new week.')+'</p>'+
+   ('<label class="field"><span>For the web search, anything in mind? (optional)</span><input type="text" id="wish" placeholder="e.g. prawn dishes, quick weekday dinners" value="'+esc(lastWish)+'"></label>')+
    '<p class="hint" id="ideasMsg"></p><div id="ideaList">'+ideaListHtml()+'</div></section>'+
    '<p class="hint">Tap a dish to see it. Switch one off and it stops appearing in the weekly shuffle.</p>';
   Object.keys(TYPES).forEach(t=>{
@@ -764,7 +764,10 @@ async function ideas(btn){
     }
     return;
   }
-  if(!sampleFn)return;
+  if(!sampleFn){
+    msg.textContent="Not connected yet. Go to Menu, open Settings and new week, and paste your Worker link and passcode under New dish ideas. Then come back here.";
+    return;
+  }
   btn.disabled=true;btn.textContent="Searching the web";
   const have=allDishes().map(d=>d.name).join("; ");
   const prompt="Suggest 5 home-style dishes for a Bengali family in Kolkata that are NOT already in this list: "+have+".\n"+
@@ -817,6 +820,7 @@ document.addEventListener("click",e=>{
   }
   else if(a==="deldish"&&sheetCtx){const id=sheetCtx.edit;S.mine=S.mine.filter(x=>x.id!==id);S.plan.forEach(d=>["b","l","d"].forEach(m=>{d[m]=d[m].filter(x=>x!==id);}));save();closeSheet();render();}
   else if(a==="ideas")ideas(b);
+  else if(a==="aiSave"){AI.url=$("aiUrl").value.trim();AI.token=$("aiTok").value.trim();saveAI();setOpen=true;render();const st=$("aiState");if(st)st.textContent=aiReady()?"Connected. Ideas through web is ready on the Dishes tab.":"Add both the Worker link and the passcode.";}
   else if(a==="free"){freePick();render();const m=$("ideasMsg");if(m)m.textContent=freeIdeas.length?"From your saved dishes. Tap Ideas again for others.":"No dishes of that kind are switched on.";}
   else if(a==="toMenu")toMenuSheet(b.dataset.id);
   else if(a==="placeIt"&&sheetCtx){S.plan[i][b.dataset.m].push(sheetCtx.id);save();closeSheet();const m=$("ideasMsg");render();const m2=$("ideasMsg");if(m2)m2.textContent="Added to "+label(i)+".";}
