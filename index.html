@@ -1263,10 +1263,97 @@ function usageCard(){
   h+='<p class="hint">Costs are worked out from Claude\'s token counts at about ₹'+INR+' per US dollar. Your exact bill is on console.anthropic.com under Usage.</p></section>';
   return h;
 }
+/* ---------- Ingredient-level calories: kcal per 100 g or ml, grams per household unit ---------- */
+const UNITS={tsp:"tsp (chamach)",tbsp:"tbsp (bada chamach)",cup:"cup",katori:"katori",glass:"glass",pc:"piece / number",slice:"slice",scoop:"scoop",g:"grams",ml:"ml"};
+const FOODS=[
+ ["Oats",389,{tbsp:6,katori:40,cup:80},"G"],["Muesli",380,{tbsp:8,katori:45,cup:85},"G"],["Cornflakes",380,{katori:30,cup:30},"G"],
+ ["Chire (poha), raw",350,{tbsp:6,katori:50,cup:60},"G"],["Muri",400,{katori:20,cup:15},"G"],["Rice, cooked",130,{tbsp:15,katori:150,cup:160},"G"],
+ ["Brown rice, cooked",112,{katori:150,cup:160},"G"],["Ruti / chapati",300,{pc:40},"G"],["Paratha, plain",320,{pc:60},"G"],["Luchi",400,{pc:20},"G"],
+ ["Bread, white",265,{slice:25},"G"],["Brown bread",250,{slice:28},"G"],["Multigrain bread",250,{slice:30},"G"],["Atta",340,{tbsp:8,katori:100,cup:120},"G"],
+ ["Suji",360,{tbsp:10,katori:100},"G"],["Dalia",340,{tbsp:10,katori:100},"G"],["Idli",140,{pc:40},"G"],["Dosa, plain",170,{pc:70},"G"],
+ ["Noodles, cooked",140,{katori:150},"G"],["Upma / poha, cooked",130,{katori:150},"G"],["Khichuri, cooked",120,{katori:200},"G"],
+ ["Milk, toned",58,{tsp:5,tbsp:15,cup:200,glass:250},"G",1],["Milk, full cream",67,{tsp:5,tbsp:15,cup:200,glass:250},"G",1],["Almond milk",17,{cup:200,glass:250},"G",1],
+ ["Curd",60,{tbsp:15,katori:150,cup:200},"G"],["Greek yogurt",97,{tbsp:15,katori:150},"G"],["Mishti doi",150,{katori:100,pc:100},"G"],
+ ["Paneer",265,{tbsp:15,pc:25,katori:100},"G"],["Cheese slice",300,{slice:20},"G"],["Butter",717,{tsp:5,tbsp:14},"G"],["Ghee",900,{tsp:5,tbsp:14},"G"],
+ ["Cream",340,{tsp:5,tbsp:15},"G"],["Sugar",387,{tsp:4,tbsp:12},"G"],["Jaggery (gur)",383,{tsp:5,tbsp:15,pc:10},"G"],["Honey",304,{tsp:7,tbsp:21},"G"],
+ ["Chia seeds",486,{tsp:4,tbsp:12},"G"],["Flax seeds",534,{tsp:4,tbsp:10},"G"],["Pumpkin seeds",560,{tsp:4,tbsp:10},"G"],["Sunflower seeds",580,{tsp:4,tbsp:10},"G"],
+ ["Almonds",579,{pc:1.2,tbsp:9,katori:70},"G"],["Walnuts",654,{pc:4,tbsp:8},"G"],["Cashew",553,{pc:1.6,tbsp:9},"G"],["Peanuts",567,{tbsp:9,katori:70},"G"],
+ ["Peanut butter",588,{tsp:5,tbsp:16},"G"],["Raisins (kishmish)",299,{tsp:4,tbsp:10,pc:0.5},"G"],["Dates (khejur)",282,{pc:8},"G"],
+ ["Makhana",350,{katori:15,cup:10},"G"],["Roasted chana",360,{tbsp:10,katori:60},"G"],["Coconut, grated",354,{tbsp:7,katori:80},"V"],
+ ["Cocoa powder",228,{tsp:3,tbsp:7},"G"],["Protein powder",380,{tbsp:10,scoop:30},"G"],["Coffee powder",0,{tsp:2},"G"],["Tea leaves",0,{tsp:2},"G"],["Cinnamon",0,{tsp:2},"G"],
+ ["Banana",89,{pc:120,slice:10},"V"],["Apple",52,{pc:180,slice:20},"V"],["Pomegranate seeds (bedana)",83,{tbsp:15,katori:100,pc:250},"V"],
+ ["Papaya",43,{slice:100,katori:150},"V"],["Orange",47,{pc:150},"V"],["Mosambi",43,{pc:150},"V"],["Guava",68,{pc:150},"V"],["Mango",60,{pc:250,slice:80,katori:150},"V"],
+ ["Grapes",69,{pc:5,katori:100},"V"],["Watermelon",30,{slice:200,katori:150},"V"],["Pineapple",50,{slice:80,katori:150},"V"],["Strawberries",32,{pc:12,katori:100},"V"],
+ ["Blueberries",57,{tbsp:10,katori:100},"V"],["Kiwi",61,{pc:75},"V"],["Pear",57,{pc:180},"V"],["Chiku",83,{pc:100},"V"],["Avocado",160,{pc:150},"V"],
+ ["Egg, whole",143,{pc:52},"E"],["Egg white",52,{pc:33},"E"],["Chicken, cooked",165,{pc:30,katori:120},"F",0,1],["Fish, cooked",140,{pc:60},"F",0,1],["Prawns, cooked",99,{pc:10,katori:100},"F",0,1],
+ ["Dal, cooked",116,{katori:150,cup:200},"G"],["Rajma / chole, cooked",145,{katori:150},"G"],["Moong sprouts",30,{tbsp:10,katori:100},"V"],
+ ["Cucumber",15,{pc:200,slice:10,katori:100},"V"],["Tomato",18,{pc:100,slice:15},"V"],["Onion",40,{pc:100},"V"],["Carrot",41,{pc:70},"V"],
+ ["Potato, boiled",87,{pc:150,katori:150},"V"],["Sweet potato, boiled",86,{pc:150},"V"],["Mixed salad",20,{katori:100},"V"],["Vegetable sabzi",90,{katori:150},"V"],
+ ["Spinach",23,{katori:100},"V"],["Sweet corn",86,{tbsp:15,katori:150},"V"],
+ ["Black coffee",2,{cup:200},"G",1],["Tea with milk and sugar",40,{cup:150},"G",1],["Coconut water",19,{glass:250},"V",1],["Orange juice",45,{glass:250},"V",1],
+ ["Buttermilk (chaas)",25,{glass:250},"G",1],["Sweet lassi",100,{glass:250},"G",1],["Soft drink",42,{glass:250,pc:330},"G",1],
+ ["Mustard oil",884,{tsp:4.5,tbsp:13},"G",1],["Olive oil",884,{tsp:4.5,tbsp:13},"G",1],
+ ["Marie biscuit",440,{pc:7},"G"],["Digestive biscuit",480,{pc:15},"G"],["Rusk",410,{pc:12},"G"],["Chanachur",520,{tbsp:10,katori:40},"G"],
+ ["Samosa",260,{pc:100},"G"],["Rasgulla",186,{pc:50},"G"],["Sandesh",300,{pc:35},"G"],["Dark chocolate",550,{pc:10},"G"],["Khakhra",380,{pc:20},"G"],["Dhokla",160,{pc:30},"G"]
+].map(r=>({n:r[0],k:r[1],u:r[2],c:r[3],liq:!!r[4],nv:!!r[5]||/^egg/i.test(r[0])}));
+function foodBy(n){n=String(n||"").trim().toLowerCase();return FOODS.find(f=>f.n.toLowerCase()===n)||null;}
+function rowGrams(r){const f=foodBy(r.f);if(!f)return 0;const q=+r.q||0;if(r.u==="g"||r.u==="ml")return q;return q*(f.u[r.u]||(r.u==="tsp"?5:r.u==="tbsp"?15:r.u==="cup"?200:r.u==="katori"?150:r.u==="glass"?250:r.u==="scoop"?30:50));}
+function rowK(r){const f=foodBy(r.f);if(!f)return +r.kc||0;return rowGrams(r)*f.k/100;}
+function unitsFor(f){return f?Object.keys(f.u).concat(f.liq?["ml"]:["g"]):["pc","tsp","tbsp","cup","katori","g"];}
+
+let BLD=null;
+function bOpen(ctx,editId){
+  const d=editId?dish(editId):null;
+  BLD={ctx,edit:editId||null,name:d?d.name:"",note:d?d.note:"",how:"",rep:false,rows:d&&d.parts?d.parts.map(x=>Object.assign({},x)):[{f:"",q:1,u:"pc"},{f:"",q:1,u:"pc"},{f:"",q:1,u:"pc"}]};
+  bRender();
+}
+function bTotal(){return Math.round(BLD.rows.reduce((a,r)=>a+rowK(r),0));}
+function bRender(){
+  const c=BLD.ctx;
+  const where=c.kind==="cal"?label(c.day):slotName(c.i,c.m);
+  openSheet('<h2>'+(BLD.edit?'Edit my item':'Build from ingredients')+'</h2><p class="hint">Add each ingredient with its quantity in spoons, cups, katori or numbers. Calories add up as you go.</p>'+
+   '<label class="field"><span>Name</span><input type="text" id="bName" value="'+esc(BLD.name)+'" placeholder="e.g. My overnight oats"></label>'+
+   '<datalist id="foodList">'+FOODS.map(f=>'<option value="'+esc(f.n)+'">').join("")+'</datalist>'+
+   BLD.rows.map((r,n)=>{const f=foodBy(r.f);const us=unitsFor(f);
+     return '<div style="border-top:1px solid var(--line);padding:8px 0"><div class="ing" style="grid-template-columns:1fr 60px 112px 30px;margin-top:0">'+
+      '<input type="text" list="foodList" data-bf="'+n+'" value="'+esc(r.f)+'" placeholder="Ingredient, e.g. oats" aria-label="Ingredient">'+
+      '<input type="number" inputmode="decimal" step="0.5" data-bq="'+n+'" value="'+esc(r.q)+'" aria-label="Quantity">'+
+      '<select data-bu="'+n+'" aria-label="Unit">'+us.map(u=>'<option value="'+u+'"'+(u===r.u?" selected":"")+'>'+UNITS[u]+'</option>').join("")+'</select>'+
+      '<button class="btn plain small" data-act="bDel" data-n="'+n+'" aria-label="Remove">×</button></div>'+
+      (r.f&&!f?'<div class="ing" style="grid-template-columns:1fr 90px"><span class="hint">Not in my list. Enter its calories:</span><input type="number" inputmode="numeric" data-bk="'+n+'" value="'+esc(r.kc||"")+'" placeholder="kcal"></div>':'')+
+      '<div class="kc" style="text-align:right">'+(r.f?Math.round(rowK(r))+' kcal':'')+'</div></div>';}).join("")+
+   '<div class="row"><button class="btn plain small" data-act="bAdd">Add ingredient</button></div>'+
+   '<div class="card" style="margin-top:10px;padding:10px 12px"><b style="font-size:18px">Total: '+nf(bTotal())+' kcal</b></div>'+
+   (c.kind==="menu"?'<label class="field"><span>How much (optional)</span><input type="text" id="bHow" value="'+esc(BLD.how)+'" placeholder="e.g. 1 jar"></label>':'')+
+   '<label class="field"><span>Note for the cook (optional)</span><input type="text" id="bNote" value="'+esc(BLD.note)+'" placeholder="e.g. Soak at night, keep in fridge"></label>'+
+   (c.kind==="menu"?'<label class="row" style="margin-top:8px"><input type="checkbox" id="bRep"'+(BLD.rep?" checked":"")+'> Repeat every day at '+MEALNAME[c.m].toLowerCase()+'</label>':'')+
+   '<p class="hint" id="bMsg"></p><div class="row" style="margin-top:8px"><button class="btn" data-act="bSave">'+(BLD.edit?'Save changes':'Add to '+esc(where))+'</button><button class="btn plain" data-act="bClose">Cancel</button></div>'+
+   '<p class="hint">It is saved as your own item, so next time just search its name. Ingredients go to the Shop list.</p>');
+}
+function bReadText(){const g=id=>{const el=$(id);return el?el.value:null;};const n=g("bName");if(n!=null)BLD.name=n;const t=g("bNote");if(t!=null)BLD.note=t;const h=g("bHow");if(h!=null)BLD.how=h;const r=$("bRep");if(r)BLD.rep=r.checked;}
+function bSave(){
+  bReadText();
+  const rows=BLD.rows.filter(r=>r.f.trim()&&(+r.q>0));
+  if(!BLD.name.trim()){$("bMsg").textContent="Give it a name first.";return;}
+  if(!rows.length){$("bMsg").textContent="Add at least one ingredient with a quantity.";return;}
+  const per=4/Math.max(1,S.people);
+  const ing=rows.map(r=>{const f=foodBy(r.f);if(!f)return {n:r.f.slice(0,40),q:0,u:"g",c:"G"};
+    if(r.u==="pc"&&!/(^Rice|cooked|Ruti|Paratha|Luchi|Idli|Dosa)/.test(f.n))return {n:f.n,q:(+r.q)*per,u:"pc",c:f.c};
+    return {n:f.n,q:Math.round(rowGrams(r)*per),u:f.liq?"ml":"g",c:f.c};}).filter(x=>!/cooked|Ruti|Paratha|Luchi|Idli|Dosa|Tea with|Black coffee|sabzi|Khichuri|Upma/.test(x.n));
+  const d={id:BLD.edit||"o"+Date.now().toString(36),name:BLD.name.trim().slice(0,60),type:"own",veg:!rows.some(r=>(foodBy(r.f)||{}).nv),parts:rows.map(r=>({f:r.f.trim(),q:+r.q,u:r.u,kc:r.kc})),k:bTotal(),ing,note:BLD.note.trim(),mine:true};
+  const at=S.mine.findIndex(x=>x.id===d.id);if(at>=0)S.mine[at]=d;else S.mine.push(d);
+  const c=BLD.ctx;
+  if(!BLD.edit){
+    if(c.kind==="cal"){touchDay(c.day);const k=c.day+"|x|"+d.id;S.eat[k]=(S.eat[k]||0)+1;}
+    else{S.plan[c.i][c.m].push(d.id);if(BLD.how.trim())S.dn[c.i+"|"+c.m+"|"+d.id]={q:BLD.how.trim()};if(BLD.rep){S.rep=(S.rep||[]).concat({id:d.id,m:c.m});applyRepeats();}}
+  }
+  save();BLD=null;closeSheet();render();toast(d.name+" saved, "+d.k+" kcal per serving.");
+}
+
 let calDay=-1;
 function qtyRow(i,m,id){
   const d=dish(id);if(!d)return "";const k=i+"|"+m+"|"+id;const q=effEat(i)[k]||0;
-  return '<div class="lib"><span>'+esc(d.name)+' <span class="kc">'+kcal(d)+' kcal each</span></span><div class="stepper" style="gap:6px"><button data-act="eq" data-k="'+k+'" data-d="-0.5" aria-label="Less">−</button><b style="min-width:30px">'+q+'</b><button data-act="eq" data-k="'+k+'" data-d="0.5" aria-label="More">+</button></div></div>';
+  return '<div class="lib"><span>'+esc(d.name)+' <span class="kc">'+kcal(d)+' kcal each</span>'+(d.parts?' <button class="mini" data-act="bEdit" data-id="'+d.id+'">Edit ingredients</button>':'')+'</span><div class="stepper" style="gap:6px"><button data-act="eq" data-k="'+k+'" data-d="-0.5" aria-label="Less">−</button><b style="min-width:30px">'+q+'</b><button data-act="eq" data-k="'+k+'" data-d="0.5" aria-label="More">+</button></div></div>';
 }
 function adviceHtml(){
   const items=eatenItems();if(!items.length)return '<p class="hint">Log what you ate for a day or two and this section will show which dishes add the most calories and what to change.</p>';
@@ -1319,7 +1406,8 @@ function vMe(){
     h+='<h3>'+(m==="x"?"Outside the menu":MEALNAME[m])+'</h3>'+ids.map(id=>qtyRow(i,m,id)).join("");
   });
   h+='<h3>Add something outside the menu</h3><label class="field"><span>Search drinks, fruit, snacks and dishes</span><input type="search" id="eatQ" placeholder="e.g. black coffee, banana, rasgulla, overnight oats"></label><div id="eatList"></div>'+
-     '<p class="hint" style="margin-top:10px">Not in the list? Type it with its calories:</p>'+(S.extra[i]||[]).map((e,n)=>'<div class="lib"><span>'+esc(e.n)+' <span class="kc">'+nf(e.k)+' kcal</span></span><button class="btn plain small" data-act="exRm" data-n="'+n+'">Remove</button></div>').join("")+
+     '<div class="row" style="margin-top:10px"><button class="btn ghost small" data-act="bOpenCal">Build from ingredients (spoon, cup, number)</button></div>'+
+     '<p class="hint" style="margin-top:10px">Or just type it with its calories:</p>'+(S.extra[i]||[]).map((e,n)=>'<div class="lib"><span>'+esc(e.n)+' <span class="kc">'+nf(e.k)+' kcal</span></span><button class="btn plain small" data-act="exRm" data-n="'+n+'">Remove</button></div>').join("")+
      '<div class="ing" style="grid-template-columns:1fr 80px auto"><input type="text" id="exN" placeholder="e.g. 2 biscuits and tea"><input type="number" id="exK" inputmode="numeric" placeholder="kcal"><button class="btn plain small" data-act="exAdd">Add</button></div></section>';
 
   h+='<section class="card"><h2>What is adding weight</h2>'+adviceHtml()+'</section>';
@@ -1488,7 +1576,7 @@ function vDishes(){
 let sheetCtx=null;
 function openSheet(html){$("sheetBody").innerHTML=html;$("sheet").hidden=false;}
 function closeSheet(){$("sheet").hidden=true;sheetCtx=null;}
-function dishInfo(d){const u=useLine(d);return '<h2>'+esc(d.name)+'</h2><p class="hint">About '+kcal(d)+' kcal per serving (estimate)</p><p class="note">'+esc(d.note||"")+'</p>'+(u?'<p class="use">'+esc(u)+'</p>':'');}
+function dishInfo(d){const u=d.parts?d.parts.map(r=>r.q+' '+(UNITS[r.u]||r.u).replace(/ \(.*\)/,'')+' '+r.f).join(', '):useLine(d);return '<h2>'+esc(d.name)+'</h2><p class="hint">About '+kcal(d)+' kcal per serving (estimate)</p><p class="note">'+esc(d.note||"")+'</p>'+(u?'<p class="use">'+esc(u)+'</p>':'');}
 function ingKey(n){return String(n).toLowerCase().replace(/\(.*?\)/g,"").replace(/\b(large|small|fresh|whole)\b/g,"").trim();}
 function mainIngs(d){return d.ing.filter(x=>x.c!=="P"&&x.q&&!/^(onion|tomato|garlic|ginger|green chilli|salt|curd|milk|atta|rice|basmati rice)$/.test(ingKey(x.n))).map(x=>x.n).slice(0,5);}
 function dishesWith(name,exceptId){const k=ingKey(name);return allDishes().filter(x=>x.id!==exceptId&&x.type!=="staple"&&x.ing.some(y=>{const z=ingKey(y.n);return z===k||z.includes(k)||k.includes(z)&&z.length>3;}));}
@@ -1514,14 +1602,7 @@ function chipSheet(i,m,k){
 function addSheet(i,m){
   sheetCtx={i,m};
   openSheet('<h2>Add to '+slotName(i,m)+'</h2><label class="field"><span>Search dishes, drinks and snacks</span><input type="search" id="q" placeholder="e.g. black coffee, overnight oats, rajma"></label><div id="pickList">'+pickList("")+'</div>'+
-   '<details style="margin-top:12px" open><summary>Or add something of my own</summary>'+
-   '<label class="field"><span>What is it</span><input type="text" id="ownN" placeholder="e.g. Overnight oats with chia and apple"></label>'+
-   '<label class="field"><span>How much (optional)</span><input type="text" id="ownQ" placeholder="e.g. 1 jar, 6 rutis"></label>'+
-   '<label class="field"><span>Things to buy (optional, separate with commas)</span><input type="text" id="ownI" placeholder="e.g. oats 50 g, chia 10 g, apple 1, milk 200 ml"></label>'+
-   '<label class="field"><span>Calories per serving (optional)</span><input type="number" id="ownK" inputmode="numeric" placeholder="Leave empty to estimate"></label>'+
-   '<label class="field"><span>Instructions for the cook (optional)</span><input type="text" id="ownNote" placeholder="e.g. Soak at night, keep in fridge"></label>'+
-   '<label class="row" style="margin-top:8px"><input type="checkbox" id="ownRep"> Repeat every day at '+MEALNAME[m].toLowerCase()+'</label>'+
-   '<p class="hint" id="ownMsg"></p><div class="row"><button class="btn" data-act="ownAdd">Add</button></div></details>');
+   '<div class="card" style="margin-top:12px;padding:10px 12px"><b>Something of my own?</b><p class="hint">Build it from ingredients with spoons, cups and numbers, for example oats 2 tbsp, banana 1, chia 1 tsp, milk 1 cup. Calories and the shop list are worked out for you.</p><button class="btn ghost small" data-act="bOpenMenu">Build from ingredients</button></div>');
 }
 function pickList(q){
   q=q.toLowerCase();
@@ -1577,7 +1658,7 @@ function readyView(L){
 }
 function viewSheet(id){
   const d=dish(id);if(!d)return;
-  openSheet(dishInfo(d)+'<div class="row" style="margin-top:10px">'+(d.type!=="staple"?'<button class="btn" data-act="toMenu" data-id="'+d.id+'">Put on menu</button>':'')+(d.mine?'<button class="btn ghost" data-act="edit" data-id="'+d.id+'">Edit</button>':'')+'<button class="btn plain" data-act="close">Close</button></div>');
+  openSheet(dishInfo(d)+'<div class="row" style="margin-top:10px">'+(d.type!=="staple"?'<button class="btn" data-act="toMenu" data-id="'+d.id+'">Put on menu</button>':'')+(d.mine?'<button class="btn ghost" data-act="'+(d.parts?'bEdit':'edit')+'" data-id="'+d.id+'">'+(d.parts?'Edit ingredients':'Edit')+'</button>':'')+'<button class="btn plain" data-act="close">Close</button></div>');
 }
 function textSheet(text){
   openSheet('<h2>Copy this text</h2><p class="hint">Press and hold inside the box, select all, then copy.</p><textarea id="ta" rows="12" readonly>'+esc(text)+'</textarea><div class="row" style="margin-top:10px"><button class="btn plain" data-act="close">Close</button></div>');
@@ -1846,6 +1927,13 @@ document.addEventListener("click",e=>{
       const el=$("likeList");if(el)el.innerHTML='<h3>New from Claude</h3>'+r.ids.map(dish).filter(Boolean).map(twoBtnRow).join("");
     });}
   else if(a==="swap"&&sheetCtx){S.plan[sheetCtx.i][sheetCtx.m][sheetCtx.k]=b.dataset.id;save();closeSheet();render();}
+  else if(a==="bOpenCal")bOpen({kind:"cal",day:calDay});
+  else if(a==="bOpenMenu"&&sheetCtx){const c=sheetCtx;bOpen({kind:"menu",i:c.i,m:c.m});}
+  else if(a==="bEdit")bOpen({kind:"cal",day:calDay},b.dataset.id);
+  else if(a==="bAdd"&&BLD){bReadText();BLD.rows.push({f:"",q:1,u:"pc"});bRender();}
+  else if(a==="bDel"&&BLD){bReadText();BLD.rows.splice(+b.dataset.n,1);if(!BLD.rows.length)BLD.rows.push({f:"",q:1,u:"pc"});bRender();}
+  else if(a==="bSave"&&BLD)bSave();
+  else if(a==="bClose"){BLD=null;closeSheet();}
   else if(a==="ownAdd"&&sheetCtx){
     const n=$("ownN").value.trim();if(!n){$("ownMsg").textContent="Type what it is first.";return;}
     const ing=$("ownI").value.split(",").map(x=>x.trim()).filter(Boolean).map(x=>{const mm=x.match(/^(.*?)\s+([\d.]+)\s*(g|gm|kg|ml|l|pc|pcs|piece|pieces|bunch|pack)?$/i);
@@ -1939,6 +2027,13 @@ document.addEventListener("click",e=>{
 document.addEventListener("change",e=>{
   const t=e.target;
   if(t.dataset&&t.dataset.li&&listDraft){if(t.checked)listDraft.ids.add(t.dataset.li);else listDraft.ids.delete(t.dataset.li);countDraft();}
+  else if(BLD&&t.dataset&&(t.dataset.bf!=null||t.dataset.bq!=null||t.dataset.bu!=null||t.dataset.bk!=null)){
+    bReadText();
+    if(t.dataset.bf!=null){const r=BLD.rows[+t.dataset.bf];r.f=t.value;const f=foodBy(t.value);if(f&&!unitsFor(f).includes(r.u))r.u=unitsFor(f)[0];}
+    else if(t.dataset.bq!=null)BLD.rows[+t.dataset.bq].q=t.value;
+    else if(t.dataset.bu!=null)BLD.rows[+t.dataset.bu].u=t.value;
+    else BLD.rows[+t.dataset.bk].kc=t.value;
+    bRender();}
   else if(t.dataset&&t.dataset.tk){const k=t.dataset.tk;if(k.startsWith("P|")){if(t.checked)S.ck[k]=true;else delete S.ck[k];}else{if(t.checked)delete S.skip[k];else S.skip[k]=true;}save();render();}
   else if(t.dataset&&t.dataset.qo){const v=t.value.trim();if(v)S.qo[t.dataset.qo]=v;else delete S.qo[t.dataset.qo];save();render();}
   else if(t.dataset&&t.dataset.dq){const k=t.dataset.dq;const o=S.dn[k]||{};o.q=t.value.trim();S.dn[k]=o;save();render();}
