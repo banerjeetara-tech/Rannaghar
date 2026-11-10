@@ -694,6 +694,108 @@ const MEALS = [["b","Breakfast"],["l","Lunch"],["d","Dinner"]];
 function parseIng(s){return s.split(";").filter(Boolean).map(p=>{const a=p.split(":");const m=/^([\d.]+)\s*(.*)$/.exec(a[1]||"");return {n:a[0],q:m?+m[1]:0,u:m?m[2]:"",c:a[2]||"G"};});}
 const BUILTIN = RAW.concat(RAW2).map(r=>({id:r[0],name:r[1],type:r[2],veg:!!r[3],ing:parseIng(r[4]),note:r[5]}));
 
+/* ---------- Generated variations: real combinations of main ingredient and cooking style ---------- */
+(function(){
+  const seen=new Set(BUILTIN.map(d=>d.name.toLowerCase()));
+  const add=(name,type,veg,ing,note,meal)=>{
+    const k=name.toLowerCase();if(seen.has(k))return;seen.add(k);
+    const d={id:"g_"+k.replace(/[^a-z0-9]+/g,"_"),name,type,veg:!!veg,ing:parseIng(ing),note,gen:true};
+    if(meal)d.meal=meal;BUILTIN.push(d);
+  };
+  const SEAR="Sear the fish lightly on a non-stick pan with a brush of oil, do not deep fry. ";
+  const FISH=[["Rui","Rohu (rui) fish:600g:F"],["Katla","Katla fish:600g:F"],["Bhetki","Bhetki fish:500g:F"],["Pabda","Pabda fish:500g:F"],["Parshe","Parshe fish:500g:F"],["Tangra","Tangra fish:500g:F"],["Pomfret","Pomfret:600g:F"],["Ilish","Ilish (hilsa):600g:F"],["Koi","Koi fish:500g:F"],["Tilapia","Tilapia:600g:F"],["Aar","Aar fish:600g:F"],["Boal","Boal fish:600g:F"],["Bata","Bata fish:500g:F"],["Mourala","Mourala fish:300g:F"],["Chingri","Prawns (chingri):400g:F"],["Topse","Topse fish:500g:F"],["Bhola","Bhola fish:500g:F"],["Mrigel","Mrigel fish:600g:F"],["Shol","Shol fish:600g:F"],["Magur","Magur fish:500g:F"],["Kajoli","Kajoli fish:400g:F"],["Pangash","Pangash fish:600g:F"],["Chara pona","Chara pona fish:500g:F"],["Folui","Folui fish:500g:F"]];
+  const FP=[
+   ["{f} macher patla jhol","Potato:2pc:V;Tomato:1pc:V;Kalonji::P",SEAR+"Kalonji and green chilli in 2 tsp oil, add potato and water, then the fish. Simmer 8 minutes."],
+   ["{f} macher jhal","Tomato:1pc:V;Onion:1pc:V",SEAR+"Onion, tomato and red chilli masala in 2 tsp mustard oil, a little water, simmer the fish 6 minutes."],
+   ["Shorshe {f}","Mustard seeds:30g:G","No frying. Mustard and green chilli paste with kalonji in 2 tsp mustard oil, add water and the fish, cover 8 minutes."],
+   ["Doi {f}","Curd:200g:G;Onion:1pc:V",SEAR+"Onion paste in 2 tsp oil, whisked curd on low flame so it does not split, simmer the fish 6 minutes."],
+   ["{f} bhapa","Mustard seeds:30g:G;Coconut pieces:40g:V","No frying. Coat with mustard and coconut paste, green chilli and 1 tsp mustard oil. Steam in a covered box 15 minutes."],
+   ["{f} macher kalia, light","Onion:2pc:V;Tomato:1pc:V;Curd:50g:G",SEAR+"Onion and ginger paste in 1 tbsp oil with splashes of water, tomato and curd, simmer the fish 8 minutes."],
+   ["{f} posto","Posto (poppy seeds):40g:G",SEAR+"Posto and green chilli paste with kalonji in 2 tsp mustard oil, simmer 6 minutes."],
+   ["{f} tawa fry","Lemon:1pc:V;Besan:30g:G","Marinate with lemon, turmeric and salt. Dust lightly with besan. Cook on a non-stick tawa with a brush of oil, covered, then flip."],
+   ["{f} with phulkopi","Cauliflower:1pc:V;Potato:1pc:V",SEAR+"Steam the cauliflower 5 minutes. Cumin and ginger jhol in 2 tsp oil with potato, add fish and cauliflower."],
+   ["{f} with begun and bori","Brinjal:1pc:V;Bori:30g:G",SEAR+"Dry-roast the bori. Kalonji jhol in 2 tsp oil with brinjal, add fish and bori for 6 minutes."],
+   ["{f} with shim and alu","Shim (flat beans):200g:V;Potato:1pc:V",SEAR+"Kalonji in 2 tsp oil, shim and potato with water till soft, add the fish for 6 minutes."],
+   ["{f} with lau","Lau (bottle gourd):400g:V",SEAR+"Cook lau in its own water with cumin and ginger and 1 tsp oil, add the fish for 6 minutes. Very light."],
+   ["{f} with jhinge","Jhinge (ridge gourd):300g:V;Potato:1pc:V",SEAR+"Kalonji and green chilli in 2 tsp oil, jhinge and potato, add the fish when soft."],
+   ["{f} with potol","Potol:6pc:V;Potato:1pc:V",SEAR+"Steam potol halfway. Cumin and ginger jhol in 2 tsp oil, add fish for 6 minutes."],
+   ["{f} with kancha kola","Raw banana:1pc:V;Potato:1pc:V",SEAR+"Light jhol with raw banana, potato, cumin and ginger in 2 tsp oil. Good for a light stomach."],
+   ["{f} dhone pata jhol","Coriander leaves:2bunch:V","No frying. Coriander, green chilli and ginger paste in 2 tsp oil, thin with water, simmer the fish 6 minutes."],
+   ["{f} tomato jhol","Tomato:3pc:V",SEAR+"Soft tomato masala with kalonji in 2 tsp oil, add water and the fish, 6 minutes."],
+   ["{f} with peyaj koli","Peyaj koli (onion stalks):200g:V;Potato:1pc:V",SEAR+"Kalonji in 2 tsp oil, potato and peyaj koli, add the fish at the end. Winter dish."],
+   ["{f} macher tok","Raw mango:1pc:V",SEAR+"Mustard seeds in 1 tsp oil, raw mango or tamarind, water and a pinch of sugar. Thin and sour."],
+   ["{f} paturi","Mustard seeds:30g:G;Coconut pieces:40g:V;Banana leaf:6pc:V","Coat with mustard and coconut paste. Wrap in banana leaf and steam 15 minutes. No frying."],
+   ["{f} with mulo","Mooli:1pc:V;Potato:1pc:V",SEAR+"Kalonji jhol in 2 tsp oil with mooli and potato, add fish when the mooli is soft."],
+   ["{f} with palong","Spinach (palong):1bunch:V",SEAR+"Garlic in 2 tsp oil, wilt the spinach, add a little water and the fish, 5 minutes."],
+   ["{f} macher rosha","Onion:2pc:V;Tomato:2pc:V;Garlic bulb:1pc:V",SEAR+"Thick onion, garlic and tomato masala in 1 tbsp oil, coat the fish and cover 6 minutes."]
+  ];
+  FISH.forEach(([f,ing])=>FP.forEach(([n,ex,note])=>add(n.replace("{f}",f),"fish",0,ing+";"+ex,note)));
+
+  const VP={
+   P:["{v} posto","Posto (poppy seeds):30g:G","Cut small. Cook covered with a splash of water in 2 tsp mustard oil, add posto and green chilli paste at the end.",1],
+   B:["{v} tawa bhaja","","Slice, rub with turmeric and salt. Roast on a non-stick tawa with a brush of oil, covered at first, till golden. Not deep fried.",1],
+   C:["{v} alu chorchori","Potato:1pc:V","Panch phoron in 2 tsp mustard oil, add the vegetables, cover with a splash of water and cook till dry.",1],
+   D:["{v} dalna","Potato:1pc:V;Tomato:1pc:V","Steam or boil halfway, do not fry. Cumin, ginger and tomato gravy in 2 tsp oil, simmer 8 minutes.",1],
+   G:["{v} ghonto","Green peas:80g:V","Chop fine. Cook covered in its own steam with cumin, ginger and bay leaf in 2 tsp oil till soft and dry.",1],
+   S:["Shorshe {v}","Mustard seeds:25g:G","Cook halfway on a tawa with 1 tsp oil. Add mustard and green chilli paste with a splash of water, cover 5 minutes.",1],
+   H:["{v} bhorta","Onion:1pc:V","Boil or roast till soft. Mash with raw onion, green chilli, salt and a few drops of mustard oil. No cooking oil.",1],
+   R:["{v} with bori","Bori:30g:G","Dry-roast the bori. Cook the vegetable with kalonji in 2 tsp oil, covered, add the bori at the end.",1],
+   T:["{v} tomato torkari","Tomato:2pc:V;Onion:1pc:V","Soft onion and tomato masala in 2 tsp oil, add the vegetable, cover and cook till done. Good with ruti.",1],
+   K:["{v} with chingri","Small prawns:150g:F","Cook the vegetable covered with kalonji in 2 tsp oil. Add the prawns for the last 5 minutes only.",0],
+   N:["Narkel diye {v}","Coconut pieces:50g:V","Cook covered with cumin and bay leaf in 1 tsp ghee. Add grated or chopped coconut and a pinch of sugar at the end.",1],
+   M:["{v} koraishuti","Green peas:120g:V","Cook with cumin and ginger in 2 tsp oil, covered. Add peas for the last 5 minutes.",1],
+   J:["{v} patla jhol","Tomato:1pc:V","Light jhol: cumin and ginger in 1 tsp oil, vegetable, water and tomato. Simmer till soft.",1],
+   X:["{v} garlic stir fry","Garlic bulb:1pc:V","High flame, 1 tsp oil. Garlic first, then the vegetable for a few minutes. Keep it fresh.",1]
+  };
+  const VEG=[["Alu","Potato:4pc:V","PBDSHTMN"],["Phulkopi","Cauliflower:1pc:V","PBDSRTKM"],["Bandhakopi","Cabbage:500g:V","BGRTKMNX"],["Begun","Brinjal:2pc:V","PBSHRTK"],["Potol","Potol:8pc:V","PBDSRKNT"],["Jhinge","Jhinge (ridge gourd):500g:V","PCSRKJ"],["Lau","Lau (bottle gourd):500g:V","GRKNJM"],["Kumro","Pumpkin:400g:V","BCGRKNH"],["Dharosh","Bhindi:350g:V","PBSTC"],["Shim","Shim (flat beans):300g:V","PBCSHRKT"],["Borboti","Borboti (long beans):300g:V","BCSPKT"],["Uchhe","Karela:3pc:V","BCH"],["Kancha kola","Raw banana:3pc:V","BDHPJ"],["Pepe","Raw papaya:500g:V","GDRKMJ"],["Mulo","Mooli:2pc:V","GCRK"],["Gajor","Carrot:4pc:V","XMCT"],["Beans","Beans:300g:V","XCMNT"],["Capsicum","Capsicum:3pc:V","XT"],["Mushroom","Mushroom:300g:V","XTMD"],["Dhundul","Dhundul:500g:V","PCKJR"],["Chichinga","Chichinga (snake gourd):500g:V","PCKB"],["Echor","Echor (raw jackfruit):500g:V","DK"],["Mocha","Mocha (banana flower):1pc:V","GKN"],["Thor","Thor (banana stem):400g:V","GKN"],["Ol","Ol (elephant yam):400g:V","DBSHK"],["Gathi kochu","Gathi kochu (arbi):400g:V","DSBHK"],["Kochur loti","Kochur loti:400g:V","SKN"],["Palong shaak","Spinach (palong):2bunch:V","XGRK"],["Lal shaak","Lal shaak:2bunch:V","XK"],["Pui shaak","Pui shaak:1bunch:V","CKR"],["Notey shaak","Notey shaak:2bunch:V","XK"],["Kolmi shaak","Kolmi shaak:2bunch:V","XK"],["Methi shaak","Methi leaves:2bunch:V","XC"],["Lau shaak","Lau shaak:2bunch:V","XCKP"],["Kumro shaak","Kumro shaak:2bunch:V","XCK"],["Mulo shaak","Mulo shaak:2bunch:V","XCK"],["Shojne data","Drumstick:4pc:V","CSPJR"],["Beet","Beetroot:3pc:V","XCN"],["Sweet corn","Sweet corn:250g:V","XT"],["Broccoli","Broccoli:1pc:V","XT"],["Olkopi","Olkopi (kohlrabi):2pc:V","DCKM"],["Shalgam","Shalgam (turnip):3pc:V","DCMK"],["Ranga alu","Sweet potato:3pc:V","BHD"],["Koraishuti","Green peas:300g:V","TN"]];
+  VEG.forEach(([v,ing,ps])=>ps.split("").forEach(p=>{const [n,ex,note,veg]=VP[p];add(n.replace("{v}",v),"side",veg,ing+(ex?";"+ex:""),note);}));
+
+  const DALS=[["Musur","Masoor dal:150g:G"],["Mug","Moong dal:150g:G"],["Arhar","Toor dal:150g:G"],["Chola","Chana dal:150g:G"],["Motor","Matar dal:150g:G"],["Biuli","Urad dal:150g:G"],["Mixed","Masoor dal:80g:G;Moong dal:80g:G"],["Sabut mug","Whole moong:150g:G"]];
+  const DX=[["lau","Lau (bottle gourd):250g:V",1],["kumro","Pumpkin:200g:V",1],["palong","Spinach (palong):1bunch:V",1],["tomato","Tomato:3pc:V",1],["phulkopi","Cauliflower:1pc:V",1],["mulo","Mooli:1pc:V",1],["gajor and beans","Carrot:1pc:V;Beans:100g:V",1],["shojne data","Drumstick:3pc:V",1],["bori","Bori:30g:G",1],["kancha aam","Raw mango:1pc:V",1],["methi shaak","Methi leaves:1bunch:V",1],["jhinge","Jhinge (ridge gourd):250g:V",1],["pepe","Raw papaya:200g:V",1],["koraishuti","Green peas:100g:V",1],["narkel","Coconut pieces:40g:V",1],["rosun","Garlic bulb:1pc:V",1],["peyaj","Onion:2pc:V",1],["lau shaak","Lau shaak:1bunch:V",1],["uchhe","Karela:1pc:V",1],["macher matha","Fish head:1pc:F",0]];
+  DALS.forEach(([d,ing])=>DX.forEach(([x,ex,veg])=>add(d+" dal with "+x,"dal",veg,ing+";"+ex,"Boil the dal till soft"+(d==="Chola"||d==="Sabut mug"?" (soak it first)":"")+". Add "+x+" and cook till done. Temper with cumin or panch phoron and dry chilli in 1 tsp ghee or oil.")));
+
+  const CV=[["phulkopi","Cauliflower:1pc:V"],["kumro","Pumpkin:250g:V"],["shim","Shim (flat beans):200g:V"],["borboti","Borboti (long beans):200g:V"],["gajor and beans","Carrot:2pc:V;Beans:100g:V"],["mulo","Mooli:2pc:V"],["potol","Potol:6pc:V"],["jhinge","Jhinge (ridge gourd):300g:V"],["echor","Echor (raw jackfruit):400g:V"],["alu and koraishuti","Potato:2pc:V;Green peas:100g:V"],["tomato","Tomato:4pc:V"],["bandhakopi","Cabbage:300g:V"],["broccoli","Broccoli:1pc:V"],["sweet corn","Sweet corn:200g:V"],["shalgam","Shalgam (turnip):3pc:V"],["olkopi","Olkopi (kohlrabi):2pc:V"],["kancha kola","Raw banana:2pc:V"],["dharosh","Bhindi:250g:V"],["begun","Brinjal:2pc:V"],["beet and gajor","Beetroot:1pc:V;Carrot:2pc:V"]];
+  CV.forEach(([v,ing])=>{
+    add("Chicken with "+v,"chicken",0,"Chicken:600g:F;Onion:1pc:V;"+ing,"Skinless chicken. Onion, ginger and garlic in 1 tbsp oil, add chicken and cook 10 minutes, then "+v+" and a little water. Cover till tender. Light gravy.");
+    add("Chicken keema with "+v,"chicken",0,"Chicken keema:400g:F;Onion:1pc:V;"+ing,"Cook keema with onion and ginger garlic in 2 tsp oil, add "+v+", cover and cook in its own juices till dry.");
+    add("Egg curry with "+v,"egg",0,"Eggs:6pc:E;Onion:1pc:V;Tomato:1pc:V;"+ing,"Boil the eggs, do not fry them. Light onion tomato gravy in 2 tsp oil with "+v+", add the eggs and simmer 5 minutes.");
+    add("Mutton with "+v,"mutton",0,"Mutton:600g:F;Onion:2pc:V;"+ing,"Trim all fat. Pressure cook mutton with onion and ginger garlic in 1 tbsp oil, add "+v+" and cook 1 more whistle. Skim the top.");
+  });
+  const CS=[["Jeera chicken","","Skinless chicken, lots of roasted cumin, 1 tbsp oil, cooked covered in its own juices."],["Rosun chicken","Garlic bulb:2pc:V","Plenty of crushed garlic and green chilli in 1 tbsp oil, skinless chicken, covered, till tender."],["Tomato chicken","Tomato:5pc:V","Soft tomato masala in 1 tbsp oil, skinless chicken, no extra water."],["Achari chicken, light","Curd:150g:G","Marinate in curd with pickle spices (kalonji, fennel, mustard). Cook covered with 1 tbsp mustard oil."],["Hariyali chicken tikka, tawa","Coriander leaves:2bunch:V;Mint leaves:1bunch:V;Curd:150g:G","Marinate boneless pieces in green paste and curd 2 hours. Tawa with a brush of oil."],["Chicken curry with coconut milk, light","Coconut milk:200ml:G;Onion:1pc:V","Onion and ginger in 2 tsp oil, chicken, then thin coconut milk. Simmer till tender."],["Chicken sukka, light","Onion:2pc:V;Coconut pieces:40g:V","Dry dish. Roasted spices and coconut, 1 tbsp oil, cooked till the masala coats the chicken."],["Dahi chicken with capsicum","Curd:200g:G;Capsicum:2pc:V","Marinate in curd. Cook covered in 2 tsp oil, add capsicum at the end."],["Chicken ishtu, Bengali style","Potato:2pc:V;Carrot:1pc:V;Onion:1pc:V","No frying. Pressure cook with whole pepper, bay leaf, ginger and vegetables. 1 tsp butter at the end."],["Gol morich chicken","Onion:2pc:V;Curd:100g:G","Black pepper gravy with curd and onion paste in 1 tbsp oil. No red chilli."],["Chicken roast, tawa","Curd:150g:G;Lemon:1pc:V","Marinate legs or large pieces overnight. Slow-cook covered on a tawa with a brush of oil, turning."],["Chicken jhal, home style","Onion:2pc:V;Tomato:1pc:V","Thin spicy jhol with green chilli, 1 tbsp oil."]];
+  CS.forEach(([n,ex,note])=>add(n,"chicken",0,"Chicken:700g:F"+(ex?";"+ex:""),note));
+
+  const VB=[["Paneer","Paneer:300g:G","Add the paneer raw, do not fry it."],["Soya chunk","Soya chunks:150g:G","Soak the chunks in hot water and squeeze dry."],["Mushroom","Mushroom:400g:V","Cook the mushroom on high flame till its water dries."],["Tofu","Tofu:300g:G","Pan-sear the tofu with a brush of oil."],["Kabuli chana","Kabuli chana:200g:G","Soak overnight and pressure cook till soft."],["Rajma","Rajma:200g:G","Soak overnight and pressure cook till very soft."],["Kala chana","Kala chana:200g:G","Soak overnight and pressure cook 5 whistles."],["Lobia","Lobia:200g:G","Soak 4 hours and pressure cook."],["Sprouted moong","Moong sprouts:300g:V","Steam the sprouts 3 minutes."]];
+  const VS=[["{b} with palong","Spinach (palong):2bunch:V","Blanch and blend the spinach, cook with garlic in 2 tsp oil."],["{b} matar","Green peas:200g:V;Tomato:3pc:V","Tomato gravy in 2 tsp oil with peas."],["{b} tomato curry","Tomato:4pc:V;Onion:1pc:V","Onion tomato masala in 2 tsp oil, thin with water."],["{b} do pyaza, light","Onion:4pc:V;Tomato:1pc:V","Soften the onions slowly in 1 tbsp oil with splashes of water."],["{b} capsicum","Capsicum:2pc:V;Onion:1pc:V;Tomato:2pc:V","Tomato masala in 2 tsp oil, capsicum for the last 3 minutes."],["{b} korma, light","Curd:150g:G;Onion:1pc:V;Cashew:15g:G","Curd, boiled onion and cashew paste in 2 tsp oil. No cream."],["{b} bhuna","Onion:2pc:V;Tomato:2pc:V","Thick dry masala in 1 tbsp oil, cooked till it coats."],["{b} with phulkopi","Cauliflower:1pc:V;Tomato:1pc:V","Steam the cauliflower first. Cumin ginger gravy in 2 tsp oil."],["{b} kosha, light","Onion:3pc:V;Curd:100g:G","Brown onion slowly in 1 tbsp oil with splashes of water, add curd, cook till thick."],["{b} pulao","Basmati rice:350g:G;Green peas:100g:V","Whole spices in 2 tsp ghee, rice and water, cook covered."],["{b} with gajor and beans","Carrot:2pc:V;Beans:150g:V","Cumin in 2 tsp oil, vegetables covered till soft."],["{b} dhania curry","Coriander leaves:3bunch:V;Curd:100g:G","Coriander and green chilli paste with curd in 2 tsp oil."],["{b} with alu","Potato:2pc:V;Tomato:1pc:V","Light jhol with boiled potato, cumin and ginger in 2 tsp oil."],["{b} with lau","Lau (bottle gourd):400g:V","Cook lau in its own water with 1 tsp oil."]];
+  VB.forEach(([b,ing,pre])=>VS.forEach(([n,ex,note])=>add(n.replace("{b}",b),"vegmain",1,ing+";"+ex,pre+" "+note)));
+  [["Mug","Moong dal:150g:G"],["Musur","Masoor dal:150g:G"],["Mixed dal","Moong dal:80g:G;Masoor dal:80g:G"],["Dalia","Dalia:200g:G;Moong dal:80g:G"],["Oats","Oats:200g:G;Moong dal:80g:G"]].forEach(([d,ing])=>[["phulkopi","Cauliflower:1pc:V"],["kumro","Pumpkin:200g:V"],["gajor and beans","Carrot:1pc:V;Beans:100g:V"],["palong","Spinach (palong):1bunch:V"],["koraishuti","Green peas:150g:V"],["lau","Lau (bottle gourd):250g:V"],["tomato","Tomato:3pc:V"],["mixed vegetables","Carrot:1pc:V;Potato:1pc:V;Green peas:80g:V"]].forEach(([v,ex])=>add(d+" khichuri with "+v,"vegmain",1,(/Dalia|Oats/.test(d)?"":"Rice:250g:G;")+ing+";"+ex,"Dry-roast the dal. Pressure cook everything together with ginger, cumin and bay leaf, soft and a little runny. 1 tbsp ghee in total.")));
+
+  /* Breakfast */
+  [["Methi","Methi leaves:1bunch:V"],["Gajor","Carrot:3pc:V"],["Beet","Beetroot:2pc:V"],["Koraishuti","Green peas:250g:V"],["Peyaj","Onion:3pc:V"],["Mixed vegetable","Carrot:1pc:V;Cabbage:150g:V;Green peas:80g:V"],["Dal","Chana dal:120g:G"],["Lau","Lau (bottle gourd):300g:V"],["Bandhakopi","Cabbage:300g:V"],["Sweet corn","Sweet corn:200g:V"],["Mushroom","Mushroom:200g:V"],["Tofu","Tofu:200g:G"],["Soya keema","Soya granules:100g:G"],["Chana","Kabuli chana:120g:G"]].forEach(([f,ing])=>add(f+" paratha with curd","bf",1,"Atta:300g:G;Curd:300g:G;"+ing,"Cook or grate the filling dry with salt, chilli and ajwain. Stuff, roll and dry roast on the tawa. A brush of ghee at the end."));
+  [["Egg","Eggs:4pc:E"],["Chicken","Chicken keema:250g:F"],["Fish","Bhetki fillet:200g:F"]].forEach(([f,ing])=>add(f+" stuffed paratha","bf",0,"Atta:300g:G;Onion:1pc:V;"+ing,"Cook the filling dry with onion and spices in 1 tsp oil. Stuff, roll and roast on the tawa with a brush of oil."));
+  const CF=[["onion and tomato","Onion:1pc:V;Tomato:1pc:V",1],["paneer","Paneer:120g:G",1],["palong","Spinach (palong):1bunch:V",1],["gajor","Carrot:2pc:V",1],["capsicum","Capsicum:1pc:V;Onion:1pc:V",1],["mushroom","Mushroom:150g:V",1],["sweet corn","Sweet corn:150g:V",1],["methi","Methi leaves:1bunch:V",1],["egg","Eggs:3pc:E",0],["chicken keema","Chicken keema:150g:F",0]];
+  [["Besan","Besan:200g:G"],["Moong dal","Moong dal:200g:G"],["Oats","Oats:150g:G;Besan:60g:G"],["Suji","Suji:200g:G;Curd:100g:G"],["Ragi","Ragi flour:150g:G;Besan:60g:G"]].forEach(([b,ing])=>CF.forEach(([f,ex,veg])=>add(b+" cheela with "+f,"bf",veg,ing+";"+ex,(b==="Moong dal"?"Soak the dal overnight and grind. ":"Whisk to a pouring batter with water. ")+"Spread thin on a non-stick tawa with a brush of oil, add the filling, fold.")));
+  CF.forEach(([f,ex,veg])=>{
+    add(f.charAt(0).toUpperCase()+f.slice(1)+" uttapam","bf",veg,"Dosa batter:800g:G;"+ex,"Pour a thick pancake on a non-stick tawa, spread the topping, cover and cook, then flip. A few drops of oil.");
+    add(f.charAt(0).toUpperCase()+f.slice(1)+" dosa","bf",veg,"Dosa batter:800g:G;"+ex,"Spread the batter thin, add the filling, fold when crisp. A few drops of oil per dosa.");
+    add(f.charAt(0).toUpperCase()+f.slice(1)+" sandwich","bf",veg,"Brown bread:1pack:G;Cucumber:1pc:V;"+ex,"Cook the filling lightly with pepper in 1 tsp oil if needed. Fill in dry-toasted bread with cucumber. No butter or mayonnaise.");
+    add("Ruti with "+f+" torkari","bf",veg,"Atta:250g:G;Potato:1pc:V;"+ex,"Dry-roast the rutis. Quick torkari with kalonji in 2 tsp oil, covered with a splash of water.");
+  });
+  const UP=[["alu and peyaj","Potato:1pc:V;Onion:1pc:V",1],["koraishuti","Green peas:120g:V",1],["gajor and beans","Carrot:1pc:V;Beans:80g:V",1],["sweet corn","Sweet corn:150g:V",1],["badam","Peanuts:60g:G",1],["tomato","Tomato:2pc:V;Onion:1pc:V",1],["sprouts","Moong sprouts:150g:V",1],["paneer","Paneer:120g:G",1],["egg","Eggs:3pc:E",0],["chicken","Boneless chicken:150g:F",0]];
+  [["Chirer pulao","Chire (poha):250g:G","Rinse the chire and drain."],["Suji upma","Suji:200g:G","Dry-roast the suji first."],["Dalia upma","Dalia:200g:G","Dry-roast the dalia first."],["Semai upma","Vermicelli:250g:G","Dry-roast the vermicelli."],["Oats upma","Oats:200g:G","Dry-roast the oats 2 minutes."],["Muri makha","Muri:200g:G","No cooking for the muri."]].forEach(([b,ing,pre])=>UP.forEach(([f,ex,veg])=>add(b+" with "+f,"bf",veg,ing+";"+ex,pre+" Temper mustard seeds and curry leaves in 2 tsp oil, cook the "+f+", then mix in. Lemon on top.")));
+  [["peyaj and lonka","Onion:1pc:V"],["tomato","Tomato:2pc:V"],["capsicum","Capsicum:1pc:V"],["mushroom","Mushroom:150g:V"],["palong","Spinach (palong):1bunch:V"],["paneer","Paneer:100g:G"],["sweet corn","Sweet corn:100g:V"],["chicken","Boneless chicken:150g:F"],["gajor and beans","Carrot:1pc:V;Beans:60g:V"],["methi","Methi leaves:1bunch:V"],["alu","Potato:2pc:V"],["chingri","Small prawns:120g:F"]].forEach(([f,ex])=>{
+    add("Omelette with "+f+" and toast","bf",0,"Eggs:6pc:E;Brown bread:1pack:G;"+ex,"Cook the "+f+" 2 minutes in the pan with 1 tsp oil, pour the beaten egg over, fold. Dry toast.");
+    add("Egg bhurji with "+f+" and ruti","bf",0,"Eggs:6pc:E;Atta:250g:G;"+ex,"Cook the "+f+" in 2 tsp oil, add beaten eggs and stir on low heat till just set. Rutis dry roasted.");
+  });
+
+  /* Chinese */
+  const CP=[["Chicken","Boneless chicken:500g:F",0,"Pan-sear the chicken in 1 tbsp oil, no deep frying."],["Prawn","Prawns (chingri):400g:F",0,"Toss the prawns on high flame in 1 tbsp oil for 3 minutes."],["Fish","Bhetki fillet:500g:F",0,"Steam or pan-sear the fish cubes with a brush of oil."],["Egg","Eggs:6pc:E",0,"Use halved boiled eggs, not fried."],["Paneer","Paneer:300g:G",1,"Use raw paneer cubes, no frying."],["Mushroom","Mushroom:400g:V",1,"Mushroom on high flame in 1 tbsp oil till dry."],["Tofu","Tofu:300g:G",1,"Pan-sear the tofu with a brush of oil."],["Babycorn","Babycorn:300g:V",1,"Blanch the babycorn, no batter."],["Mixed vegetable","Broccoli:1pc:V;Carrot:2pc:V;Capsicum:1pc:V",1,"Blanch the vegetables 2 minutes."],["Soya","Soya chunks:150g:G",1,"Soak the chunks and squeeze dry."],["Gobi","Cauliflower:1pc:V",1,"Blanch the florets, then bake or air fry till golden."],["Potato","Potato:4pc:V",1,"Parboil potato fingers, then bake or air fry."]];
+  const SA=[["Chilli {p}","Capsicum:2pc:V;Onion:2pc:V;Soy sauce::P","Toss with onion and capsicum squares in soy and green chilli sauce."],["{p} in hot garlic sauce","Garlic bulb:2pc:V;Spring onion:1bunch:V;Cornflour:15g:G","Lots of garlic, chilli sauce and soy, thickened lightly with cornflour."],["Schezwan {p}","Capsicum:1pc:V;Onion:1pc:V;Schezwan sauce::P","Toss in 2 tbsp schezwan sauce with onion and capsicum."],["{p} manchurian","Spring onion:1bunch:V;Capsicum:1pc:V;Cornflour:20g:G;Soy sauce::P","Ginger, garlic and soy gravy thickened with cornflour."],["Black pepper {p}","Onion:1pc:V;Capsicum:1pc:V","Crushed black pepper, a dash of soy, onion and capsicum."],["Ginger {p}","Spring onion:1bunch:V;Cornflour:15g:G","Plenty of julienned ginger, light soy gravy."],["Sweet and sour {p}","Capsicum:1pc:V;Carrot:1pc:V;Tomato:2pc:V","Tomato, vinegar and a little sugar sauce with crunchy vegetables."],["Lemon {p}","Lemon:3pc:V;Cornflour:15g:G","Lemon juice and stock sauce thickened with cornflour, a little honey."],["Kung pao {p}","Peanuts:50g:G;Capsicum:1pc:V;Onion:1pc:V","Dry-roasted peanuts, dry chilli, soy and a little vinegar."],["{p} in soy garlic","Garlic bulb:1pc:V;Spring onion:1bunch:V;Soy sauce::P","Garlic and soy with spring onion, quick toss."],["{p} with broccoli","Broccoli:1pc:V;Garlic bulb:1pc:V","Blanched broccoli, light garlic soy sauce."],["{p} with capsicum and onion","Capsicum:2pc:V;Onion:2pc:V","Simple stir fry with pepper and soy."],["Salt and pepper {p}","Spring onion:1bunch:V;Garlic bulb:1pc:V","Dry toss with garlic, green chilli, salt and crushed pepper."],["Honey chilli {p}","Sesame seeds:10g:G;Capsicum:1pc:V","Chilli sauce with 1 tsp honey and sesame."],["{p} chop suey gravy","Cabbage:200g:V;Carrot:1pc:V;Cornflour:20g:G","Light soy and tomato gravy with shredded vegetables."]];
+  CP.forEach(([p,ing,veg,pre])=>SA.forEach(([n,ex,note])=>add(n.replace("{p}",n.startsWith("{p}")?p:p.toLowerCase()),"cnmain",veg,ing+";"+ex,pre+" "+note)));
+  const NP=[["Chicken","Boneless chicken:250g:F",0],["Prawn","Prawns (chingri):250g:F",0],["Egg","Eggs:3pc:E",0],["Fish","Bhetki fillet:250g:F",0],["Mixed","Boneless chicken:150g:F;Eggs:2pc:E;Prawns (chingri):100g:F",0],["Paneer","Paneer:200g:G",1],["Mushroom","Mushroom:250g:V",1],["Vegetable","Cabbage:200g:V;Carrot:1pc:V;Capsicum:1pc:V",1],["Sweet corn","Sweet corn:200g:V",1],["Tofu","Tofu:200g:G",1],["Soya","Soya chunks:80g:G",1]];
+  [["hakka noodles","Hakka noodles:400g:G","Boil the noodles and rinse in cold water."],["fried rice","Basmati rice:400g:G","Cook the rice ahead and cool it."],["rice noodles","Rice noodles:300g:G","Soak the rice noodles in hot water 5 minutes."],["soup noodles","Hakka noodles:250g:G","Boil the noodles; serve in a clear broth with almost no oil."]].forEach(([c,cing,pre])=>NP.forEach(([p,ing,veg])=>[["","Spring onion:1bunch:V;Soy sauce::P"],["Schezwan ","Schezwan sauce::P;Cabbage:150g:V"],["Chilli garlic ","Garlic bulb:2pc:V;Spring onion:1bunch:V"],["Burnt garlic ","Garlic bulb:2pc:V;Spring onion:1bunch:V"]].forEach(([fl,ex])=>{const nm=fl?fl+p.toLowerCase()+" "+c:p+" "+c;add(nm,"cncarb",veg,cing+";"+ing+";"+ex,pre+" Cook the "+p.toLowerCase()+" first, then toss everything on high flame with 1 tbsp oil in total.");})));
+  [["Chicken","Boneless chicken:200g:F",0],["Prawn","Prawns (chingri):200g:F",0],["Egg","Eggs:2pc:E",0],["Fish","Bhetki fillet:200g:F",0],["Vegetable","Carrot:1pc:V;Cabbage:150g:V;Beans:80g:V",1],["Mushroom","Mushroom:200g:V",1],["Tofu","Tofu:150g:G",1],["Paneer","Paneer:120g:G",1]].forEach(([p,ing,veg])=>[["clear soup","Spring onion:1bunch:V"],["hot and sour soup","Cabbage:100g:V;Carrot:1pc:V;Cornflour:20g:G"],["sweet corn soup","Sweet corn:250g:V;Cornflour:20g:G"],["manchow soup","Cabbage:100g:V;Capsicum:1pc:V;Cornflour:20g:G"],["lemon coriander soup","Coriander leaves:2bunch:V;Lemon:2pc:V"],["noodle soup","Hakka noodles:150g:G;Cabbage:100g:V"],["ginger garlic soup","Garlic bulb:1pc:V;Spring onion:1bunch:V"]].forEach(([s2,ex])=>add(p+" "+s2,"cnmain",veg,ing+";"+ex,"Simmer in water or stock with ginger, garlic, pepper and a dash of soy for 10 minutes. No oil.")));
+})();
+
 /* More ready-made lists, built by rule from the dish library */
 (function(){
   const nm=(d,re)=>re.test(d.name), has=(d,re)=>d.ing.some(x=>re.test(x.n)), nt=(d,re)=>re.test(d.note);
@@ -787,7 +889,7 @@ try{const t=localStorage.getItem(AIKEY);if(t)AI=Object.assign(AI,JSON.parse(t));
 function saveAI(){try{localStorage.setItem(AIKEY,JSON.stringify(AI));}catch(e){}}
 function aiReady(){return !!(AI.url&&AI.token);}
 function monthKey(){return iso(new Date()).slice(0,7);}
-let setOpen=false, S=null, tab="week", cookDay=0, cookV="", shopV="", ref=null, writing=false, dirty=false, saveTimer=null;
+let setOpen=false, S=null, tab="week", cookDay=0, cookV="", shopV=[], ref=null, writing=false, dirty=false, saveTimer=null;
 
 function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
 function fromIso(s){const a=s.split("-").map(Number);return new Date(a[0],a[1]-1,a[2]);}
@@ -839,7 +941,8 @@ function regenVisit(id){
   delete S.okv[id];
 }
 function allDishes(){return BUILTIN.concat(S.mine||[]);}
-function dish(id){return allDishes().find(d=>d.id===id);}
+let DMAP=null;
+function dish(id){if(!DMAP){DMAP=new Map();BUILTIN.forEach(d=>DMAP.set(d.id,d));}return DMAP.get(id)||(S.mine||[]).find(d=>d.id===id);}
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
 function pick(type,vegOnly,used){
@@ -965,7 +1068,7 @@ function scale(){return S.people/4;}
 function useLine(d){return d.ing.filter(x=>x.q).map(x=>x.n+" "+fmt(x.q*scale(),x.u)).join(", ");}
 function shopping(only){
   const items={},pantry=new Set(PANTRY);
-  okVisits().filter(v=>!only||v.id===only).forEach(v=>v.slots.forEach(([i,m])=>S.plan[i][m].forEach(id=>{
+  okVisits().filter(v=>!only||!only.length||only.includes(v.id)).forEach(v=>v.slots.forEach(([i,m])=>S.plan[i][m].forEach(id=>{
     const d=dish(id);if(!d)return;
     d.ing.forEach(x=>{
       if(x.c==="P"||!x.q){pantry.add(x.n);return;}
@@ -977,9 +1080,9 @@ function shopping(only){
   return {F:list.filter(x=>x.c==="F"),E:list.filter(x=>x.c==="E"),V:list.filter(x=>x.c==="V"),G:list.filter(x=>x.c==="G"),P:[...pantry]};
 }
 function weekTitle(){
-  const all=visits(),o=okVisits().filter(v=>!shopV||v.id===shopV);
+  const all=visits(),o=okVisits().filter(v=>!shopV.length||shopV.includes(v.id));
   if(!o.length)return "no cook visits approved";
-  if(!shopV&&o.length===all.length)return "week of "+label(0);
+  if(!shopV.length&&o.length===all.length)return "week of "+label(0);
   return "for "+o.map(v=>v.short).join(", ")+(o.length>1?" visits":" visit");
 }
 function bazaarText(){
@@ -996,6 +1099,17 @@ function onlineText(){
   s.G.filter(x=>!S.ck[x.k]).forEach(x=>{t+="- "+x.n+": "+fmt(x.q,x.u)+"\n";});
   const p=s.P.filter(n=>S.ck["P|"+n]);
   if(p.length){t+="\n*Running low at home*\n";p.forEach(n=>{t+="- "+n+"\n";});}
+  return t;
+}
+function allShopText(){
+  const s=shopping(shopV);let t="*Shopping list, "+weekTitle()+"*\n";
+  [["F","Fish and meat"],["E","Eggs"],["V","Vegetables and fruit"],["G","Grocery"]].forEach(([c,h])=>{
+    const rows=s[c].filter(x=>!S.ck[x.k]);if(!rows.length)return;
+    t+="\n*"+h+"*\n";rows.forEach(x=>{t+="- "+x.n+": "+fmt(x.q,x.u)+"\n";});
+  });
+  const p=s.P.filter(n=>S.ck["P|"+n]);
+  if(p.length){t+="\n*Running low at home*\n";p.forEach(n=>{t+="- "+n+"\n";});}
+  t+="\nAlso ginger, garlic, green chilli and coriander leaves.";
   return t;
 }
 function cookText(v){
@@ -1199,18 +1313,20 @@ function itemRow(k,name,qty,sub){
 }
 function vShop(){
   const o=okVisits();
-  if(!o.length)return '<div class="card"><h2>No cook visits approved yet</h2><p class="hint">Go to the Menu tab and approve the cook visits you are happy with. Their bazaar and grocery lists appear here and update when you change a dish.</p></div>';
-  if(shopV&&!o.some(v=>v.id===shopV))shopV="";
+  if(!o.length)return '<div class="card"><h2>No cook visits approved yet</h2><p class="hint">Go to the Menu tab and approve the cook visits you are happy with. Their shopping lists appear here and update when you change a dish.</p></div>';
+  shopV=shopV.filter(id=>o.some(v=>v.id===id));
+  const one=S.shopMode==="one";
   const s=shopping(shopV);
-  let h='<div class="chips"><button class="tog" data-act="shopV" data-id="" aria-pressed="'+(!shopV)+'">All approved</button>'+o.map(v=>'<button class="tog" data-act="shopV" data-id="'+v.id+'" aria-pressed="'+(v.id===shopV)+'">'+esc(v.short)+'</button>').join("")+'</div>'+
-   '<p class="hint">Showing: <b>'+esc(weekTitle())+'</b>. Pick one visit to shop just for that visit.</p><section class="card"><h2>Bazaar</h2><p class="hint">Tick what you already have. Ticked items are left out of the WhatsApp message.</p>';
-  [["F","Fish and meat"],["E","Eggs"],["V","Vegetables and fruit"]].forEach(([c,t])=>{
-    if(!s[c].length)return;h+='<h3>'+t+'</h3>'+s[c].map(x=>itemRow(x.k,x.n,fmt(x.q,x.u),c==="F"&&!shopV?"for "+x.days.join(", "):"")).join("");
-  });
-  h+='<div class="row" style="margin-top:12px"><button class="btn" data-act="copy" data-what="bazaar">Copy list</button><a class="btn ghost" target="_blank" rel="noopener" href="'+esc(wa(bazaarText()))+'">Send on WhatsApp</a></div></section>';
-  h+='<section class="card"><h2>Order online</h2><h3>Grocery</h3>'+s.G.map(x=>itemRow(x.k,x.n,fmt(x.q,x.u),"")).join("")+
-     '<h3>Check stock at home</h3><p class="hint">Tick anything running low and it joins the order.</p>'+s.P.map(n=>itemRow("P|"+n,n,"","")).join("")+
-     '<div class="row" style="margin-top:12px"><button class="btn" data-act="copy" data-what="online">Copy list</button><a class="btn ghost" target="_blank" rel="noopener" href="'+esc(wa(onlineText()))+'">Send on WhatsApp</a></div></section>';
+  const sec=(cs)=>cs.map(([c,t])=>s[c].length?'<h3>'+t+'</h3>'+s[c].map(x=>itemRow(x.k,x.n,fmt(x.q,x.u),c==="F"&&(shopV.length!==1)?"for "+x.days.join(", "):"")).join(""):'').join("");
+  const stock='<h3>Check stock at home</h3><p class="hint">Tick anything running low and it joins the list.</p>'+s.P.map(n=>itemRow("P|"+n,n,"","")).join("");
+  const btns=(what,fn)=>'<div class="row" style="margin-top:12px"><button class="btn" data-act="copy" data-what="'+what+'">Copy list</button><a class="btn ghost" target="_blank" rel="noopener" href="'+esc(wa(fn()))+'">Send on WhatsApp</a></div>';
+  let h='<div class="card"><h3 style="margin-top:0">Shop for which cook visits?</h3><div class="chips"><button class="tog" data-act="shopV" data-id="" aria-pressed="'+(!shopV.length)+'">All approved</button>'+o.map(v=>'<button class="tog" data-act="shopV" data-id="'+v.id+'" aria-pressed="'+shopV.includes(v.id)+'">'+esc(v.short)+'</button>').join("")+'</div>'+
+   '<p class="hint">Tap two or three visits to club their shopping into one trip. Showing: <b>'+esc(weekTitle())+'</b>.</p>'+
+   '<h3>List style</h3><div class="chips"><button class="tog" data-act="shopMode" data-k="split" aria-pressed="'+(!one)+'">Bazaar and online separately</button><button class="tog" data-act="shopMode" data-k="one" aria-pressed="'+one+'">One combined list</button></div></div>'+
+   '<p class="hint">Tick what you already have. Ticked items are left out of the WhatsApp message.</p>';
+  if(one)h+='<section class="card"><h2>Shopping list</h2>'+sec([["F","Fish and meat"],["E","Eggs"],["V","Vegetables and fruit"],["G","Grocery"]])+stock+btns("allshop",allShopText)+'</section>';
+  else h+='<section class="card"><h2>Bazaar</h2>'+sec([["F","Fish and meat"],["E","Eggs"],["V","Vegetables and fruit"]])+btns("bazaar",bazaarText)+'</section>'+
+     '<section class="card"><h2>Order online</h2>'+sec([["G","Grocery"]])+stock+btns("online",onlineText)+'</section>';
   return h;
 }
 function listCard(L){
@@ -1239,8 +1355,9 @@ let dishQ="";
 function dishListHtml(){
   const q=dishQ.toLowerCase();let h="";
   Object.keys(TYPES).forEach(t=>{
-    const ds=allDishes().filter(d=>d.type===t&&(!q||d.name.toLowerCase().includes(q)||TYPES[t].toLowerCase().includes(q)||d.ing.some(x=>x.n.toLowerCase().includes(q))));if(!ds.length)return;
-    h+='<section class="card" style="margin-top:12px"><h2>'+TYPES[t]+' <span class="hint">('+ds.length+')</span></h2>'+ds.map(d=>{const off=S.off.includes(d.id);
+    const all=allDishes().filter(d=>d.type===t&&(!q||d.name.toLowerCase().includes(q)||TYPES[t].toLowerCase().includes(q)||d.ing.some(x=>x.n.toLowerCase().includes(q))));if(!all.length)return;
+    const cap=q?80:25;const ds=all.slice(0,cap);
+    h+='<section class="card" style="margin-top:12px"><h2>'+TYPES[t]+' <span class="hint">('+all.length+')</span></h2>'+(all.length>cap?'<p class="hint">Showing '+cap+' of '+all.length+'. Search above to find the rest.</p>':'')+ds.map(d=>{const off=S.off.includes(d.id);
       return '<div class="lib'+(off?" off":"")+'"><button class="nm" data-act="view" data-id="'+d.id+'">'+esc(d.name)+(d.veg?'':' •')+(d.mine?' <span class="pill tag">'+(d.ai?"from Claude":"mine")+'</span>':'')+'</button>'+
       (t==="staple"?'':'<div class="chips" style="flex-wrap:nowrap"><button class="btn plain small" data-act="toMenu" data-id="'+d.id+'">+ Menu</button><button class="tog" data-act="off" data-id="'+d.id+'" aria-pressed="'+(!off)+'">'+(off?"Off":"On")+'</button></div>')+'</div>';}).join("")+'</section>';
   });
@@ -1381,16 +1498,17 @@ function ideasCard(){
     if(ideaSide==="veg"&&k==="n"||ideaSide==="non"&&k==="v")return "";
     const pool=slotPool(m,k==="v").sort((a,b)=>a.name.localeCompare(b.name)).map(d=>d.id);
     const all=!!ideaAll[k];
-    const ids=web[k].concat((all?pool:freeG[m][k]).filter(id=>!web[k].includes(id)));
+    const ids=web[k].concat((all?pool.slice(0,150):freeG[m][k]).filter(id=>!web[k].includes(id)));
     return '<div class="card" style="margin-top:10px;padding:10px 12px"><h2 style="font-size:16px"><span class="pill '+pill+'">'+label+'</span> '+MN+' ideas</h2>'+
       (ids.length?ids.map(id=>ideaRow(id,m)).join(""):'<p class="hint">No '+label.toLowerCase()+' '+MN.toLowerCase()+' dishes saved yet. Ask Claude below.</p>')+
-      (pool.length>5?'<div class="row" style="margin-top:8px"><button class="btn plain small" data-act="iall" data-k="'+k+'">'+(all?'Show only 5':'Show all '+pool.length+' '+label.toLowerCase()+' '+MN.toLowerCase()+' dishes')+'</button></div>':'')+'</div>';
+      (pool.length>5?'<div class="row" style="margin-top:8px"><button class="btn plain small" data-act="iall" data-k="'+k+'">'+(all?'Show only 5':'Show more of the '+pool.length+' '+label.toLowerCase()+' '+MN.toLowerCase()+' dishes')+'</button></div>'+(all&&pool.length>150?'<p class="hint">Showing the first 150. Search in the Dishes tab for a specific dish.</p>':''):'')+'</div>';
   };
   return '<section class="card"><h2>Dish ideas</h2>'+
    '<div class="chips" style="margin-top:8px">'+["b","l","d"].map(k=>'<button class="tog" style="font-size:15px;padding:8px 16px" data-act="imeal" data-k="'+k+'" aria-pressed="'+(m===k)+'">'+MEALNAME[k]+'</button>').join("")+'</div>'+
    '<div class="chips" style="margin-top:8px">'+[["both","Veg and non-veg"],["veg","Veg only"],["non","Non-veg only"]].map(([k,t])=>'<button class="tog" data-act="side" data-k="'+k+'" aria-pressed="'+(ideaSide===k)+'">'+t+'</button>').join("")+'</div>'+
    part("v","Veg","veg")+part("n","Non-veg","cn")+
    '<div class="row" style="margin-top:12px"><button class="btn plain" data-act="free">Show other '+MN.toLowerCase()+' ideas</button><button class="btn ghost" id="ideasBtn" data-act="ideas">Ask Claude for '+MN.toLowerCase()+' ideas</button></div>'+
+   '<div class="row" style="margin-top:8px"><button class="btn plain small" id="bulkBtn" data-act="bulk">Add 100 new dishes with Claude (about ₹2)</button></div>'+
    '<div class="status" id="ideasMsg"'+(ideaStatus?'':' hidden')+'>'+esc(ideaStatus)+'</div>'+
    '<label class="field"><span>For Claude, anything in mind? (optional)</span><input type="text" id="wish" placeholder="e.g. prawn dishes, quick, uses shim" value="'+esc(lastWish)+'"></label>'+
    '<p class="hint">Ideas from your saved dishes are free. Claude finds new ones, '+(AI.web?'about ₹3 each time with web search on':'about 10 paise each time')+'. Put on menu works for any meal: you can put a breakfast dish at dinner.</p></section>';
@@ -1487,7 +1605,7 @@ function addIdeas(out,forceMeal){
 /* Ask Claude. opts: {meal:"any"|"breakfast"|"lunch"|"dinner", veg:"both"|"veg"|"non", count, wish} */
 async function askClaude(opts){
   const forceMeal={breakfast:"b",lunch:"l",dinner:"d"}[opts.meal]||"";
-  const have=allDishes().map(d=>d.name);
+  const have=shuffle(allDishes().filter(d=>!d.gen)).map(d=>d.name);
   if(aiReady()){
     let r,j;
     try{
@@ -1530,6 +1648,18 @@ async function ideas(btn){
   const g=groupIds([]);r.ids.forEach(id=>{const d=dish(id);if(d)g[ideaMeal][d.veg?"v":"n"].push(id);});
   webG=webG||emptyG();webG[ideaMeal]=g[ideaMeal];ideaStatus=r.ids.length+" new "+MEALNAME[ideaMeal].toLowerCase()+" ideas from Claude, shown at the top and saved to your dishes."+costLine(r);render();
 }
+let bulkOn=false;
+async function bulkAdd(btn){
+  if(bulkOn)return;bulkOn=true;let got=0,usd=0,err="";
+  const plan=[["breakfast","veg"],["breakfast","non"],["lunch","veg"],["lunch","non"],["dinner","veg"],["dinner","non"],["lunch","both"],["dinner","both"]];
+  for(let n=0;n<8&&got<100;n++){
+    setStatus("ideasMsg","Claude is adding dishes: "+got+" so far. Keep this tab open, it takes a few minutes.",false);
+    const r=await askClaude({label:"Bulk add: "+plan[n][0]+" "+plan[n][1],meal:plan[n][0],veg:plan[n][1],count:20,wish:"Give 20 different dishes. Go beyond the usual ones: regional Bengali, seasonal and home-style dishes."});
+    if(r.error){err=r.error;break;}
+    got+=r.ids.filter(id=>(dish(id)||{}).ai).length;usd+=r.usd||0;
+  }
+  bulkOn=false;ideaStatus=got+" new dishes added to your Dishes"+(usd?" for about ₹"+(usd*90).toFixed(2):"")+"."+(err?" Stopped early: "+err:" Tap again for another 100.");render();
+}
 /* Ideas sheet for one meal of one day */
 let slotWeb=[];
 function slotSheet(i,m){
@@ -1562,7 +1692,8 @@ document.addEventListener("click",e=>{
   else if(a==="next")twoTap(b,()=>{archiveWeek();S.last=[].concat(...S.plan.map(d=>d.b.concat(d.l,d.d)));S.weekStart=iso(addDays(fromIso(S.weekStart),7));genWeek();save();render();});
   else if(a==="shufV"){regenVisit(b.dataset.id);save();render();}
   else if(a==="okV"){const id=b.dataset.id;if(S.okv[id])delete S.okv[id];else S.okv[id]=true;save();render();}
-  else if(a==="shopV"){shopV=b.dataset.id;render();}
+  else if(a==="shopV"){const id=b.dataset.id;if(!id)shopV=[];else shopV=shopV.includes(id)?shopV.filter(x=>x!==id):shopV.concat(id);render();}
+  else if(a==="shopMode"){S.shopMode=b.dataset.k;save();render();}
   else if(a==="ctime"){S.cookTime=b.dataset.k;S.okv={};save();render();}
   else if(a==="aiWeb"){AI.web=!AI.web;saveAI();render();}
   else if(a==="chip")chipSheet(i,b.dataset.m,+b.dataset.k);
@@ -1587,7 +1718,7 @@ document.addEventListener("click",e=>{
   else if(a==="swap"&&sheetCtx){S.plan[sheetCtx.i][sheetCtx.m][sheetCtx.k]=b.dataset.id;save();closeSheet();render();}
   else if(a==="addpick"&&sheetCtx){S.plan[sheetCtx.i][sheetCtx.m].push(b.dataset.id);save();closeSheet();render();}
   else if(a==="cd"){cookV=b.dataset.id;render();}
-  else if(a==="copy"){const w=b.dataset.what;copy(w==="menu"?menuText():w==="cookday"?cookText(visitById(cookV)||okVisits()[0]):w==="cookweek"?weekText():w==="bazaar"?bazaarText():onlineText(),b);}
+  else if(a==="copy"){const w=b.dataset.what;copy(w==="menu"?menuText():w==="cookday"?cookText(visitById(cookV)||okVisits()[0]):w==="cookweek"?weekText():w==="bazaar"?bazaarText():w==="allshop"?allShopText():onlineText(),b);}
   else if(a==="off"){const id=b.dataset.id;S.off=S.off.includes(id)?S.off.filter(x=>x!==id):S.off.concat(id);save();render();}
   else if(a==="view")viewSheet(b.dataset.id);
   else if(a==="new")editSheet(null);
@@ -1603,6 +1734,7 @@ document.addEventListener("click",e=>{
   else if(a==="deldish"&&sheetCtx){const id=sheetCtx.edit;S.mine=S.mine.filter(x=>x.id!==id);S.plan.forEach(d=>["b","l","d"].forEach(m=>{d[m]=d[m].filter(x=>x!==id);}));save();closeSheet();render();}
   else if(a==="ideas")ideas(b);
   else if(a==="side"){ideaSide=b.dataset.k;render();}
+  else if(a==="bulk")bulkAdd(b);
   else if(a==="iall"){ideaAll[b.dataset.k]=!ideaAll[b.dataset.k];render();}
   else if(a==="imeal"){ideaMeal=b.dataset.k;ideaStatus="";render();}
   else if(a==="okAll"){S.okv={};visits().forEach(v=>{S.okv[v.id]=true;});save();render();}

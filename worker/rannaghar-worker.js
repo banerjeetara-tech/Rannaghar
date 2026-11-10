@@ -1,4 +1,4 @@
-// Rannaghar ideas worker (Cloudflare Workers), version 5
+// Rannaghar ideas worker (Cloudflare Workers), version 6
 // Holds your Anthropic API key so it never sits in the app or on GitHub.
 //
 // Secrets to set in Cloudflare (Settings > Variables and Secrets):
@@ -7,7 +7,7 @@
 // Optional plain variable:
 //   ALLOWED_ORIGIN     defaults to https://banerjeetara-tech.github.io
 
-const VERSION = 5;
+const VERSION = 6;
 const MODEL = "claude-haiku-5-5";
 // USD per million tokens for prompts under 100k tokens. Edit if Anthropic changes prices.
 const PRICE_IN = 0.10;
@@ -76,9 +76,9 @@ export default {
     try { input = await request.json(); } catch { return reply(env, 400, { error: "Bad request" }); }
     if (input.ping) return reply(env, 200, { ok: true, version: VERSION, model: MODEL });
 
-    const have = (Array.isArray(input.have) ? input.have : []).slice(0, 400).map(s => String(s).slice(0, 60));
+    const have = (Array.isArray(input.have) ? input.have : []).slice(0, 600).map(s => String(s).slice(0, 60));
     const wish = String(input.wish || "").slice(0, 300);
-    const count = Math.min(8, Math.max(1, parseInt(input.count, 10) || 6));
+    const count = Math.min(25, Math.max(1, parseInt(input.count, 10) || 6));
     const search = input.search === true; // web search costs about 30 times more, so it is off unless the app asks
     const meal = ["breakfast", "lunch", "dinner"].includes(input.meal) ? input.meal : "any";
     const veg = ["veg", "non"].includes(input.veg) ? input.veg : "both";
@@ -112,7 +112,7 @@ export default {
       },
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: withSearch ? 5000 : 4000,
+        max_tokens: count > 10 ? 9000 : (withSearch ? 5000 : 4000),
         messages: [{ role: "user", content: prompt }],
         ...(withSearch ? { tools: [{ type: "web_search_20250305", name: "web_search", max_uses: MAX_SEARCHES }] } : {}),
       }),
