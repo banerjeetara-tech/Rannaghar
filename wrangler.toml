@@ -1,0 +1,8 @@
+# Used by the GitHub Action to deploy the ideas Worker to Cloudflare.
+# "name" must match your Worker's name in Cloudflare.
+name = "rannaghar"
+main = "worker/rannaghar-worker.js"
+compatibility_date = "2026-10-01"
+# Keep the variables you set in the Cloudflare dashboard. Secrets (API key, passcode) are never touched.
+keep_vars = true
+workers_dev = true

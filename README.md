@@ -32,3 +32,12 @@ On the Ideas tab, **Ideas** is free and picks from your saved dishes. **Ideas th
 If you change the worker code later, paste the new `worker/rannaghar-worker.js` into Cloudflare and deploy again.
 
 The app shows roughly what you have spent this month in the Settings tab.
+
+## Automatic Worker updates
+
+`.github/workflows/deploy-worker.yml` deploys `worker/rannaghar-worker.js` to Cloudflare whenever it changes. It needs two repository secrets (Settings > Secrets and variables > Actions):
+
+- `CLOUDFLARE_API_TOKEN`: a Cloudflare API token made from the **Edit Cloudflare Workers** template
+- `CLOUDFLARE_ACCOUNT_ID`: your Cloudflare account ID
+
+The Worker name in `wrangler.toml` must match the Worker's name in Cloudflare (`rannaghar`). Your API key and passcode secrets stay as they are.
