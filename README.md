@@ -2,7 +2,7 @@
 
 Weekly family meal planner: a day-wise menu (breakfast, lunch, dinner), cooking instructions for the cook, and separate bazaar and online shopping lists you can send on WhatsApp.
 
-Single HTML file with 337 built-in dishes and 32 ready-made menu lists (Bengali, home-style Chinese, breakfasts, veg). Your menu and own dishes are saved in Chrome on your phone. Use **Settings > Save backup file** now and then.
+Single HTML file with 491 built-in dishes and 32 ready-made menu lists (Bengali, home-style Chinese, breakfasts, veg). Your menu and own dishes are saved in Chrome on your phone. Use **Settings > Save backup file** now and then.
 
 Open the app in Chrome and choose **Add to Home screen**.
 
