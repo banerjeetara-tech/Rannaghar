@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rannaghar Weekly Menu</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#b4532a">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: phone app shell. Fixed header, scrolling day cards, bottom tab bar. */
+:root{
+  --bg:#f6ece0; --card:#fffaf2; --ink:#2b2118; --muted:#7a6a5a; --line:#e4d5c1;
+  --accent:#b4532a; --accent-ink:#fff8f0; --soft:#f0e0cc;
+  --veg:#3f7d4e; --veg-bg:#e2efdf; --cn:#8a5a12; --cn-bg:#f6e6c4;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#1d1712; --card:#28201a; --ink:#f3e8da; --muted:#b3a290; --line:#3d3229;
+    --accent:#e08a5c; --accent-ink:#22150d; --soft:#342a22;
+    --veg:#8fcf9d; --veg-bg:#22362a; --cn:#e6c27a; --cn-bg:#3a2f18;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#1d1712; --card:#28201a; --ink:#f3e8da; --muted:#b3a290; --line:#3d3229;
+  --accent:#e08a5c; --accent-ink:#22150d; --soft:#342a22;
+  --veg:#8fcf9d; --veg-bg:#22362a; --cn:#e6c27a; --cn-bg:#3a2f18;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;-webkit-text-size-adjust:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{height:100%;display:flex;flex-direction:column;max-width:640px;margin:0 auto}
+header{padding:14px 16px 10px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line)}
+h1{font-family:var(--display);font-weight:600;font-size:24px;margin:0;line-height:1.1;text-wrap:balance}
+.sub{color:var(--muted);font-size:13px;margin-top:2px}
+.sync{color:var(--muted);font-size:11px;text-align:right;white-space:nowrap}
+main{flex:1;overflow-y:auto;padding:14px 16px 24px;display:flex;flex-direction:column;gap:12px}
+nav{display:flex;border-top:1px solid var(--line);background:var(--card)}
+nav button{flex:1;background:none;border:0;padding:11px 4px 12px;font-weight:600;font-size:13px;color:var(--muted);border-top:3px solid transparent}
+nav button[aria-current="true"]{color:var(--accent);border-top-color:var(--accent)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.card.today{border-color:var(--accent)}
+.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.between{justify-content:space-between}
+h2{font-family:var(--display);font-weight:600;font-size:18px;margin:0}
+h3{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:10px 0 5px;font-weight:700}
+.pill{font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px}
+.pill.veg{background:var(--veg-bg);color:var(--veg)}
+.pill.cn{background:var(--cn-bg);color:var(--cn)}
+.pill.tag{background:var(--soft);color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-size:14px;text-align:left}
+.chip.add{background:none;border-style:dashed;color:var(--muted);padding:6px 11px}
+.btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:10px;padding:9px 14px;font-weight:700;font-size:14px;text-decoration:none;display:inline-block}
+.btn.ghost{background:none;color:var(--accent);border:1px solid var(--accent)}
+.btn.small{padding:5px 10px;font-size:12px}
+.btn.plain{background:var(--soft);color:var(--ink);border:1px solid var(--line)}
+.tog{background:none;border:1px solid var(--line);border-radius:99px;padding:5px 10px;font-size:13px;color:var(--muted)}
+.tog[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+details summary{cursor:pointer;font-weight:700}
+.field{display:flex;flex-direction:column;gap:5px;margin-top:10px}
+.field>span{font-size:12px;color:var(--muted);font-weight:600}
+input[type=text],input[type=date],input[type=number],input[type=search],select,textarea{background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:8px 10px;width:100%;min-width:0}
+.stepper{display:flex;align-items:center;gap:10px}
+.stepper button{width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:var(--soft);font-weight:700}
+.stepper b{font-variant-numeric:tabular-nums;min-width:20px;text-align:center}
+.dish{padding:8px 0;border-top:1px solid var(--line)}
+.dish:first-of-type{border-top:0}
+.dish b{font-weight:600}
+.note{color:var(--muted);font-size:13.5px;margin-top:2px}
+.use{font-size:12.5px;color:var(--muted);margin-top:2px;font-style:italic}
+.item{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--line)}
+.item:first-of-type{border-top:0}
+.item input{width:19px;height:19px;margin-top:2px;accent-color:var(--accent);flex:none}
+.item label{flex:1;display:flex;justify-content:space-between;gap:10px}
+.item .q{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.item .d{display:block;font-size:12px;color:var(--muted)}
+.item.done label{text-decoration:line-through;color:var(--muted)}
+.lib{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.lib:first-of-type{border-top:0}
+.lib .nm{background:none;border:0;padding:0;text-align:left;flex:1}
+.lib.off .nm{color:var(--muted);text-decoration:line-through}
+.hint{font-size:12.5px;color:var(--muted)}
+#sheet{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;justify-content:flex-end}
+#sheet[hidden]{display:none}
+.sheet-bg{position:absolute;inset:0;background:rgba(20,12,6,.5)}
+.sheet-body{position:relative;background:var(--card);border-radius:18px 18px 0 0;padding:16px 16px 22px;max-height:86%;overflow-y:auto;max-width:640px;width:100%;margin:0 auto}
+.pick{display:block;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:10px 0}
+.ing{display:grid;grid-template-columns:1fr 62px 74px 88px;gap:5px;margin-top:5px}
+.ing input,.ing select{padding:7px 6px;font-size:13px}
+@media (max-width:380px){.ing{grid-template-columns:1fr 54px 66px 80px}}
+@media (prefers-reduced-motion:no-preference){.chip,.btn,.tog{transition:background .15s}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div><h1>Rannaghar</h1><div class="sub" id="weekLabel"></div></div>
+    <div class="sync" id="sync">Saved on this phone</div>
+  </header>
+  <main id="main"></main>
+  <nav>
+    <button data-tab="week">Menu</button>
+    <button data-tab="cook">Cook</button>
+    <button data-tab="shop">Shopping</button>
+    <button data-tab="dishes">Dishes</button>
+  </nav>
+</div>
+<div id="sheet" hidden><div class="sheet-bg" data-act="close"></div><div class="sheet-body" id="sheetBody"></div></div>
+
+<script>
+/* ---------- Dish library (quantities are for 4 people) ---------- */
+/* id | name | type | veg | ingredients "name:qty unit:where" | note for the cook
+   where: F fish and meat, E eggs, V vegetables (all bazaar); G grocery (online); P pantry, check stock */
+const RAW = [
+["bf1","Ruti with alu chorchori","bf",1,"Atta:250g:G;Potato:3pc:V;Kalonji::P","Dry-roast the rutis, no oil or ghee. Cook the potato with 1 tsp mustard oil, kalonji and green chilli, covered, with a splash of water."],
+["bf2","Chirer pulao","bf",1,"Chire (poha):250g:G;Onion:1pc:V;Potato:1pc:V;Green peas:100g:V;Peanuts:50g:G;Lemon:1pc:V","Rinse chire and drain. Dry-roast the peanuts. Use 2 tsp oil for the whole pan and finish with lemon."],
+["bf3","Vegetable suji upma","bf",1,"Suji:200g:G;Onion:1pc:V;Carrot:1pc:V;Beans:100g:V;Mustard seeds::P","Dry-roast the suji first. Temper in 2 tsp oil, add vegetables and hot water, cook till soft."],
+["bf4","Dim pauruti (egg toast)","bf",0,"Eggs:5pc:E;Brown bread:1pack:G;Onion:1pc:V","Dip bread in beaten egg with onion and chilli. Toast on a non-stick tawa, brushing oil lightly instead of pouring."],
+["bf5","Vegetable sandwich with boiled egg","bf",0,"Brown bread:1pack:G;Cucumber:1pc:V;Tomato:2pc:V;Eggs:4pc:E;Butter:30g:G","Toast the bread dry. Thin layer of butter only. One boiled egg per person on the side."],
+["bf6","Oats khichuri","bf",1,"Oats:200g:G;Moong dal:80g:G;Carrot:1pc:V;Beans:100g:V;Tomato:1pc:V","Pressure cook dal and vegetables, then add oats for 3 minutes. Temper with 1 tsp ghee and cumin."],
+["bf7","Moong dal chilla","bf",1,"Moong dal:200g:G;Onion:1pc:V;Coriander leaves:1bunch:V","Soak the dal the night before. Grind, add onion and coriander, spread thin on a non-stick tawa with a brush of oil."],
+["bf8","Doi chire with banana","bf",1,"Chire (poha):250g:G;Curd:400g:G;Banana:4pc:V","No cooking. Wash chire, soften for 5 minutes, mix with curd and banana. Sugar only if asked."],
+["bf9","Vegetable dalia","bf",1,"Dalia:200g:G;Carrot:1pc:V;Beans:100g:V;Green peas:100g:V;Tomato:1pc:V","Roast the dalia dry, then pressure cook with vegetables. 1 tsp ghee on top."],
+["bf10","Masala omelette with toast","bf",0,"Eggs:6pc:E;Brown bread:1pack:G;Onion:1pc:V;Tomato:1pc:V","Omelette on a non-stick pan with half a teaspoon of oil each. Toast without butter."],
+["bf11","Alu paratha, dry roasted, with curd","bf",1,"Atta:300g:G;Potato:4pc:V;Curd:200g:G","Roast the parathas dry on the tawa and brush a little ghee only at the end."],
+["bf12","Besan chilla with vegetables","bf",1,"Besan:200g:G;Onion:1pc:V;Tomato:1pc:V;Capsicum:1pc:V","Thin batter, chopped vegetables inside. Non-stick tawa, a brush of oil per chilla."],
+
+["d1","Musur dal","dal",1,"Masoor dal:150g:G;Onion:1pc:V;Tomato:1pc:V;Panch phoron::P","Boil the dal first. Temper with 1 tsp mustard oil, panch phoron and dry chilli."],
+["d2","Bhaja muger dal with vegetables","dal",1,"Moong dal:150g:G;Carrot:1pc:V;Green peas:100g:V","Dry-roast the dal till it smells nutty. Cook with vegetables and ginger. 1 tsp ghee to finish."],
+["d3","Cholar dal","dal",1,"Chana dal:150g:G;Coconut pieces:50g:V;Bay leaf::P","Soak for 2 hours. Pressure cook. Do not fry the coconut, add it raw. Very little sugar."],
+["d4","Tomato tok dal","dal",1,"Masoor dal:150g:G;Tomato:3pc:V;Mustard seeds::P","Thin, light and a little sour. Temper with 1 tsp oil and mustard seeds."],
+["d5","Lau diye muger dal","dal",1,"Moong dal:150g:G;Lau (bottle gourd):300g:V","Cook lau and dal together till soft. Temper with cumin and ginger in 1 tsp ghee."],
+["d6","Biulir dal","dal",1,"Urad dal:150g:G;Fennel seeds::P","Boil with ginger and fennel paste. Temper with 1 tsp oil. Keep it thin."],
+
+["s1","Alu posto","side",1,"Potato:4pc:V;Posto (poppy seeds):40g:G","Soak and grind the posto. Cook the potato covered with 2 tsp mustard oil, add a few raw drops at the end."],
+["s2","Begun pora","side",1,"Brinjal (large):2pc:V;Onion:1pc:V;Tomato:1pc:V;Coriander leaves:1bunch:V","Roast brinjal on open flame, no frying. Mash with raw onion, tomato, chilli and half a teaspoon of mustard oil."],
+["s3","Lau ghonto","side",1,"Lau (bottle gourd):500g:V;Green peas:100g:V","Cook the lau in its own water, covered. 1 tsp oil for tempering only."],
+["s4","Shukto","side",1,"Karela:1pc:V;Raw banana:1pc:V;Drumstick:2pc:V;Brinjal:1pc:V;Sweet potato:1pc:V;Milk:100ml:G;Radhuni::P","Do not deep-fry the vegetables. Saute lightly in 2 tsp oil, then simmer with milk and radhuni."],
+["s5","Palong shaak with garlic","side",1,"Spinach (palong):2bunch:V","Wash well. Wilt with crushed garlic and dry chilli in 1 tsp oil. No water."],
+["s6","Bandhakopir ghonto","side",1,"Cabbage:500g:V;Green peas:100g:V;Potato:1pc:V;Tomato:1pc:V","Shred fine. Cook covered on low flame so it softens in steam. 2 tsp oil in total."],
+["s7","Phulkopi alu, dry","side",1,"Cauliflower:1pc:V;Potato:2pc:V","Steam the cauliflower for 5 minutes first so it needs less oil. Then toss with spices in 2 tsp oil."],
+["s8","Dharosh bhaja on tawa","side",1,"Bhindi:300g:V;Onion:1pc:V","Wipe the bhindi dry before cutting. Cook open on a non-stick tawa with 2 tsp oil. No deep frying."],
+["s9","Mixed vegetable chorchori","side",1,"Pumpkin:200g:V;Brinjal:1pc:V;Potato:1pc:V;Beans:100g:V","Panch phoron in 2 tsp mustard oil, all vegetables together, covered, till dry."],
+["s10","Beans and carrot stir fry","side",1,"Beans:200g:V;Carrot:2pc:V","Cut small. Quick stir fry with mustard seeds in 1 tsp oil. Keep a little crunch."],
+["s11","Kumro chokka","side",1,"Pumpkin:400g:V;Kala chana:80g:G;Potato:1pc:V","Soak the kala chana the night before and boil it. Cook with pumpkin in 2 tsp oil."],
+["s12","Lal shaak with garlic","side",1,"Lal shaak:2bunch:V","Wash well. Cook with garlic in 1 tsp mustard oil till the water dries."],
+
+["f1","Rui macher patla jhol","fish",0,"Rohu (rui) fish:600g:F;Potato:2pc:V;Tomato:1pc:V;Kalonji::P","Shallow-fry the fish lightly on a non-stick pan, do not deep fry. Thin gravy with kalonji, green chilli and potato."],
+["f2","Doi maach","fish",0,"Rohu (rui) fish:600g:F;Curd:200g:G;Onion:1pc:V","Sear the fish lightly. Gravy from whisked curd and onion paste in 2 tsp oil. Do not let the curd split."],
+["f3","Shorshe bhapa maach","fish",0,"Bhetki fish:500g:F;Mustard seeds:40g:G;Curd:50g:G","No frying. Coat raw fish in mustard paste, curd, green chilli and 1 tsp mustard oil. Steam for 15 minutes."],
+["f4","Pabda jhal","fish",0,"Pabda fish:500g:F;Tomato:1pc:V;Kalonji::P","Do not fry hard, the fish is delicate. Thin gravy with kalonji, green chilli and tomato."],
+["f5","Chingri malaikari, light","fish",0,"Prawns (chingri):500g:F;Coconut milk:200ml:G;Onion:1pc:V","Use thin coconut milk and 2 tsp oil. Add the prawns last and cook only 5 minutes."],
+["f6","Katla kalia, light","fish",0,"Katla fish:600g:F;Onion:2pc:V;Tomato:1pc:V;Curd:100g:G","Sear the fish lightly. Cook the onion paste in 1 tbsp oil with splashes of water instead of more oil."],
+["f7","Macher jhol with begun and bori","fish",0,"Rohu (rui) fish:600g:F;Brinjal:1pc:V;Bori:50g:G","Dry-roast the bori on the tawa instead of frying. Light fry on the fish. Thin gravy."],
+["f8","Bhetki with phulkopi","fish",0,"Bhetki fish:500g:F;Cauliflower:1pc:V;Potato:1pc:V","Steam the cauliflower first. Light gravy with ginger and cumin paste, 2 tsp oil."],
+["f9","Pomfret tawa grill","fish",0,"Pomfret:600g:F;Lemon:1pc:V","Marinate with lemon, garlic, turmeric and chilli for 30 minutes. Cook on a non-stick tawa with a brush of oil."],
+["f10","Tangra jhal with onion","fish",0,"Tangra fish:500g:F;Onion:1pc:V;Tomato:1pc:V","Light fry only. Thin spicy gravy with sliced onion and green chilli."],
+
+["c1","Chicken stew with vegetables","chicken",0,"Chicken:700g:F;Carrot:2pc:V;Potato:2pc:V;Raw papaya:200g:V;Beans:100g:V;Onion:1pc:V","Remove the skin. No frying: pressure cook everything with whole spices, ginger and 1 tsp butter."],
+["c2","Chicken patla jhol","chicken",0,"Chicken:700g:F;Potato:3pc:V;Onion:2pc:V;Tomato:1pc:V","Skinless chicken. 1 tbsp oil for the whole dish. Thin gravy, potatoes not fried."],
+["c3","Doi chicken","chicken",0,"Chicken:700g:F;Curd:200g:G;Onion:2pc:V","Marinate in curd for 1 hour. Cook in its own juices on low flame with 2 tsp oil."],
+["c4","Lemon coriander chicken","chicken",0,"Boneless chicken:600g:F;Lemon:2pc:V;Coriander leaves:1bunch:V","Marinate with lemon, garlic and pepper. Cook on a non-stick pan with 2 tsp oil. Coriander at the end."],
+["c5","Chicken tikka on tawa","chicken",0,"Boneless chicken:600g:F;Curd:150g:G;Capsicum:1pc:V;Onion:1pc:V","Marinate for 2 hours in thick curd and spices. Cook on a hot tawa with a brush of oil, no deep frying."],
+["c6","Chicken kosha, pressure cooked","chicken",0,"Chicken:700g:F;Onion:3pc:V;Tomato:1pc:V;Curd:100g:G","Skinless chicken. Brown the onion slowly in 1 tbsp oil, adding water when it sticks. Pressure cook 2 whistles."],
+["c7","Methi chicken","chicken",0,"Chicken:700g:F;Methi leaves:1bunch:V;Onion:2pc:V;Curd:100g:G","Skinless chicken, 1 tbsp oil. Add the methi leaves in the last 5 minutes."],
+
+["e1","Dimer jhol","egg",0,"Eggs:6pc:E;Potato:2pc:V;Onion:2pc:V;Tomato:1pc:V","Do not deep-fry the boiled eggs, just roll them in a little turmeric on the pan. Thin gravy."],
+["e2","Egg bhurji","egg",0,"Eggs:6pc:E;Onion:2pc:V;Tomato:1pc:V;Capsicum:1pc:V","Non-stick pan, 2 tsp oil. Keep it soft, do not overcook."],
+["e3","Dim koraishuti","egg",0,"Eggs:6pc:E;Green peas:150g:V;Onion:1pc:V;Tomato:2pc:V","Boiled eggs in a light tomato and pea gravy. 2 tsp oil."],
+["e4","Egg and vegetable stew","egg",0,"Eggs:6pc:E;Carrot:1pc:V;Beans:100g:V;Potato:1pc:V;Milk:100ml:G","No frying. Simmer the vegetables with pepper and bay leaf, add milk and halved boiled eggs."],
+
+["m1","Mutton jhol with alu","mutton",0,"Mutton:700g:F;Potato:3pc:V;Onion:3pc:V;Curd:100g:G","Trim off all visible fat. Marinate in curd. Pressure cook with 1 tbsp mustard oil. Skim the oil off the top before serving."],
+["m2","Mutton stew","mutton",0,"Mutton:600g:F;Carrot:2pc:V;Potato:2pc:V;Onion:2pc:V","Trim the fat. No frying: pressure cook with whole spices, ginger and vegetables."],
+
+["v1","Paneer capsicum","vegmain",1,"Paneer:300g:G;Capsicum:2pc:V;Onion:1pc:V;Tomato:2pc:V","Do not fry the paneer. Add raw cubes to the tomato gravy at the end. 2 tsp oil."],
+["v2","Dhokar dalna","vegmain",1,"Chana dal:200g:G;Potato:2pc:V;Tomato:1pc:V","Soak the dal overnight. Steam the dhoka and pan-roast with a brush of oil instead of deep frying."],
+["v3","Chanar dalna","vegmain",1,"Paneer:300g:G;Potato:2pc:V;Green peas:100g:V","Light gravy with ginger and cumin. Paneer goes in raw, potatoes boiled not fried."],
+["v4","Soya chunk curry","vegmain",1,"Soya chunks:150g:G;Potato:2pc:V;Onion:1pc:V;Tomato:1pc:V","Soak chunks in hot water and squeeze dry. Cook like a light chicken jhol with 2 tsp oil."],
+["v5","Rajma","vegmain",1,"Rajma:200g:G;Onion:2pc:V;Tomato:2pc:V","Soak the rajma the night before. Pressure cook till very soft. 2 tsp oil for the masala."],
+["v6","Mushroom matar","vegmain",1,"Mushroom:400g:V;Green peas:150g:V;Onion:1pc:V;Tomato:2pc:V","Cook the mushroom on high flame so the water dries. 2 tsp oil."],
+
+["n1","Chicken hakka noodles","cncarb",0,"Hakka noodles:400g:G;Boneless chicken:300g:F;Cabbage:200g:V;Carrot:1pc:V;Capsicum:1pc:V;Spring onion:1bunch:V;Soy sauce::P","Boil noodles, rinse in cold water. Toss on high flame with 1 tbsp oil in total. Vegetables stay crunchy."],
+["n2","Egg fried rice","cncarb",0,"Basmati rice:400g:G;Eggs:3pc:E;Carrot:1pc:V;Beans:100g:V;Spring onion:1bunch:V;Soy sauce::P","Cook the rice in the morning and cool it. Scramble the egg first, then toss everything with 1 tbsp oil."],
+["n3","Veg hakka noodles","cncarb",1,"Hakka noodles:400g:G;Cabbage:200g:V;Carrot:1pc:V;Capsicum:1pc:V;Spring onion:1bunch:V;Soy sauce::P","Boil noodles, rinse in cold water. High flame, 1 tbsp oil in total."],
+["n4","Mixed veg fried rice","cncarb",1,"Basmati rice:400g:G;Carrot:1pc:V;Beans:100g:V;Capsicum:1pc:V;Spring onion:1bunch:V;Soy sauce::P","Cook the rice in the morning and cool it. Toss on high flame with 1 tbsp oil."],
+["x1","Chilli chicken, pan tossed","cnmain",0,"Boneless chicken:600g:F;Capsicum:2pc:V;Onion:2pc:V;Cornflour:30g:G;Soy sauce::P;Green chilli sauce::P","Do not deep fry. Coat the chicken lightly in cornflour and pan-sear in 1 tbsp oil, then toss with the sauce."],
+["x2","Garlic chicken","cnmain",0,"Boneless chicken:600g:F;Garlic bulb:2pc:V;Spring onion:1bunch:V;Cornflour:30g:G;Soy sauce::P","Pan-sear, no deep frying. Lots of chopped garlic, light soy gravy thickened with cornflour."],
+["x3","Chilli fish","cnmain",0,"Bhetki fillet:500g:F;Capsicum:1pc:V;Onion:2pc:V;Cornflour:30g:G;Soy sauce::P","Pan-sear the fish cubes with a light cornflour coat in 1 tbsp oil. Toss gently with the sauce."],
+["x4","Chilli paneer","cnmain",1,"Paneer:300g:G;Capsicum:2pc:V;Onion:2pc:V;Cornflour:30g:G;Soy sauce::P","Do not fry the paneer. Toss raw cubes in the sauce for 2 minutes."],
+
+["st1","Steamed rice","staple",1,"Rice:400g:G","Drain the starch (fan jhora bhaat)."],
+["st2","Ruti","staple",1,"Atta:300g:G","Phulka on open flame. No oil or ghee."]
+];
+const TYPES = {bf:"Breakfast",dal:"Dal",side:"Vegetable side",fish:"Fish",chicken:"Chicken",egg:"Egg",mutton:"Mutton",vegmain:"Veg main",cncarb:"Chinese rice or noodles",cnmain:"Chinese side",staple:"Rice and ruti"};
+const WHERE = {F:"Fish and meat",E:"Eggs",V:"Vegetables and fruit",G:"Grocery",P:"Pantry"};
+const PANTRY = ["Mustard oil","Refined oil","Salt","Sugar","Turmeric","Cumin","Coriander powder","Red chilli powder","Garam masala","Ginger","Garlic","Green chilli"];
+const DAY = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const MEALS = [["b","Breakfast"],["l","Lunch"],["d","Dinner"]];
+
+function parseIng(s){return s.split(";").filter(Boolean).map(p=>{const a=p.split(":");const m=/^([\d.]+)\s*(.*)$/.exec(a[1]||"");return {n:a[0],q:m?+m[1]:0,u:m?m[2]:"",c:a[2]||"G"};});}
+const BUILTIN = RAW.map(r=>({id:r[0],name:r[1],type:r[2],veg:!!r[3],ing:parseIng(r[4]),note:r[5]}));
+
+/* ---------- State ---------- */
+const KEY="rannaghar.v1", AIKEY="rannaghar.ai";
+let AI={url:"",token:"",spend:{}};
+try{const t=localStorage.getItem(AIKEY);if(t)AI=Object.assign(AI,JSON.parse(t));}catch(e){}
+function saveAI(){try{localStorage.setItem(AIKEY,JSON.stringify(AI));}catch(e){}}
+function aiReady(){return !!(AI.url&&AI.token);}
+function monthKey(){return iso(new Date()).slice(0,7);}
+let setOpen=false, S=null, tab="week", cookDay=0, ref=null, writing=false, dirty=false, saveTimer=null;
+
+function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function fromIso(s){const a=s.split("-").map(Number);return new Date(a[0],a[1]-1,a[2]);}
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x;}
+function dateOf(i){return addDays(fromIso(S.weekStart),i);}
+function label(i,long){const d=dateOf(i);return DAY[d.getDay()]+" "+d.getDate()+" "+MON[d.getMonth()];}
+function defaultStart(){const t=new Date();const wd=t.getDay();const back=(wd+6)%7;let m=addDays(t,-back);if(wd===0||wd>=5)m=addDays(m,7);return iso(m);}
+
+function allDishes(){return BUILTIN.concat(S.mine||[]);}
+function dish(id){return allDishes().find(d=>d.id===id);}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function pick(type,vegOnly,used){
+  let pool=allDishes().filter(d=>d.type===type&&!S.off.includes(d.id)&&(!vegOnly||d.veg));
+  if(!pool.length)pool=allDishes().filter(d=>d.type===type&&(!vegOnly||d.veg));
+  if(!pool.length)return null;
+  const fresh=pool.filter(d=>!used.has(d.id));
+  const pref=fresh.filter(d=>!S.last.includes(d.id));
+  const from=pref.length?pref:(fresh.length?fresh:pool);
+  const d=from[Math.floor(Math.random()*from.length)];
+  used.add(d.id);return d.id;
+}
+function genDay(i,used,lt,dt){
+  const wd=dateOf(i).getDay(), veg=S.vegDays.includes(wd), cn=S.cnDays.includes(wd);
+  const day={b:[],l:[],d:[]};
+  const push=(arr,id)=>{if(id)arr.push(id);};
+  push(day.b,pick("bf",veg,used));
+  let lType=veg?"vegmain":(wd===0?(Math.random()<.6?"mutton":"chicken"):lt);
+  day.l.push("st1");push(day.l,pick("dal",true,used));push(day.l,pick("side",true,used));push(day.l,pick(lType,veg,used));
+  if(cn){push(day.d,pick("cncarb",veg,used));push(day.d,pick("cnmain",veg,used));}
+  else{
+    let dType=veg?"vegmain":dt;
+    if(!veg&&dType===lType)dType=["chicken","egg","fish"].filter(t=>t!==lType)[Math.floor(Math.random()*2)];
+    day.d.push("st2");push(day.d,pick(dType,veg,used));
+  }
+  return day;
+}
+function genWeek(){
+  const used=new Set();
+  const lb=shuffle(["fish","fish","fish","fish","chicken","egg","fish"]);
+  const db=shuffle(["chicken","chicken","chicken","egg","egg","fish","chicken"]);
+  S.plan=[];for(let i=0;i<7;i++)S.plan.push(genDay(i,used,lb[i],db[i]));
+  S.ck={};
+}
+function regenDay(i){
+  const used=new Set();S.plan.forEach((d,j)=>{if(j!==i)["b","l","d"].forEach(m=>d[m].forEach(x=>used.add(x)));});
+  const lt=["fish","fish","chicken","egg"][Math.floor(Math.random()*4)], dt=["chicken","chicken","egg","fish"][Math.floor(Math.random()*4)];
+  S.plan[i]=genDay(i,used,lt,dt);
+}
+function fresh(){
+  S={v:1,ts:1,people:4,vegDays:[4],cnDays:[6],weekStart:defaultStart(),plan:[],last:[],off:[],mine:[],ck:{}};
+  genWeek();
+}
+function normalize(o){
+  const d={v:1,ts:0,people:4,vegDays:[4],cnDays:[6],weekStart:defaultStart(),plan:[],last:[],off:[],mine:[],ck:{}};
+  const s=Object.assign(d,o||{});
+  ["vegDays","cnDays","last","off","mine","plan"].forEach(k=>{if(!Array.isArray(s[k]))s[k]=d[k];});
+  if(!s.ck||typeof s.ck!=="object")s.ck={};
+  return s;
+}
+function load(){
+  try{const t=localStorage.getItem(KEY);if(t){S=normalize(JSON.parse(t));}}catch(e){}
+  if(!S||S.plan.length!==7){const keep=S;fresh();if(keep){S.mine=keep.mine;S.off=keep.off;}}
+  try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}
+}
+function save(){
+  S.ts=Date.now();
+  try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}
+  clearTimeout(saveTimer);saveTimer=setTimeout(pushRemote,1200);
+}
+async function pushRemote(){
+  if(!ref)return;
+  if(writing){dirty=true;return;}
+  writing=true;
+  try{await ref.set(JSON.parse(JSON.stringify(S)));setSync("Synced to your account");}
+  catch(e){setSync("Saved on this phone only");}
+  writing=false;
+  if(dirty){dirty=false;pushRemote();}
+}
+function setSync(t){document.getElementById("sync").textContent=t;}
+async function initRemote(){
+  try{
+    if(!window.claude||!window.claude.use)return;
+    const [db,user]=await Promise.all([window.claude.use("db"),window.claude.use("user")]);
+    if(!db||!user)return;
+    const uid=await user.id();if(!uid)return;
+    ref=db.doc("data/users/"+uid+"/planner");
+    const snap=await ref.get();
+    const d=snap.exists?snap.data():null;
+    if(d&&(d.ts||0)>(S.ts||0)){S=normalize(JSON.parse(JSON.stringify(d)));try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}render();setSync("Synced to your account");}
+    else pushRemote();
+  }catch(e){}
+}
+
+/* ---------- Quantities and lists ---------- */
+function fmt(q,u){
+  if(u==="g"||u==="ml"){
+    let r=q>=200?Math.round(q/50)*50:Math.max(10,Math.round(q/10)*10);
+    if(r>=1000)return (Math.round(r/100)/10)+(u==="g"?" kg":" L");
+    return r+" "+u;
+  }
+  const n=Math.max(1,Math.ceil(q-1e-9));
+  if(u==="pc"||!u)return String(n);
+  return n+" "+(n>1?(u==="bunch"?"bunches":u+"s"):u);
+}
+function scale(){return S.people/4;}
+function useLine(d){return d.ing.filter(x=>x.q).map(x=>x.n+" "+fmt(x.q*scale(),x.u)).join(", ");}
+function shopping(){
+  const items={},pantry=new Set(PANTRY);
+  S.plan.forEach((day,i)=>["b","l","d"].forEach(m=>day[m].forEach(id=>{
+    const d=dish(id);if(!d)return;
+    d.ing.forEach(x=>{
+      if(x.c==="P"||!x.q){pantry.add(x.n);return;}
+      const k=x.n+"|"+x.u;const it=items[k]||(items[k]={k,n:x.n,u:x.u,c:x.c,q:0,days:[]});
+      it.q+=x.q*scale();const dn=DAY[dateOf(i).getDay()];if(!it.days.includes(dn))it.days.push(dn);
+    });
+  })));
+  const list=Object.values(items).sort((a,b)=>a.n.localeCompare(b.n));
+  return {F:list.filter(x=>x.c==="F"),E:list.filter(x=>x.c==="E"),V:list.filter(x=>x.c==="V"),G:list.filter(x=>x.c==="G"),P:[...pantry]};
+}
+function weekTitle(){return "week of "+label(0);}
+function bazaarText(){
+  const s=shopping();let t="*Bazaar list, "+weekTitle()+"*\n";
+  [["F","Fish and meat"],["E","Eggs"],["V","Vegetables and fruit"]].forEach(([c,h])=>{
+    const rows=s[c].filter(x=>!S.ck[x.k]);if(!rows.length)return;
+    t+="\n*"+h+"*\n";rows.forEach(x=>{t+="- "+x.n+": "+fmt(x.q,x.u)+(c==="F"?" (for "+x.days.join(", ")+")":"")+"\n";});
+  });
+  t+="\nAlso ginger, garlic, green chilli and coriander leaves for the week.";
+  return t;
+}
+function onlineText(){
+  const s=shopping();let t="*Grocery order, "+weekTitle()+"*\n\n";
+  s.G.filter(x=>!S.ck[x.k]).forEach(x=>{t+="- "+x.n+": "+fmt(x.q,x.u)+"\n";});
+  const p=s.P.filter(n=>S.ck["P|"+n]);
+  if(p.length){t+="\n*Running low at home*\n";p.forEach(n=>{t+="- "+n+"\n";});}
+  return t;
+}
+function cookText(i){
+  let t="*"+label(i)+"* (for "+S.people+" people)\n";
+  MEALS.forEach(([m,h])=>{
+    const ids=S.plan[i][m];if(!ids.length)return;
+    t+="\n*"+h.toUpperCase()+"*\n";
+    ids.forEach(id=>{const d=dish(id);if(!d)return;t+="- "+d.name+": "+d.note+"\n";const u=useLine(d);if(u)t+="  Use: "+u+"\n";});
+  });
+  return t;
+}
+function weekText(){let t="";for(let i=0;i<7;i++)t+=cookText(i)+"\n";return t.trim();}
+function menuText(){
+  let t="*Menu, "+weekTitle()+"*\n";
+  for(let i=0;i<7;i++){t+="\n*"+label(i)+"*\n";MEALS.forEach(([m,h])=>{const n=S.plan[i][m].map(id=>(dish(id)||{}).name).filter(Boolean);if(n.length)t+=h+": "+n.join(", ")+"\n";});}
+  return t;
+}
+function wa(text){return "https://wa.me/?text="+encodeURIComponent(text);}
+
+/* ---------- Rendering ---------- */
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const $=id=>document.getElementById(id);
+function render(){
+  $("weekLabel").textContent="Week of "+label(0)+", for "+S.people+" people";
+  document.querySelectorAll("nav button").forEach(b=>b.setAttribute("aria-current",String(b.dataset.tab===tab)));
+  const m=$("main");const top=m.scrollTop;const de=$("set");if(de)setOpen=de.open;
+  m.innerHTML={week:vWeek,cook:vCook,shop:vShop,dishes:vDishes}[tab]();
+  m.scrollTop=top;
+}
+function dayToggles(key){
+  return [1,2,3,4,5,6,0].map(wd=>'<button class="tog" data-act="tg" data-key="'+key+'" data-wd="'+wd+'" aria-pressed="'+S[key].includes(wd)+'">'+DAY[wd]+'</button>').join("");
+}
+function vWeek(){
+  const today=iso(new Date());
+  let h='<details class="card" id="set"'+(setOpen?" open":"")+'><summary>Settings and new week</summary>'+
+   '<div class="field"><span>People eating</span><div class="stepper"><button data-act="ppl" data-n="-1" aria-label="Fewer people">−</button><b>'+S.people+'</b><button data-act="ppl" data-n="1" aria-label="More people">+</button></div></div>'+
+   '<div class="field"><span>Vegetarian days</span><div class="chips">'+dayToggles("vegDays")+'</div></div>'+
+   '<div class="field"><span>Chinese dinner nights</span><div class="chips">'+dayToggles("cnDays")+'</div></div>'+
+   '<label class="field"><span>Week starts on</span><input type="date" id="ws" value="'+esc(S.weekStart)+'"></label>'+
+   '<p class="hint">Day choices apply the next time you shuffle.</p>'+
+   '<div class="row"><button class="btn" data-act="next">Plan next week</button><button class="btn ghost" data-act="shuf">Shuffle this week</button></div>'+
+   '<h3>New dish ideas (Claude API)</h3><p class="hint">Paste your Cloudflare Worker link and the passcode you set on it.</p>'+
+   '<label class="field"><span>Worker link</span><input type="text" id="aiUrl" inputmode="url" placeholder="https://rannaghar.yourname.workers.dev" value="'+esc(AI.url)+'"></label>'+
+   '<label class="field"><span>Passcode</span><input type="text" id="aiTok" autocomplete="off" value="'+esc(AI.token)+'"></label>'+
+   '<p class="hint">'+(aiReady()?'Connected. Spent this month: about ₹'+((AI.spend[monthKey()]||0)*90).toFixed(2):'Not connected yet.')+'</p>'+
+   '<h3>Backup</h3><p class="hint">Your menu and your own dishes live only on this phone. Save a backup now and then.</p>'+
+   '<div class="row"><button class="btn plain small" data-act="backup">Save backup file</button><label class="btn plain small" for="restore">Restore from file</label><input type="file" id="restore" accept=".json,application/json" hidden></div><p class="hint" id="bkMsg"></p></details>';
+  h+='<div class="row"><button class="btn plain small" data-act="copy" data-what="menu">Copy menu</button><a class="btn plain small" target="_blank" rel="noopener" href="'+esc(wa(menuText()))+'">Send menu on WhatsApp</a></div>';
+  for(let i=0;i<7;i++){
+    const d=dateOf(i),wd=d.getDay();
+    h+='<section class="card'+(iso(d)===today?" today":"")+'"><div class="row between"><div class="row"><h2>'+label(i)+'</h2>'+
+      (S.vegDays.includes(wd)?'<span class="pill veg">Veg</span>':'')+(S.cnDays.includes(wd)?'<span class="pill cn">Chinese night</span>':'')+
+      '</div><button class="btn plain small" data-act="day" data-i="'+i+'">Shuffle day</button></div>';
+    MEALS.forEach(([m,t])=>{
+      h+='<h3>'+t+'</h3><div class="chips">'+S.plan[i][m].map((id,k)=>{const x=dish(id);return x?'<button class="chip" data-act="chip" data-i="'+i+'" data-m="'+m+'" data-k="'+k+'">'+esc(x.name)+'</button>':'';}).join("")+
+        '<button class="chip add" data-act="add" data-i="'+i+'" data-m="'+m+'" aria-label="Add a dish to '+t+'">+ add</button></div>';
+    });
+    h+='</section>';
+  }
+  return h;
+}
+function vCook(){
+  let h='<div class="chips">'+[0,1,2,3,4,5,6].map(i=>'<button class="tog" data-act="cd" data-i="'+i+'" aria-pressed="'+(i===cookDay)+'">'+DAY[dateOf(i).getDay()]+' '+dateOf(i).getDate()+'</button>').join("")+'</div>';
+  h+='<section class="card"><h2>'+label(cookDay)+'</h2><p class="hint">Read this out to the cook. Amounts are for '+S.people+' people.</p>';
+  MEALS.forEach(([m,t])=>{
+    const ids=S.plan[cookDay][m];if(!ids.length)return;
+    h+='<h3>'+t+'</h3>';
+    ids.forEach(id=>{const d=dish(id);if(!d)return;const u=useLine(d);h+='<div class="dish"><b>'+esc(d.name)+'</b><div class="note">'+esc(d.note)+'</div>'+(u?'<div class="use">'+esc(u)+'</div>':'')+'</div>';});
+  });
+  h+='</section><div class="row"><button class="btn" data-act="copy" data-what="cookday">Copy this day</button><a class="btn ghost" target="_blank" rel="noopener" href="'+esc(wa(cookText(cookDay)))+'">Send on WhatsApp</a><button class="btn plain" data-act="copy" data-what="cookweek">Copy full week</button></div>';
+  const prep=[];const nx=cookDay<6?S.plan[cookDay+1]:null;
+  if(nx)["b","l","d"].forEach(m=>nx[m].forEach(id=>{const d=dish(id);if(d&&/night before|overnight/i.test(d.note))prep.push(d.name);}));
+  if(prep.length)h+='<div class="card"><h3 style="margin-top:0">Soak tonight for tomorrow</h3>'+esc(prep.join(", "))+'</div>';
+  return h;
+}
+function itemRow(k,name,qty,sub){
+  const on=!!S.ck[k];
+  return '<div class="item'+(on?" done":"")+'"><input type="checkbox" id="ck_'+esc(k)+'" data-ck="'+esc(k)+'"'+(on?" checked":"")+'><label for="ck_'+esc(k)+'"><span>'+esc(name)+(sub?'<span class="d">'+esc(sub)+'</span>':'')+'</span><span class="q">'+esc(qty)+'</span></label></div>';
+}
+function vShop(){
+  const s=shopping();
+  let h='<section class="card"><h2>Bazaar</h2><p class="hint">Tick what you already have. Ticked items are left out of the WhatsApp message.</p>';
+  [["F","Fish and meat"],["E","Eggs"],["V","Vegetables and fruit"]].forEach(([c,t])=>{
+    if(!s[c].length)return;h+='<h3>'+t+'</h3>'+s[c].map(x=>itemRow(x.k,x.n,fmt(x.q,x.u),c==="F"?"for "+x.days.join(", "):"")).join("");
+  });
+  h+='<div class="row" style="margin-top:12px"><button class="btn" data-act="copy" data-what="bazaar">Copy list</button><a class="btn ghost" target="_blank" rel="noopener" href="'+esc(wa(bazaarText()))+'">Send on WhatsApp</a></div></section>';
+  h+='<section class="card"><h2>Order online</h2><h3>Grocery</h3>'+s.G.map(x=>itemRow(x.k,x.n,fmt(x.q,x.u),"")).join("")+
+     '<h3>Check stock at home</h3><p class="hint">Tick anything running low and it joins the order.</p>'+s.P.map(n=>itemRow("P|"+n,n,"","")).join("")+
+     '<div class="row" style="margin-top:12px"><button class="btn" data-act="copy" data-what="online">Copy list</button><a class="btn ghost" target="_blank" rel="noopener" href="'+esc(wa(onlineText()))+'">Send on WhatsApp</a></div></section>';
+  return h;
+}
+function vDishes(){
+  let h='<div class="row"><button class="btn" data-act="new">Add my dish</button></div>'+
+   '<section class="card" id="ideasCard"'+(aiReady()?'':' hidden')+'><h2>New dish ideas</h2><label class="field"><span>Anything in mind? (optional)</span><input type="text" id="wish" placeholder="e.g. prawn dishes, quick weekday dinners" value="'+esc(lastWish)+'"></label>'+
+   '<div class="row" style="margin-top:10px"><button class="btn ghost" id="ideasBtn" data-act="ideas">Get 5 new ideas</button></div><p class="hint" id="ideasMsg">'+(aiReady()?'Each request costs less than ₹1.':'')+'</p></section>'+
+   (aiReady()?'':'<p class="hint" id="aiHint">To get new dish ideas from Claude, connect your Worker under Menu, Settings.</p>')+
+   '<p class="hint">Tap a dish to see it. Switch one off and it stops appearing in the weekly shuffle.</p>';
+  Object.keys(TYPES).forEach(t=>{
+    const ds=allDishes().filter(d=>d.type===t);if(!ds.length)return;
+    h+='<section class="card"><h2>'+TYPES[t]+'</h2>'+ds.map(d=>{const off=S.off.includes(d.id);
+      return '<div class="lib'+(off?" off":"")+'"><button class="nm" data-act="view" data-id="'+d.id+'">'+esc(d.name)+(d.mine?' <span class="pill tag">'+(d.ai?"new idea":"mine")+'</span>':'')+'</button>'+
+      (t==="staple"?'':'<button class="tog" data-act="off" data-id="'+d.id+'" aria-pressed="'+(!off)+'">'+(off?"Off":"On")+'</button>')+'</div>';}).join("")+'</section>';
+  });
+  setTimeout(showIdeas,0);
+  return h;
+}
+
+/* ---------- Sheets ---------- */
+let sheetCtx=null;
+function openSheet(html){$("sheetBody").innerHTML=html;$("sheet").hidden=false;}
+function closeSheet(){$("sheet").hidden=true;sheetCtx=null;}
+function dishInfo(d){const u=useLine(d);return '<h2>'+esc(d.name)+'</h2><p class="note">'+esc(d.note||"")+'</p>'+(u?'<p class="use">'+esc(u)+'</p>':'');}
+function chipSheet(i,m,k){
+  const d=dish(S.plan[i][m][k]);if(!d)return;sheetCtx={i,m,k};
+  const alts=allDishes().filter(x=>x.type===d.type&&x.id!==d.id&&!S.off.includes(x.id));
+  openSheet(dishInfo(d)+'<div class="row" style="margin:10px 0"><button class="btn ghost" data-act="rm">Remove from this meal</button><button class="btn plain" data-act="close">Close</button></div>'+
+    (alts.length?'<h3>Swap with</h3>'+alts.map(x=>'<button class="pick" data-act="swap" data-id="'+x.id+'">'+esc(x.name)+'</button>').join(""):''));
+}
+function addSheet(i,m){
+  sheetCtx={i,m};
+  openSheet('<h2>Add a dish</h2><label class="field"><span>Search</span><input type="search" id="q" placeholder="Type a dish name"></label><div id="pickList">'+pickList("")+'</div>');
+}
+function pickList(q){
+  q=q.toLowerCase();
+  return Object.keys(TYPES).map(t=>{const ds=allDishes().filter(d=>d.type===t&&d.name.toLowerCase().includes(q));
+    return ds.length?'<h3>'+TYPES[t]+'</h3>'+ds.map(x=>'<button class="pick" data-act="addpick" data-id="'+x.id+'">'+esc(x.name)+'</button>').join(""):'';}).join("");
+}
+function ingRow(x){
+  x=x||{n:"",q:"",u:"g",c:"V"};
+  const opt=(arr,v)=>arr.map(a=>'<option value="'+a[0]+'"'+(a[0]===v?" selected":"")+'>'+a[1]+'</option>').join("");
+  return '<div class="ing"><input type="text" class="in" placeholder="Item" value="'+esc(x.n)+'" aria-label="Item"><input type="number" class="iq" inputmode="decimal" placeholder="Qty" value="'+esc(x.q||"")+'" aria-label="Quantity">'+
+    '<select class="iu" aria-label="Unit">'+opt([["g","g"],["ml","ml"],["pc","pieces"],["bunch","bunch"],["pack","pack"]],x.u||"g")+'</select>'+
+    '<select class="ic" aria-label="Where to buy">'+opt([["V","Bazaar veg"],["F","Fish/meat"],["E","Eggs"],["G","Online"],["P","Pantry"]],x.c)+'</select></div>';
+}
+function editSheet(d){
+  sheetCtx={edit:d?d.id:null};
+  d=d||{name:"",type:"fish",veg:false,ing:[null,null,null],note:""};
+  openSheet('<h2>'+(sheetCtx.edit?"Edit dish":"Add my dish")+'</h2>'+
+   '<label class="field"><span>Dish name</span><input type="text" id="dn" value="'+esc(d.name)+'"></label>'+
+   '<label class="field"><span>Kind</span><select id="dt">'+Object.keys(TYPES).filter(t=>t!=="staple").map(t=>'<option value="'+t+'"'+(t===d.type?" selected":"")+'>'+TYPES[t]+'</option>').join("")+'</select></label>'+
+   '<label class="row" style="margin-top:10px"><input type="checkbox" id="dv"'+(d.veg?" checked":"")+'> Vegetarian</label>'+
+   '<div class="field"><span>Ingredients for 4 people</span><div id="ings">'+d.ing.map(ingRow).join("")+'</div><div><button class="btn plain small" data-act="ingadd">Add ingredient</button></div></div>'+
+   '<label class="field"><span>Note for the cook</span><textarea id="dnote" rows="3">'+esc(d.note)+'</textarea></label>'+
+   '<p class="hint" id="editMsg"></p><div class="row" style="margin-top:8px"><button class="btn" data-act="savedish">Save dish</button>'+(sheetCtx.edit?'<button class="btn ghost" data-act="deldish">Delete</button>':'')+'<button class="btn plain" data-act="close">Cancel</button></div>');
+}
+function viewSheet(id){
+  const d=dish(id);if(!d)return;
+  openSheet(dishInfo(d)+'<div class="row" style="margin-top:10px">'+(d.mine?'<button class="btn" data-act="edit" data-id="'+d.id+'">Edit</button>':'')+'<button class="btn plain" data-act="close">Close</button></div>');
+}
+function textSheet(text){
+  openSheet('<h2>Copy this text</h2><p class="hint">Press and hold inside the box, select all, then copy.</p><textarea id="ta" rows="12" readonly>'+esc(text)+'</textarea><div class="row" style="margin-top:10px"><button class="btn plain" data-act="close">Close</button></div>');
+  const ta=$("ta");ta.focus();ta.select();
+}
+function copy(text,btn){
+  const ok=()=>{const o=btn.textContent;btn.textContent="Copied";setTimeout(()=>{btn.textContent=o;},1400);};
+  try{navigator.clipboard.writeText(text).then(ok).catch(()=>textSheet(text));}catch(e){textSheet(text);}
+}
+let armed=null;
+function twoTap(btn,fn){
+  if(armed===btn){armed=null;fn();return;}
+  armed=btn;const o=btn.textContent;btn.textContent="Tap again to replace the menu";
+  setTimeout(()=>{if(armed===btn){armed=null;if(btn.isConnected)btn.textContent=o;}},3000);
+}
+
+/* ---------- New ideas from Claude ---------- */
+let sampleFn=null, lastWish="";
+async function showIdeas(){
+  try{
+    if(sampleFn===null){sampleFn=(window.claude&&window.claude.use)?(await window.claude.use("sample"))||false:false;}
+    const c=$("ideasCard");if(c&&sampleFn){c.hidden=false;const h=$("aiHint");if(h)h.hidden=true;}
+  }catch(e){sampleFn=false;}
+}
+function addIdeas(out){
+  let n=0;
+  (Array.isArray(out)?out:[]).forEach(o=>{
+    if(!o||typeof o.name!=="string"||!TYPES[o.type]||o.type==="staple")return;
+    if(allDishes().some(d=>d.name.toLowerCase()===o.name.toLowerCase()))return;
+    const ing=(Array.isArray(o.ing)?o.ing:[]).filter(x=>x&&typeof x.n==="string").slice(0,10).map(x=>({n:x.n.slice(0,40),q:+x.q||0,u:["g","ml","pc","bunch","pack"].includes(x.u)?x.u:"g",c:WHERE[x.c]?x.c:"G"}));
+    S.mine.push({id:"u"+Date.now().toString(36)+n,name:o.name.slice(0,60),type:o.type,veg:!!o.veg,ing,note:String(o.note||"").slice(0,300),mine:true,ai:true});n++;
+  });
+  return n;
+}
+async function ideas(btn){
+  const msg=$("ideasMsg");const wEl=$("wish");lastWish=wEl?wEl.value.trim():"";
+  if(aiReady()){
+    btn.disabled=true;btn.textContent="Thinking of dishes";
+    try{
+      const r=await fetch(AI.url.replace(/\/+$/,""),{method:"POST",headers:{"Content-Type":"application/json","x-rannaghar-token":AI.token},body:JSON.stringify({have:allDishes().map(d=>d.name),wish:lastWish,count:5})});
+      const j=await r.json().catch(()=>({}));
+      if(!r.ok)throw new Error(r.status===401?"The passcode does not match the one on your Worker.":(j.error||"The Worker answered with error "+r.status+"."));
+      if(j.usd){const k=monthKey();AI.spend[k]=(AI.spend[k]||0)+j.usd;saveAI();}
+      const n=addIdeas(j.dishes);
+      if(n){save();render();$("ideasMsg").textContent=n+" new dishes added, marked as new idea in the lists below. Cost about ₹"+((j.usd||0)*90).toFixed(2)+".";}
+      else{msg.textContent="No usable ideas came back. Try again, or change what you typed.";btn.disabled=false;btn.textContent="Get 5 new ideas";}
+    }catch(e){
+      msg.textContent=(e&&e.message&&!/fetch/i.test(e.message))?e.message:"Could not reach your Worker. Check the link in Menu, Settings.";
+      btn.disabled=false;btn.textContent="Get 5 new ideas";
+    }
+    return;
+  }
+  if(!sampleFn)return;
+  btn.disabled=true;btn.textContent="Thinking of dishes";
+  const have=allDishes().map(d=>d.name).join("; ");
+  const prompt="Suggest 5 home-style dishes for a Bengali family in Kolkata that are NOT already in this list: "+have+".\n"+
+   "Mostly non-vegetarian Bengali food, with one or two home-made Chinese or vegetarian dishes. Every dish must be cooked with very little oil (no deep frying).\n"+(lastWish?"The family asked for: "+lastWish+"\n":"")+
+   "Return ONLY a JSON array. Each element: {\"name\":string, \"type\":one of bf|dal|side|fish|chicken|egg|mutton|vegmain|cncarb|cnmain, \"veg\":boolean, "+
+   "\"ing\":[{\"n\":ingredient name, \"q\":number for 4 people (0 for spices), \"u\":\"g\"|\"ml\"|\"pc\"|\"bunch\"|\"pack\", \"c\":\"F\" fish or meat|\"E\" eggs|\"V\" vegetables|\"G\" grocery|\"P\" spices and pantry}], "+
+   "\"note\":one or two short sentences telling the cook how to make it with less oil}. Main ingredients only, at most 7 per dish.";
+  try{
+    let out=await sampleFn.json(prompt);
+    if(out&&!Array.isArray(out)&&Array.isArray(out.dishes))out=out.dishes;
+    const n=addIdeas(out);
+    if(n){save();render();$("ideasMsg").textContent=n+" new dishes added. They are marked as new idea in the lists below.";}
+    else{msg.textContent="No usable ideas came back. Try again in a minute.";btn.disabled=false;btn.textContent="Get 5 new ideas";}
+  }catch(e){
+    if(e&&e.code==="not_granted"){btn.hidden=true;msg.textContent="New ideas are switched off for this page.";}
+    else{msg.textContent="Could not get ideas just now. Try again in a minute.";btn.disabled=false;btn.textContent="Get 5 new ideas";}
+  }
+}
+
+/* ---------- Events ---------- */
+document.addEventListener("click",e=>{
+  const tb=e.target.closest("nav button");
+  if(tb){tab=tb.dataset.tab;$("main").scrollTop=0;render();return;}
+  const b=e.target.closest("[data-act]");if(!b)return;
+  const a=b.dataset.act,i=+b.dataset.i;
+  if(a==="close")closeSheet();
+  else if(a==="ppl"){S.people=Math.min(10,Math.max(1,S.people+(+b.dataset.n)));save();render();}
+  else if(a==="tg"){const k=b.dataset.key,wd=+b.dataset.wd;S[k]=S[k].includes(wd)?S[k].filter(x=>x!==wd):S[k].concat(wd);save();b.setAttribute("aria-pressed",String(S[k].includes(wd)));}
+  else if(a==="shuf")twoTap(b,()=>{genWeek();save();render();});
+  else if(a==="next")twoTap(b,()=>{S.last=[].concat(...S.plan.map(d=>d.b.concat(d.l,d.d)));S.weekStart=iso(addDays(fromIso(S.weekStart),7));genWeek();save();render();});
+  else if(a==="day"){regenDay(i);save();render();}
+  else if(a==="chip")chipSheet(i,b.dataset.m,+b.dataset.k);
+  else if(a==="add")addSheet(i,b.dataset.m);
+  else if(a==="rm"&&sheetCtx){S.plan[sheetCtx.i][sheetCtx.m].splice(sheetCtx.k,1);save();closeSheet();render();}
+  else if(a==="swap"&&sheetCtx){S.plan[sheetCtx.i][sheetCtx.m][sheetCtx.k]=b.dataset.id;save();closeSheet();render();}
+  else if(a==="addpick"&&sheetCtx){S.plan[sheetCtx.i][sheetCtx.m].push(b.dataset.id);save();closeSheet();render();}
+  else if(a==="cd"){cookDay=i;render();}
+  else if(a==="copy"){const w=b.dataset.what;copy(w==="menu"?menuText():w==="cookday"?cookText(cookDay):w==="cookweek"?weekText():w==="bazaar"?bazaarText():onlineText(),b);}
+  else if(a==="off"){const id=b.dataset.id;S.off=S.off.includes(id)?S.off.filter(x=>x!==id):S.off.concat(id);save();render();}
+  else if(a==="view")viewSheet(b.dataset.id);
+  else if(a==="new")editSheet(null);
+  else if(a==="edit")editSheet(dish(b.dataset.id));
+  else if(a==="ingadd")$("ings").insertAdjacentHTML("beforeend",ingRow());
+  else if(a==="savedish"){
+    const name=$("dn").value.trim();if(!name){$("editMsg").textContent="Give the dish a name first.";return;}
+    const ing=[...document.querySelectorAll("#ings .ing")].map(r=>({n:r.querySelector(".in").value.trim(),q:+r.querySelector(".iq").value||0,u:r.querySelector(".iu").value,c:r.querySelector(".ic").value})).filter(x=>x.n);
+    const d={id:sheetCtx.edit||"u"+Date.now().toString(36),name,type:$("dt").value,veg:$("dv").checked,ing,note:$("dnote").value.trim(),mine:true};
+    const at=S.mine.findIndex(x=>x.id===d.id);if(at>=0)S.mine[at]=d;else S.mine.push(d);
+    save();closeSheet();render();
+  }
+  else if(a==="deldish"&&sheetCtx){const id=sheetCtx.edit;S.mine=S.mine.filter(x=>x.id!==id);S.plan.forEach(d=>["b","l","d"].forEach(m=>{d[m]=d[m].filter(x=>x!==id);}));save();closeSheet();render();}
+  else if(a==="ideas")ideas(b);
+  else if(a==="backup"){try{const bl=new Blob([JSON.stringify(S,null,1)],{type:"application/json"});const u=URL.createObjectURL(bl);const l=document.createElement("a");l.href=u;l.download="rannaghar-backup-"+iso(new Date())+".json";document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);$("bkMsg").textContent="Backup saved to your Downloads.";}catch(err){textSheet(JSON.stringify(S));}}
+});
+document.addEventListener("change",e=>{
+  const t=e.target;
+  if(t.dataset&&t.dataset.ck){if(t.checked)S.ck[t.dataset.ck]=true;else delete S.ck[t.dataset.ck];save();render();}
+  else if(t.id==="restore"&&t.files&&t.files[0]){t.files[0].text().then(tx=>{const o=JSON.parse(tx);if(!Array.isArray(o.plan)||o.plan.length!==7)throw 0;S=normalize(o);save();render();setOpen=true;}).catch(()=>{const m=$("bkMsg");if(m)m.textContent="That file is not a Rannaghar backup.";});}
+  else if(t.id==="aiUrl"||t.id==="aiTok"){AI.url=$("aiUrl").value.trim();AI.token=$("aiTok").value.trim();saveAI();setOpen=true;render();}
+  else if(t.id==="ws"&&t.value){S.weekStart=t.value;save();render();}
+});
+document.addEventListener("input",e=>{if(e.target.id==="q")$("pickList").innerHTML=pickList(e.target.value);});
+
+load();
+(function(){const t=iso(new Date());for(let i=0;i<7;i++)if(iso(dateOf(i))===t)cookDay=i;})();
+render();
+initRemote();
+if(location.protocol==="https:"&&"serviceWorker" in navigator&&!window.claude){navigator.serviceWorker.register("sw.js").catch(()=>{});}
+</script>
+</body>
+</html>
