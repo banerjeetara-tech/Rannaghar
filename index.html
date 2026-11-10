@@ -203,6 +203,187 @@ const RAW = [
 ["st1","Steamed rice","staple",1,"Rice:400g:G","Drain the starch (fan jhora bhaat)."],
 ["st2","Ruti","staple",1,"Atta:300g:G","Phulka on open flame. No oil or ghee."]
 ];
+const RAW2 = [
+["bf13","Idli with sambar","bf",1,"Idli batter:800g:G;Toor dal:80g:G;Drumstick:1pc:V;Tomato:1pc:V;Onion:1pc:V","Steam the idlis. Sambar with plenty of vegetables and 1 tsp oil for tempering."],
+["bf14","Plain dosa with coconut chutney","bf",1,"Dosa batter:800g:G;Coconut pieces:100g:V","Spread thin on a non-stick tawa, a few drops of oil each. Chutney with green chilli, no tempering oil."],
+["bf15","Vegetable poha","bf",1,"Chire (poha):250g:G;Onion:1pc:V;Green peas:100g:V;Carrot:1pc:V;Lemon:1pc:V","Rinse and drain. Temper mustard seeds and curry leaves in 2 tsp oil. Lemon and coriander on top."],
+["bf16","Moong sprouts chaat","bf",1,"Moong sprouts:300g:V;Onion:1pc:V;Tomato:1pc:V;Cucumber:1pc:V;Lemon:1pc:V","Steam the sprouts 5 minutes. Toss with chopped vegetables, lemon, salt and chaat masala. No oil."],
+["bf17","Egg white omelette with vegetables","bf",0,"Eggs:8pc:E;Spinach (palong):1bunch:V;Tomato:1pc:V;Brown bread:1pack:G","Use mostly whites, keep 2 yolks. Non-stick pan, half a teaspoon of oil."],
+["bf18","Boiled eggs with fruit","bf",0,"Eggs:4pc:E;Papaya:500g:V;Banana:4pc:V","Boil eggs 9 minutes. Cut papaya. Nothing fried."],
+["bf19","Muri makha with sprouts","bf",1,"Muri:200g:G;Moong sprouts:150g:V;Onion:1pc:V;Cucumber:1pc:V;Tomato:1pc:V","Mix just before eating. 1 tsp raw mustard oil for flavour, no frying."],
+["bf20","Vegetable uttapam","bf",1,"Dosa batter:800g:G;Onion:1pc:V;Tomato:1pc:V;Capsicum:1pc:V","Thick pancakes with vegetables on top. Non-stick tawa, a brush of oil."],
+["bf21","Ragi porridge with milk","bf",1,"Ragi flour:150g:G;Milk:600ml:G;Banana:2pc:V","Cook ragi in water till thick, add milk. Little jaggery only if asked."],
+["bf22","Paneer bhurji with ruti","bf",1,"Paneer:250g:G;Onion:1pc:V;Tomato:1pc:V;Capsicum:1pc:V;Atta:250g:G","Crumble paneer and cook with onion and tomato in 2 tsp oil. Rutis dry roasted."],
+["bf23","Chicken sandwich","bf",0,"Boneless chicken:250g:F;Brown bread:1pack:G;Curd:100g:G;Cucumber:1pc:V;Lettuce:1pc:V","Boil and shred the chicken. Mix with hung curd and pepper. No mayonnaise."],
+["bf24","Sabudana khichdi","bf",1,"Sabudana:250g:G;Potato:2pc:V;Peanuts:80g:G","Soak the sabudana overnight. Dry-roast the peanuts. 2 tsp ghee for the whole pan."],
+["bf25","Oats chilla","bf",1,"Oats:200g:G;Besan:60g:G;Onion:1pc:V;Tomato:1pc:V;Curd:100g:G","Blend oats into a batter with curd and besan. Thin chillas on a non-stick tawa."],
+["bf26","Koraishutir kochuri, tawa style","bf",1,"Atta:300g:G;Green peas:250g:V;Potato:2pc:V","Stuff the pea paste and roll thin. Roast on tawa like a paratha with a brush of oil instead of deep frying. Alur dom on the side."],
+["bf27","Dalia upma with vegetables","bf",1,"Dalia:200g:G;Onion:1pc:V;Carrot:1pc:V;Green peas:100g:V","Roast dalia dry, temper with mustard seeds in 2 tsp oil, cook with vegetables and water."],
+["bf28","Vegetable daliya khichuri","bf",1,"Dalia:150g:G;Moong dal:80g:G;Pumpkin:150g:V;Beans:100g:V","Pressure cook everything together. Temper with cumin in 1 tsp ghee."],
+["bf29","Egg curry with ruti","bf",0,"Eggs:4pc:E;Onion:1pc:V;Tomato:2pc:V;Atta:250g:G","Light gravy with 2 tsp oil. Do not fry the eggs."],
+["bf30","Chirer polao with chicken","bf",0,"Chire (poha):250g:G;Boneless chicken:200g:F;Onion:1pc:V;Green peas:100g:V","Boil and shred the chicken first. Toss everything in 2 tsp oil."],
+["bf31","Banana oats pancake","bf",1,"Oats:200g:G;Banana:3pc:V;Milk:200ml:G;Eggs:2pc:E","Blend oats, banana, milk and egg. Small pancakes on a non-stick pan, no butter."],
+["bf32","Curd rice","bf",1,"Rice:200g:G;Curd:400g:G;Cucumber:1pc:V;Pomegranate:1pc:V","Mash soft rice with curd. Temper mustard seeds and curry leaves in 1 tsp oil."],
+
+["d7","Masoor dal with spinach","dal",1,"Masoor dal:150g:G;Spinach (palong):1bunch:V;Tomato:1pc:V","Add chopped spinach in the last 5 minutes. Garlic tempering in 1 tsp oil."],
+["d8","Toor dal tadka","dal",1,"Toor dal:150g:G;Tomato:2pc:V;Onion:1pc:V","Pressure cook. Tadka of cumin, garlic and red chilli in 1 tsp ghee."],
+["d9","Chana masoor mixed dal","dal",1,"Chana dal:75g:G;Masoor dal:75g:G;Tomato:1pc:V","Soak the chana dal 1 hour. Pressure cook together, temper with 1 tsp oil."],
+["d10","Panchmishali dal","dal",1,"Toor dal:50g:G;Moong dal:50g:G;Masoor dal:50g:G;Chana dal:30g:G;Urad dal:30g:G;Tomato:1pc:V","Soak 1 hour. Pressure cook with ginger and tomato. 1 tsp ghee tempering."],
+["d11","Kumro diye muger dal","dal",1,"Moong dal:150g:G;Pumpkin:250g:V","Dry-roast the dal. Cook with pumpkin till soft. Cumin and ginger tempering in 1 tsp ghee."],
+["d12","Macher matha diye muger dal","dal",0,"Moong dal:150g:G;Fish head:1pc:F","Light fry the fish head on a non-stick pan, break it into the dal. Very little oil."],
+["d13","Lemon dal","dal",1,"Masoor dal:150g:G;Lemon:1pc:V","Thin dal with turmeric. Squeeze lemon at the end. 1 tsp oil tempering."],
+["d14","Moong dal with lau shaak","dal",1,"Moong dal:150g:G;Lau shaak:1bunch:V","Wash greens well. Cook with dal, temper with garlic in 1 tsp oil."],
+["d15","Chholar dal with lau","dal",1,"Chana dal:150g:G;Lau (bottle gourd):250g:V","Soak the dal. Pressure cook with lau. Light tempering of bay leaf and cumin."],
+["d16","Sabut moong dal","dal",1,"Whole moong:150g:G;Tomato:1pc:V;Onion:1pc:V","Soak overnight. Pressure cook till soft, light onion tomato masala in 1 tsp oil."],
+["d17","Kali dal, light","dal",1,"Whole urad:120g:G;Rajma:30g:G;Tomato:2pc:V","Soak overnight. Cook long. Finish with 2 tbsp milk instead of cream and butter."],
+["d18","Tok dal with raw mango","dal",1,"Masoor dal:150g:G;Raw mango:1pc:V","Summer dal. Boil raw mango pieces with the dal. Mustard seed tempering in 1 tsp oil."],
+
+["s13","Jhinge posto","side",1,"Jhinge (ridge gourd):500g:V;Posto (poppy seeds):30g:G","Peel and cut. Cook covered in its own water. 2 tsp mustard oil for the whole dish."],
+["s14","Potol posto","side",1,"Potol:500g:V;Posto (poppy seeds):40g:G","Do not fry the potol. Cook covered with posto paste and 2 tsp oil."],
+["s15","Potol dalna","side",1,"Potol:500g:V;Potato:1pc:V;Tomato:1pc:V","Steam the potol halfway first. Light gravy, 2 tsp oil."],
+["s16","Uchhe alu bhaja on tawa","side",1,"Karela:2pc:V;Potato:1pc:V","Slice thin and cook on a non-stick tawa with 1 tsp oil, covered at first."],
+["s17","Kancha kolar kofta, steamed","side",1,"Raw banana:3pc:V;Besan:40g:G;Tomato:2pc:V","Steam or pan-roast the koftas instead of deep frying. Light tomato gravy."],
+["s18","Kancha kolar dalna","side",1,"Raw banana:3pc:V;Potato:1pc:V;Tomato:1pc:V","Boil the banana halfway, then cook in a light cumin and ginger gravy with 2 tsp oil."],
+["s19","Mochar ghonto","side",1,"Mocha (banana flower):1pc:V;Potato:1pc:V;Coconut pieces:50g:V;Kala chana:50g:G","Clean and boil the mocha. Cook with potato and coconut in 2 tsp oil. Takes time, start early."],
+["s20","Echorer dalna","side",1,"Echor (raw jackfruit):500g:V;Potato:2pc:V;Tomato:1pc:V","Pressure cook the jackfruit first. Then cook like a light curry with 1 tbsp oil."],
+["s21","Bhindi masala, dry","side",1,"Bhindi:400g:V;Onion:1pc:V;Tomato:1pc:V","Wipe dry, cook open on high flame in 2 tsp oil so it does not get sticky."],
+["s22","Beans aloo sabzi","side",1,"Beans:300g:V;Potato:2pc:V","Cut small. Cook covered with cumin and turmeric in 2 tsp oil."],
+["s23","Cabbage peas stir fry","side",1,"Cabbage:400g:V;Green peas:100g:V","Shred thin. Quick stir fry with mustard seeds in 1 tsp oil."],
+["s24","Gajor matar","side",1,"Carrot:4pc:V;Green peas:200g:V","Cut carrots small. Cook covered with cumin in 1 tsp oil."],
+["s25","Palak paneer, light","side",1,"Spinach (palong):3bunch:V;Paneer:200g:G;Onion:1pc:V","Blanch and blend the spinach. No cream. Paneer goes in raw. 2 tsp oil."],
+["s26","Lau shaak chorchori","side",1,"Lau shaak:2bunch:V;Pumpkin:150g:V;Potato:1pc:V","Wash well. Cook all together with panch phoron in 2 tsp oil."],
+["s27","Kumro bhaja on tawa","side",1,"Pumpkin:400g:V;Besan:30g:G","Thin slices dusted with besan and rice flour. Roast on non-stick tawa with a brush of oil."],
+["s28","Begun bhaja on tawa","side",1,"Brinjal (large):1pc:V","Thick rounds rubbed with turmeric and salt. Roast on non-stick tawa, a brush of oil per side, covered."],
+["s29","Alu dum, light","side",1,"Baby potato:500g:V;Tomato:2pc:V;Curd:100g:G","Boil and peel. Do not fry. Cook in a curd and tomato gravy with 2 tsp oil."],
+["s30","Doi begun","side",1,"Brinjal:2pc:V;Curd:250g:G","Roast the brinjal pieces on a tawa instead of frying. Pour spiced curd over, temper with 1 tsp oil."],
+["s31","Pepe ghonto","side",1,"Raw papaya:500g:V;Potato:1pc:V;Green peas:100g:V","Grate or cube the papaya. Cook covered in 2 tsp oil."],
+["s32","Kumro shaak bhaja","side",1,"Kumro shaak:2bunch:V","Wash well. Cook with garlic and kalonji in 1 tsp oil."],
+["s33","Methi aloo","side",1,"Methi leaves:2bunch:V;Potato:2pc:V","Chop the methi fine. Cook with cubed potato in 2 tsp oil, covered."],
+["s34","Mixed vegetable sabzi","side",1,"Cauliflower:1pc:V;Carrot:2pc:V;Beans:100g:V;Green peas:100g:V;Tomato:1pc:V","Steam vegetables halfway first. Toss with spices in 2 tsp oil."],
+["s35","Cucumber raita","side",1,"Curd:400g:G;Cucumber:2pc:V","Grate cucumber, mix with curd, roasted cumin and salt. No oil."],
+["s36","Kachumber salad","side",1,"Cucumber:2pc:V;Tomato:2pc:V;Onion:1pc:V;Lemon:1pc:V","Chop fine. Salt, lemon, pepper. Serve fresh."],
+["s37","Dhundul posto","side",1,"Dhundul:500g:V;Posto (poppy seeds):30g:G","Peel and cut. Cook in its own water with posto paste, 2 tsp oil."],
+["s38","Shojne data chorchori","side",1,"Drumstick:4pc:V;Potato:1pc:V;Brinjal:1pc:V","Cut drumstick in finger lengths. Cook with panch phoron in 2 tsp oil, covered."],
+["s39","Lal shaak with posto","side",1,"Lal shaak:2bunch:V;Posto (poppy seeds):20g:G","Cook the shaak with garlic in 1 tsp oil, sprinkle posto paste at the end."],
+["s40","Tomato chutney","side",1,"Tomato:4pc:V;Dates:30g:G","Cook with panch phoron in 1 tsp oil, little sugar. Make for 2 days."],
+["s41","Alu bhate","side",1,"Potato:4pc:V;Onion:1pc:V","Boil and mash with raw onion, green chilli and 1 tsp raw mustard oil. No cooking oil."],
+["s42","Begun bhate","side",1,"Brinjal:2pc:V;Onion:1pc:V","Boil the brinjal with the rice. Mash with onion, chilli and a few drops of mustard oil."],
+["s43","Kopi bhaja dry roast","side",1,"Cauliflower:1pc:V","Florets steamed 5 minutes, then roasted on a tawa with turmeric and 1 tsp oil till golden."],
+["s44","Cabbage capsicum stir fry","side",1,"Cabbage:300g:V;Capsicum:2pc:V;Carrot:1pc:V","High flame, 1 tsp oil, salt and pepper. Keep it crunchy."],
+["s45","Chichinga posto","side",1,"Chichinga (snake gourd):500g:V;Posto (poppy seeds):30g:G","Cut into rings. Cook covered with posto, green chilli and 2 tsp oil."],
+["s46","Shim alu chorchori","side",1,"Shim (flat beans):300g:V;Potato:2pc:V","Cook with kalonji in 2 tsp oil, covered."],
+["s47","Baingan bharta","side",1,"Brinjal (large):2pc:V;Onion:1pc:V;Tomato:2pc:V","Roast brinjal on flame. Cook onion and tomato in 2 tsp oil, mix in the mash."],
+
+["f11","Ilish bhapa","fish",0,"Ilish (hilsa):600g:F;Mustard seeds:40g:G;Curd:50g:G","Steam with mustard paste and green chilli. 1 tsp mustard oil on top only."],
+["f12","Ilish macher patla jhol","fish",0,"Ilish (hilsa):600g:F;Brinjal:1pc:V","Do not fry. Hilsa has its own oil. Thin jhol with kalonji and green chilli."],
+["f13","Parshe macher jhal","fish",0,"Parshe fish:500g:F;Mustard seeds:30g:G","Light pan-sear. Thin mustard gravy with kalonji."],
+["f14","Bhetki paturi, steamed","fish",0,"Bhetki fish:500g:F;Mustard seeds:40g:G;Coconut pieces:50g:V;Banana leaf:4pc:V","Wrap in banana leaf with mustard-coconut paste and steam 15 minutes. No frying."],
+["f15","Rui kalia, light","fish",0,"Rohu (rui) fish:600g:F;Onion:2pc:V;Curd:100g:G;Tomato:1pc:V","Sear the fish lightly. Onion and curd gravy, 1 tbsp oil for the whole dish."],
+["f16","Tel koi, light","fish",0,"Koi fish:500g:F;Onion:1pc:V","Light fry only. Thin mustard oil gravy with green chilli, much less oil than usual."],
+["f17","Shorshe ilish","fish",0,"Ilish (hilsa):600g:F;Mustard seeds:40g:G","Cook in mustard paste gravy without frying the fish. Few drops of raw mustard oil at the end."],
+["f18","Chingri bhapa","fish",0,"Prawns (chingri):500g:F;Mustard seeds:30g:G;Coconut pieces:50g:V","Mix prawns with mustard-coconut paste and steam in a covered box 12 minutes."],
+["f19","Lau chingri","fish",0,"Prawns (chingri):300g:F;Lau (bottle gourd):500g:V","Cook the lau in its own water, add prawns for the last 5 minutes. 1 tsp oil."],
+["f20","Chingri with lau shaak","fish",0,"Small prawns:250g:F;Lau shaak:2bunch:V","Wash greens well. Cook together with garlic in 1 tsp oil."],
+["f21","Chingri alu posto","fish",0,"Small prawns:250g:F;Potato:3pc:V;Posto (poppy seeds):40g:G","Cook potato covered with posto paste, add prawns at the end. 2 tsp oil."],
+["f22","Mourala macher chorchori","fish",0,"Mourala fish:300g:F;Onion:1pc:V;Potato:1pc:V","Do not deep fry. Cook with onion and potato slices in 2 tsp oil, covered."],
+["f23","Pomfret curry, light","fish",0,"Pomfret:600g:F;Onion:1pc:V;Tomato:2pc:V","Sear lightly. Tomato and onion gravy with 2 tsp oil."],
+["f24","Fish stew with vegetables","fish",0,"Bhetki fish:500g:F;Carrot:1pc:V;Potato:1pc:V;Beans:100g:V;Onion:1pc:V","No frying. Simmer vegetables with whole spices and ginger, add fish in the last 8 minutes."],
+["f25","Grilled bhetki with lemon","fish",0,"Bhetki fillet:500g:F;Lemon:2pc:V","Marinate with lemon, garlic and pepper. Non-stick pan, a brush of oil. Boiled vegetables on the side."],
+["f26","Rui macher kalia with doi","fish",0,"Rohu (rui) fish:600g:F;Curd:150g:G;Onion:1pc:V","Sear lightly, cook in whisked curd and onion paste with 2 tsp oil."],
+["f27","Katla macher jhal","fish",0,"Katla fish:600g:F;Mustard seeds:30g:G;Tomato:1pc:V","Light sear. Mustard and tomato gravy with kalonji."],
+["f28","Pabda shorshe bhapa","fish",0,"Pabda fish:500g:F;Mustard seeds:40g:G","Steam raw pabda in mustard paste with green chilli. No frying."],
+["f29","Macher kofta curry, light","fish",0,"Bhetki fillet:400g:F;Potato:1pc:V;Onion:2pc:V;Tomato:1pc:V","Bind boiled fish and potato, pan-roast the koftas with a brush of oil. Light gravy."],
+["f30","Fish tikka on tawa","fish",0,"Bhetki fillet:500g:F;Curd:150g:G;Lemon:1pc:V","Marinate 1 hour in curd and spices. Non-stick tawa, a brush of oil."],
+["f31","Rui macher dom, light","fish",0,"Rohu (rui) fish:600g:F;Curd:100g:G;Onion:2pc:V","Sear lightly. Slow cook covered in onion and curd paste with 2 tsp oil."],
+["f32","Bata macher jhal","fish",0,"Bata fish:500g:F;Tomato:1pc:V","Light fry only. Thin jhal with green chilli and tomato."],
+["f33","Chingri malai, no cream","fish",0,"Prawns (chingri):500g:F;Milk:200ml:G;Onion:1pc:V","Use milk with a little coconut milk instead of cream. 2 tsp oil."],
+["f34","Doi katla","fish",0,"Katla fish:600g:F;Curd:200g:G;Onion:1pc:V","Sear lightly. Whisked curd gravy, do not let it split. 2 tsp oil."],
+["f35","Mixed fish and vegetable jhol","fish",0,"Rohu (rui) fish:500g:F;Raw banana:1pc:V;Potato:1pc:V;Potol:3pc:V","Light sear. Thin cumin and ginger jhol with vegetables."],
+
+["c8","Chicken dak bungalow, light","chicken",0,"Chicken:700g:F;Eggs:4pc:E;Potato:2pc:V;Onion:2pc:V;Curd:100g:G","Skinless chicken. 1 tbsp oil. Boiled eggs and potatoes not fried."],
+["c9","Chicken rezala, light","chicken",0,"Chicken:700g:F;Curd:250g:G;Onion:2pc:V;Cashew:30g:G","Use milk and a few cashews instead of cream. 1 tbsp ghee and oil together."],
+["c10","Chicken do pyaza, light","chicken",0,"Chicken:700g:F;Onion:4pc:V;Tomato:1pc:V","Skinless chicken. Cook the onions slowly with splashes of water instead of more oil."],
+["c11","Chicken with spinach","chicken",0,"Chicken:700g:F;Spinach (palong):2bunch:V;Onion:1pc:V;Tomato:1pc:V","Blanch and blend the spinach. Cook chicken in it with 1 tbsp oil."],
+["c12","Chicken korma, light","chicken",0,"Chicken:700g:F;Curd:200g:G;Onion:2pc:V;Cashew:20g:G","Skinless chicken. Curd and cashew paste instead of cream. 1 tbsp oil."],
+["c13","Pepper chicken dry","chicken",0,"Boneless chicken:600g:F;Onion:2pc:V;Capsicum:1pc:V","Cook covered with crushed pepper and curry leaves in 2 tsp oil."],
+["c14","Chicken bhuna, pressure cooked","chicken",0,"Chicken:700g:F;Onion:3pc:V;Tomato:2pc:V","Skinless chicken. 1 tbsp oil. 2 whistles, then dry it on open flame."],
+["c15","Tandoori chicken in oven","chicken",0,"Chicken legs:800g:F;Curd:200g:G;Lemon:1pc:V","Marinate overnight. Bake or air fry. No oil apart from a brush."],
+["c16","Chicken shorba","chicken",0,"Chicken:500g:F;Carrot:1pc:V;Onion:1pc:V","Light soup with whole spices, ginger and garlic. Strain or keep pieces in."],
+["c17","Chicken with vegetables, home style","chicken",0,"Chicken:700g:F;Potato:2pc:V;Carrot:2pc:V;Green peas:100g:V;Onion:2pc:V","Skinless chicken. Light gravy, 1 tbsp oil for the whole dish."],
+["c18","Kadhai chicken, light","chicken",0,"Chicken:700g:F;Capsicum:2pc:V;Onion:2pc:V;Tomato:3pc:V","Skinless chicken. 1 tbsp oil. Fresh ground kadhai masala."],
+["c19","Chicken posto","chicken",0,"Chicken:700g:F;Posto (poppy seeds):40g:G;Onion:1pc:V;Curd:100g:G","Skinless chicken. Posto and curd paste gravy, 1 tbsp oil."],
+["c20","Chicken chaap, light","chicken",0,"Chicken legs:800g:F;Curd:200g:G;Posto (poppy seeds):20g:G","Marinate overnight. Slow cook covered with 1 tbsp oil instead of a pool of ghee."],
+["c21","Chicken tangdi, air fried","chicken",0,"Chicken legs:800g:F;Curd:200g:G","Marinate overnight. Air fry or bake. Serve with salad."],
+["c22","Green chicken curry","chicken",0,"Chicken:700g:F;Coriander leaves:2bunch:V;Mint leaves:1bunch:V;Curd:150g:G","Blend coriander, mint and green chilli. Cook skinless chicken in it with 1 tbsp oil."],
+["c23","Chicken keema with peas","chicken",0,"Chicken keema:500g:F;Green peas:200g:V;Onion:2pc:V;Tomato:1pc:V","Cook the keema in its own juices with 2 tsp oil."],
+["c24","Lemon pepper chicken","chicken",0,"Boneless chicken:600g:F;Lemon:2pc:V","Marinate in lemon, garlic, pepper. Pan-sear with 2 tsp oil. Boiled vegetables on the side."],
+["c25","Chicken jhol with lau","chicken",0,"Chicken:600g:F;Lau (bottle gourd):400g:V","Skinless chicken. Light, thin jhol for a hot day. 2 tsp oil."],
+
+["e5","Dimer dalna","egg",0,"Eggs:6pc:E;Potato:3pc:V;Tomato:1pc:V","Do not fry eggs or potatoes. Light cumin and ginger gravy."],
+["e6","Egg curry with spinach","egg",0,"Eggs:6pc:E;Spinach (palong):2bunch:V;Onion:1pc:V","Blanched spinach gravy, boiled eggs halved. 2 tsp oil."],
+["e7","Egg drop curry","egg",0,"Eggs:6pc:E;Onion:2pc:V;Tomato:2pc:V","Crack eggs straight into the simmering tomato gravy, cover and cook 8 minutes."],
+["e8","Dimer devil, baked","egg",0,"Eggs:6pc:E;Potato:3pc:V;Onion:1pc:V","Coat boiled egg in spiced potato, crumb lightly and bake or air fry instead of deep frying."],
+["e9","Shakshuka","egg",0,"Eggs:6pc:E;Tomato:5pc:V;Capsicum:2pc:V;Onion:1pc:V","Thick tomato and capsicum sauce in 2 tsp oil. Poach the eggs in it, covered."],
+["e10","Egg korma, light","egg",0,"Eggs:6pc:E;Curd:150g:G;Onion:2pc:V;Cashew:15g:G","Curd and cashew gravy, no cream. 2 tsp oil."],
+["e11","Egg pepper fry","egg",0,"Eggs:6pc:E;Onion:2pc:V","Halve boiled eggs and toss with onion, curry leaves and pepper in 2 tsp oil."],
+["e12","Dim posto","egg",0,"Eggs:6pc:E;Posto (poppy seeds):40g:G;Potato:1pc:V","Boiled eggs in posto paste gravy with green chilli. 2 tsp mustard oil."],
+
+["m3","Mutton kosha, light","mutton",0,"Mutton:700g:F;Onion:3pc:V;Curd:150g:G;Potato:2pc:V","Trim all fat. Pressure cook first, then dry on low flame with 1 tbsp oil, adding water instead of more oil."],
+["m4","Mutton with lau","mutton",0,"Mutton:500g:F;Lau (bottle gourd):500g:V","Trim the fat. Pressure cook mutton, then add lau. Light and thin."],
+["m5","Mutton keema matar","mutton",0,"Mutton keema:500g:F;Green peas:200g:V;Onion:2pc:V;Tomato:1pc:V","Use lean keema. Cook in its own fat, no extra oil beyond 1 tsp."],
+["m6","Mutton shorba","mutton",0,"Mutton:500g:F;Carrot:1pc:V;Onion:1pc:V","Trim the fat. Pressure cook with whole spices. Skim the top. Light soup."],
+["m7","Mutton rogan josh, light","mutton",0,"Mutton:700g:F;Curd:200g:G;Onion:2pc:V","Trim the fat. Kashmiri chilli for colour, 1 tbsp oil. Skim before serving."],
+["m8","Mutton with spinach","mutton",0,"Mutton:600g:F;Spinach (palong):2bunch:V;Onion:2pc:V","Trim fat. Pressure cook mutton, add blended spinach, 1 tbsp oil."],
+
+["v7","Chana masala","vegmain",1,"Kabuli chana:200g:G;Onion:2pc:V;Tomato:2pc:V","Soak overnight. Pressure cook till soft. 2 tsp oil for the masala."],
+["v8","Ghugni","vegmain",1,"Dried yellow peas:200g:G;Potato:1pc:V;Onion:1pc:V;Tomato:1pc:V","Soak overnight. Pressure cook. Light gravy with 2 tsp oil. Onion and lemon on top."],
+["v9","Matar paneer, light","vegmain",1,"Paneer:300g:G;Green peas:200g:V;Tomato:3pc:V;Onion:1pc:V","Paneer raw, no frying. Tomato gravy, 2 tsp oil."],
+["v10","Paneer tikka on tawa","vegmain",1,"Paneer:400g:G;Curd:150g:G;Capsicum:2pc:V;Onion:1pc:V","Marinate 1 hour. Non-stick tawa, a brush of oil."],
+["v11","Mushroom do pyaza","vegmain",1,"Mushroom:400g:V;Onion:3pc:V;Tomato:1pc:V","High flame so the water dries. 2 tsp oil."],
+["v12","Niramish khichuri","vegmain",1,"Rice:250g:G;Moong dal:150g:G;Cauliflower:1pc:V;Potato:2pc:V;Green peas:100g:V","Dry-roast the dal. Pressure cook with vegetables. 1 tbsp ghee in total. Serve with begun pora or a tawa bhaja."],
+["v13","Vegetable pulao","vegmain",1,"Basmati rice:350g:G;Carrot:1pc:V;Beans:100g:V;Green peas:100g:V","Whole spices in 2 tsp ghee, then rice and vegetables. Raita on the side."],
+["v14","Soya keema matar","vegmain",1,"Soya granules:150g:G;Green peas:150g:V;Onion:2pc:V;Tomato:2pc:V","Soak granules, squeeze dry. Cook like keema with 2 tsp oil."],
+["v15","Kadhi with vegetables","vegmain",1,"Curd:500g:G;Besan:60g:G;Onion:1pc:V;Spinach (palong):1bunch:V","No pakoras. Add spinach and onion to the kadhi instead. 1 tsp ghee tempering."],
+["v16","Lobia curry","vegmain",1,"Lobia:200g:G;Onion:1pc:V;Tomato:2pc:V","Soak overnight. Pressure cook. Light tomato gravy."],
+["v17","Paneer bhurji","vegmain",1,"Paneer:300g:G;Onion:1pc:V;Tomato:2pc:V;Capsicum:1pc:V","Crumble and cook with onion and tomato in 2 tsp oil."],
+["v18","Aloo gobi matar","vegmain",1,"Cauliflower:1pc:V;Potato:2pc:V;Green peas:150g:V;Tomato:1pc:V","Steam cauliflower first. Cook covered in 2 tsp oil."],
+["v19","Chanar kofta, steamed","vegmain",1,"Paneer:300g:G;Potato:1pc:V;Tomato:2pc:V","Shape koftas and steam or pan-roast instead of frying. Light gravy."],
+["v20","Mushroom paneer","vegmain",1,"Mushroom:250g:V;Paneer:200g:G;Onion:1pc:V;Tomato:2pc:V","High flame for mushroom, paneer raw at the end. 2 tsp oil."],
+["v21","Vegetable stew with appam style rice","vegmain",1,"Carrot:2pc:V;Potato:2pc:V;Beans:100g:V;Coconut milk:200ml:G;Rice:300g:G","Simmer vegetables with whole spices, finish with thin coconut milk. No frying."],
+["v22","Dal palak with jeera rice","vegmain",1,"Toor dal:150g:G;Spinach (palong):2bunch:V;Basmati rice:350g:G","Light dal with spinach. Jeera rice with 1 tsp ghee."],
+["v23","Rajma with spinach","vegmain",1,"Rajma:180g:G;Spinach (palong):1bunch:V;Tomato:2pc:V","Soak overnight. Pressure cook. Add spinach at the end."],
+["v24","Moong dal khichdi with vegetables","vegmain",1,"Rice:200g:G;Moong dal:150g:G;Carrot:1pc:V;Beans:100g:V;Tomato:1pc:V","Soft khichdi, 1 tbsp ghee in total. Curd on the side."],
+["v25","Stuffed capsicum, baked","vegmain",1,"Capsicum:4pc:V;Paneer:200g:G;Potato:2pc:V","Fill with spiced paneer and potato. Bake or cook covered on a tawa with 1 tsp oil."],
+
+["n5","Chicken fried rice","cncarb",0,"Basmati rice:400g:G;Boneless chicken:250g:F;Carrot:1pc:V;Beans:100g:V;Spring onion:1bunch:V;Soy sauce::P","Cook rice in the morning. Toss on high flame with 1 tbsp oil."],
+["n6","Prawn fried rice","cncarb",0,"Basmati rice:400g:G;Prawns (chingri):250g:F;Eggs:2pc:E;Spring onion:1bunch:V;Soy sauce::P","Cold rice, high flame, 1 tbsp oil."],
+["n7","Egg hakka noodles","cncarb",0,"Hakka noodles:400g:G;Eggs:3pc:E;Cabbage:200g:V;Carrot:1pc:V;Capsicum:1pc:V;Soy sauce::P","Rinse noodles in cold water. 1 tbsp oil for the whole wok."],
+["n8","Mixed noodles","cncarb",0,"Hakka noodles:400g:G;Boneless chicken:200g:F;Prawns (chingri):150g:F;Eggs:2pc:E;Cabbage:200g:V;Soy sauce::P","Cook each protein first, then toss together with 1 tbsp oil."],
+["n9","Schezwan veg fried rice","cncarb",1,"Basmati rice:400g:G;Carrot:1pc:V;Capsicum:1pc:V;Cabbage:150g:V;Schezwan sauce::P","Cold rice, high flame, 1 tbsp oil and 2 tbsp schezwan sauce."],
+["n10","Chicken soup noodles","cncarb",0,"Hakka noodles:250g:G;Boneless chicken:250g:F;Cabbage:150g:V;Carrot:1pc:V;Spring onion:1bunch:V","Clear chicken broth with noodles and vegetables. Almost no oil."],
+["n11","Burnt garlic fried rice","cncarb",1,"Basmati rice:400g:G;Garlic bulb:2pc:V;Spring onion:1bunch:V;Soy sauce::P","Brown chopped garlic in 1 tbsp oil, toss cold rice in it."],
+["n12","Chowmein, home style","cncarb",0,"Hakka noodles:400g:G;Boneless chicken:200g:F;Eggs:2pc:E;Cabbage:200g:V;Onion:1pc:V;Soy sauce::P","Kolkata street style but with 1 tbsp oil. Lots of cabbage and onion."],
+
+["x5","Chicken manchurian, pan seared","cnmain",0,"Boneless chicken:500g:F;Cornflour:40g:G;Spring onion:1bunch:V;Capsicum:1pc:V;Soy sauce::P","Pan-sear chicken balls with a brush of oil instead of deep frying. Light gravy."],
+["x6","Veg manchurian, steamed","cnmain",1,"Cabbage:300g:V;Carrot:2pc:V;Cornflour:50g:G;Spring onion:1bunch:V;Soy sauce::P","Steam the balls 12 minutes instead of frying, then simmer in the gravy."],
+["x7","Chilli prawn","cnmain",0,"Prawns (chingri):500g:F;Capsicum:2pc:V;Onion:2pc:V;Cornflour:20g:G;Soy sauce::P","Toss prawns on high flame in 1 tbsp oil. No batter."],
+["x8","Chicken with broccoli","cnmain",0,"Boneless chicken:500g:F;Broccoli:1pc:V;Garlic bulb:1pc:V;Soy sauce::P","Blanch broccoli. Stir fry chicken in 2 tsp oil, light soy and garlic sauce."],
+["x9","Hot garlic chicken","cnmain",0,"Boneless chicken:500g:F;Garlic bulb:2pc:V;Spring onion:1bunch:V;Cornflour:20g:G;Soy sauce::P","Pan-sear chicken in 1 tbsp oil. Spicy garlic sauce thickened with cornflour."],
+["x10","Chilli egg","cnmain",0,"Eggs:6pc:E;Capsicum:2pc:V;Onion:2pc:V;Soy sauce::P","Halved boiled eggs tossed in the sauce. No frying."],
+["x11","Mixed vegetables in garlic sauce","cnmain",1,"Broccoli:1pc:V;Carrot:2pc:V;Mushroom:200g:V;Babycorn:150g:V;Garlic bulb:1pc:V;Soy sauce::P","Blanch vegetables, toss in garlic sauce with 2 tsp oil."],
+["x12","Chilli mushroom","cnmain",1,"Mushroom:400g:V;Capsicum:2pc:V;Onion:2pc:V;Soy sauce::P","High flame, 1 tbsp oil, no batter."],
+["x13","Lemon coriander soup","cnmain",1,"Carrot:1pc:V;Cabbage:150g:V;Coriander leaves:2bunch:V;Lemon:2pc:V;Cornflour:20g:G","Clear vegetable soup with lots of coriander and lemon. Almost no oil."],
+["x14","Chicken sweet corn soup","cnmain",0,"Boneless chicken:200g:F;Sweet corn:300g:V;Eggs:1pc:E;Cornflour:20g:G","Shredded boiled chicken, creamed corn, egg ribbons. No oil."],
+["x15","Hot and sour chicken soup","cnmain",0,"Boneless chicken:200g:F;Cabbage:150g:V;Carrot:1pc:V;Mushroom:100g:V;Soy sauce::P","Clear broth with vinegar and pepper. 1 tsp oil."],
+["x16","Manchow veg soup","cnmain",1,"Cabbage:150g:V;Carrot:1pc:V;Beans:100g:V;Capsicum:1pc:V;Soy sauce::P","Skip the fried noodles on top or bake a handful instead."],
+["x17","Fish in black bean or soy sauce","cnmain",0,"Bhetki fillet:500g:F;Spring onion:1bunch:V;Garlic bulb:1pc:V;Soy sauce::P","Steam the fish, pour hot soy, garlic and spring onion sauce over it. 1 tsp oil."],
+["x18","Chilli soya chunks","cnmain",1,"Soya chunks:150g:G;Capsicum:2pc:V;Onion:2pc:V;Soy sauce::P","Soak and squeeze chunks dry. Toss in sauce, no frying."],
+
+["st3","Brown rice","staple",1,"Brown rice:400g:G","Soak 30 minutes. Pressure cook 3 whistles."],
+["st4","Jeera rice","staple",1,"Basmati rice:400g:G","1 tsp ghee and cumin only."],
+["st5","Phulka with multigrain atta","staple",1,"Multigrain atta:300g:G","Phulka on open flame. No ghee."],
+["st6","Ruti and rice both","staple",1,"Rice:250g:G;Atta:200g:G","Half rice, half ruti for those who prefer."]
+];
 const TYPES = {bf:"Breakfast",dal:"Dal",side:"Vegetable side",fish:"Fish",chicken:"Chicken",egg:"Egg",mutton:"Mutton",vegmain:"Veg main",cncarb:"Chinese rice or noodles",cnmain:"Chinese side",staple:"Rice and ruti"};
 const WHERE = {F:"Fish and meat",E:"Eggs",V:"Vegetables and fruit",G:"Grocery",P:"Pantry"};
 const PANTRY = ["Mustard oil","Refined oil","Salt","Sugar","Turmeric","Cumin","Coriander powder","Red chilli powder","Garam masala","Ginger","Garlic","Green chilli"];
@@ -211,7 +392,7 @@ const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","
 const MEALS = [["b","Breakfast"],["l","Lunch"],["d","Dinner"]];
 
 function parseIng(s){return s.split(";").filter(Boolean).map(p=>{const a=p.split(":");const m=/^([\d.]+)\s*(.*)$/.exec(a[1]||"");return {n:a[0],q:m?+m[1]:0,u:m?m[2]:"",c:a[2]||"G"};});}
-const BUILTIN = RAW.map(r=>({id:r[0],name:r[1],type:r[2],veg:!!r[3],ing:parseIng(r[4]),note:r[5]}));
+const BUILTIN = RAW.concat(RAW2).map(r=>({id:r[0],name:r[1],type:r[2],veg:!!r[3],ing:parseIng(r[4]),note:r[5]}));
 
 /* ---------- State ---------- */
 const KEY="rannaghar.v1", AIKEY="rannaghar.ai";
@@ -234,7 +415,8 @@ function dish(id){return allDishes().find(d=>d.id===id);}
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
 function pick(type,vegOnly,used){
-  let pool=allDishes().filter(d=>d.type===type&&!S.off.includes(d.id)&&(!vegOnly||d.veg));
+  const NOAUTO=["s35","s36","s40"]; // raita, salad, chutney: add by hand
+  let pool=allDishes().filter(d=>d.type===type&&!NOAUTO.includes(d.id)&&!S.off.includes(d.id)&&(!vegOnly||d.veg));
   if(!pool.length)pool=allDishes().filter(d=>d.type===type&&(!vegOnly||d.veg));
   if(!pool.length)return null;
   const fresh=pool.filter(d=>!used.has(d.id));
@@ -474,9 +656,15 @@ function closeSheet(){$("sheet").hidden=true;sheetCtx=null;}
 function dishInfo(d){const u=useLine(d);return '<h2>'+esc(d.name)+'</h2><p class="note">'+esc(d.note||"")+'</p>'+(u?'<p class="use">'+esc(u)+'</p>':'');}
 function chipSheet(i,m,k){
   const d=dish(S.plan[i][m][k]);if(!d)return;sheetCtx={i,m,k};
+  const onMenu=new Set([].concat(...S.plan.map(z=>z.b.concat(z.l,z.d))));
   const alts=allDishes().filter(x=>x.type===d.type&&x.id!==d.id&&!S.off.includes(x.id));
+  const fresh=alts.filter(x=>!onMenu.has(x.id)&&!S.last.includes(x.id));
+  const rest=alts.filter(x=>!fresh.includes(x));
+  const row=x=>'<button class="pick" data-act="swap" data-id="'+x.id+'">'+esc(x.name)+(x.veg?' <span class="pill veg">Veg</span>':'')+'</button>';
   openSheet(dishInfo(d)+'<div class="row" style="margin:10px 0"><button class="btn ghost" data-act="rm">Remove from this meal</button><button class="btn plain" data-act="close">Close</button></div>'+
-    (alts.length?'<h3>Swap with</h3>'+alts.map(x=>'<button class="pick" data-act="swap" data-id="'+x.id+'">'+esc(x.name)+'</button>').join(""):''));
+    '<label class="field"><span>Swap with any dish</span><input type="search" id="swapQ" placeholder="Type to search all '+allDishes().length+' dishes"></label><div id="swapList">'+
+    (fresh.length?'<h3>'+esc(TYPES[d.type])+', not had recently</h3>'+fresh.map(row).join(""):'')+
+    (rest.length?'<h3>'+esc(TYPES[d.type])+', on this week or last week</h3>'+rest.map(row).join(""):'')+'</div>');
 }
 function addSheet(i,m){
   sheetCtx={i,m};
@@ -642,7 +830,11 @@ document.addEventListener("change",e=>{
   else if(t.id==="aiUrl"||t.id==="aiTok"){AI.url=$("aiUrl").value.trim();AI.token=$("aiTok").value.trim();saveAI();setOpen=true;render();}
   else if(t.id==="ws"&&t.value){S.weekStart=t.value;save();render();}
 });
-document.addEventListener("input",e=>{if(e.target.id==="q")$("pickList").innerHTML=pickList(e.target.value);});
+document.addEventListener("input",e=>{
+  if(e.target.id==="q")$("pickList").innerHTML=pickList(e.target.value);
+  else if(e.target.id==="swapQ"){const q=e.target.value.trim().toLowerCase();if(!q)return;
+    $("swapList").innerHTML=allDishes().filter(x=>x.name.toLowerCase().includes(q)||TYPES[x.type].toLowerCase().includes(q)).slice(0,40).map(x=>'<button class="pick" data-act="swap" data-id="'+x.id+'">'+esc(x.name)+' <span class="pill tag">'+esc(TYPES[x.type])+'</span></button>').join("")||'<p class="hint">No dish matches. Add it from the Dishes tab.</p>';}
+});
 
 load();
 (function(){const t=iso(new Date());for(let i=0;i<7;i++)if(iso(dateOf(i))===t)cookDay=i;})();
