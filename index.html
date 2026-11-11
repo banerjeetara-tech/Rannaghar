@@ -1089,6 +1089,36 @@ function setDay(i,on){MK.forEach(m=>{if(on)S.okm[i+"|"+m]=true;else delete S.okm
 function okVisits(){return visits().filter(v=>okSlots(v).length);}
 function slotName(i,m){return DAY[dateOf(i).getDay()]+" "+MEALLOW[m];}
 function covers(v){const by={};v.slots.forEach(([i,m])=>{(by[i]=by[i]||[]).push(MEALLOW[m]);});return Object.keys(by).map(i=>DAY[dateOf(+i).getDay()]+" "+by[i].join(", ")).join("; ");}
+const WK=["weekStart","plan","okm","dn","lo","nosend","vn","ck","skip","qo","okv"];
+function weekRange(ws){const a=fromIso(ws),b=addDays(a,6);return a.getDate()+(a.getMonth()!==b.getMonth()?" "+MON[a.getMonth()]:"")+"–"+b.getDate()+" "+MON[b.getMonth()];}
+function swapWeek(){if(!S.other)return;const mine={};WK.forEach(f=>{mine[f]=S[f];});WK.forEach(f=>{S[f]=S.other[f];});S.other=mine;S.wk=S.wk==="next"?"cur":"next";}
+function toCur(){if(S.wk==="next")swapWeek();}
+function planDishes(){return [].concat(...S.plan.map(d=>d.b.concat(d.l,d.d)));}
+function createNext(){
+  toCur();
+  if(S.other){swapWeek();return;}
+  const stash={};WK.forEach(f=>{stash[f]=S[f];});
+  const keepLast=S.last;S.last=planDishes();
+  S.weekStart=iso(addDays(fromIso(S.weekStart),7));genWeek();
+  S.last=keepLast;S.other=stash;S.wk="next";
+}
+function rollover(){
+  toCur();const t=iso(new Date());let n=0,changed=false;
+  while(iso(addDays(fromIso(S.weekStart),7))<=t&&n<3){
+    const ended=planDishes();archiveWeek();changed=true;n++;
+    const nextWs=iso(addDays(fromIso(S.weekStart),7));
+    if(S.other&&S.other.weekStart===nextWs){WK.forEach(f=>{S[f]=S.other[f];});S.other=null;S.last=ended;}
+    else{S.last=ended;S.weekStart=nextWs;genWeek();if(S.other&&S.other.weekStart<=S.weekStart)S.other=null;}
+  }
+  if(iso(addDays(fromIso(S.weekStart),7))<=t){const d=new Date();S.weekStart=iso(addDays(d,-d.getDay()));genWeek();S.other=null;changed=true;}
+  S.wk="cur";
+  return changed;
+}
+function weekSwitch(){
+  const cur=S.wk==="next"?S.other:S, nx=S.wk==="next"?S:S.other;
+  return '<div class="chips" style="flex-wrap:nowrap;margin-bottom:2px"><button class="tog" data-act="wkCur" aria-pressed="'+(S.wk!=="next")+'">This week · '+esc(weekRange(cur.weekStart))+'</button>'+
+    (nx?'<button class="tog" data-act="wkNext" aria-pressed="'+(S.wk==="next")+'">Next week · '+esc(weekRange(nx.weekStart))+'</button>':'<button class="tog" data-act="wkNext" aria-pressed="false">+ Plan next week</button>')+'</div>';
+}
 function applyRepeats(){(S.rep||[]).forEach(r=>{if(!dish(r.id))return;for(let i=0;i<7;i++)if(!S.plan[i][r.m].includes(r.id))S.plan[i][r.m].push(r.id);});}
 function isRep(id,m){return (S.rep||[]).some(r=>r.id===id&&r.m===m);}
 function regenVisit(id){
@@ -1201,6 +1231,7 @@ function normalize(o){
   if(!s.okm||typeof s.okm!=="object"||Array.isArray(s.okm)){s.okm={};if(Array.isArray(s.okd))s.okd.forEach((v,i)=>{if(v)["b","l","d"].forEach(m=>{s.okm[i+"|"+m]=true;});});}
   ["nosend","cookOpt","lo","ovr"].forEach(k=>{if(!s[k]||typeof s[k]!=="object"||Array.isArray(s[k]))s[k]={};});
   if(!Array.isArray(s.calRep))s.calRep=[];
+  if(s.wk!=="next")s.wk="cur";if(!s.other||typeof s.other!=="object"||!Array.isArray(s.other.plan))s.other=null;if(!s.other)s.wk="cur";
   if(!s.eat||typeof s.eat!=="object")s.eat={};
   if(!s.extra||typeof s.extra!=="object")s.extra={};
   ["skip","qo","dn","vn","eatT"].forEach(k=>{if(!s[k]||typeof s[k]!=="object"||Array.isArray(s[k]))s[k]={};});
@@ -1227,6 +1258,7 @@ function load(){
   try{const t=localStorage.getItem(KEY);if(t){S=normalize(JSON.parse(t));}}catch(e){}
   if(S&&S.plan.length===7)migrateSunday();
   if(S)applyOvr();
+  if(S&&S.plan.length===7&&rollover())try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}
   if(!S||S.plan.length!==7){const keep=S;fresh();if(keep){S.mine=keep.mine;S.off=keep.off;S.lists=keep.lists||[];}}
   try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}
 }
@@ -1372,7 +1404,8 @@ function wa(text){return "https://wa.me/?text="+encodeURIComponent(text);}
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const $=id=>document.getElementById(id);
 function render(){
-  $("weekLabel").textContent="Week of "+label(0)+", for "+S.people+" people";
+  if((tab==="me"||tab==="settings")&&S.wk==="next")swapWeek();
+  $("weekLabel").textContent=(S.wk==="next"?"Next week, ":"Week of ")+label(0)+", for "+S.people+" people";
   document.querySelectorAll("nav button").forEach(b=>b.setAttribute("aria-current",String(b.dataset.tab===tab)));
   const m=$("main");const top=m.scrollTop;const de=$("set");if(de)setOpen=de.open;
   m.innerHTML={week:vWeek,cook:vCook,shop:vShop,ideas:vIdeas,dishes:vDishes,me:vMe,settings:vSettings}[tab]();
@@ -1733,8 +1766,8 @@ function vSettings(){
 let menuScrolled=false;
 function vWeek(){
   const A=activeList();const tot=[0,1,2,3,4,5,6].reduce((a,j)=>a+MK.filter(m=>S.plan[j][m].length).length,0);const n=Object.keys(S.okm).filter(k=>S.plan[+k.split("|")[0]]&&S.plan[+k.split("|")[0]][k.split("|")[1]].length).length;const t=todayIdx();const todayIso=iso(new Date());
-  let h='<div class="card" style="padding:10px 12px"><div class="row between"><b>'+n+' of '+tot+' meals approved</b><div class="chips">'+(n<tot?'<button class="btn small" data-act="okAll">Approve all</button>':'<button class="btn plain small" data-act="okNone">Unapprove all</button>')+'</div></div>'+
-   '<details style="margin-top:6px"><summary class="hint" style="font-weight:600">More: shuffle, next week, share</summary><div class="row" style="margin-top:8px"><button class="btn plain small" data-act="next">Plan next week</button><button class="btn plain small" data-act="shuf">Shuffle this week</button><a class="btn plain small" target="_blank" rel="noopener" href="'+esc(wa(menuText()))+'">Send menu on WhatsApp</a></div>'+
+  let h=weekSwitch()+'<div class="card" style="padding:10px 12px"><div class="row between"><b>'+n+' of '+tot+' meals approved</b><div class="chips">'+(n<tot?'<button class="btn small" data-act="okAll">Approve all</button>':'<button class="btn plain small" data-act="okNone">Unapprove all</button>')+'</div></div>'+
+   '<details style="margin-top:6px"><summary class="hint" style="font-weight:600">More: shuffle, share</summary><div class="row" style="margin-top:8px"><button class="btn plain small" data-act="shuf">Shuffle '+(S.wk==="next"?'next':'this')+' week</button>'+(S.wk==="next"?'<button class="btn plain small" data-act="wkDrop">Discard next week plan</button>':'')+'<a class="btn plain small" target="_blank" rel="noopener" href="'+esc(wa(menuText()))+'">Send menu on WhatsApp</a></div>'+
    '<p class="hint">Shuffle follows: <b>'+(A?esc(A.name):'all dishes')+'</b> (change it in Ideas). Cook days are in Settings. • non-veg · ↻ repeats daily · ♻ leftover.</p></details></div>';
   for(let i=0;i<7;i++){
     const d=dateOf(i),ok=dayOk(i),isT=iso(d)===todayIso,past=iso(d)<todayIso;
@@ -1758,6 +1791,9 @@ function pickCookV(o){
   const t=todayIdx();const up=o.find(v=>v.day>=t);cookV=(up||o[0]).id;
 }
 function vCook(){
+  return weekSwitch()+vCook2();
+}
+function vCook2(){
   const o=okVisits();
   if(!o.length)return '<div class="card"><h2>Nothing approved yet</h2><p class="hint">Go to the Menu tab and tick the meals you are happy with. Their cooking instructions appear here, grouped by the cook\'s visit.</p></div>';
   pickCookV(o);const v=o.find(x=>x.id===cookV);
@@ -1796,6 +1832,9 @@ function itemRow(k,name,qty,sub){
    '<input type="text" data-qo="'+esc(k)+'" value="'+esc(S.qo[k]||"")+'" placeholder="'+esc(qty||(pant?"qty":""))+'" aria-label="Quantity for '+esc(name)+'" style="width:84px;padding:5px 7px;font-size:13px;text-align:right"></div>';
 }
 function vShop(){
+  return weekSwitch()+vShop2();
+}
+function vShop2(){
   const o=okVisits();
   if(!o.length)return '<div class="card"><h2>No cook visits approved yet</h2><p class="hint">Go to the Menu tab and approve the cook visits you are happy with. Their shopping lists appear here and update when you change a dish.</p></div>';
   shopV=shopV.filter(id=>o.some(v=>v.id===id));
@@ -2188,7 +2227,9 @@ document.addEventListener("click",e=>{
   else if(a==="ppl"){S.people=Math.min(10,Math.max(1,S.people+(+b.dataset.n)));save();render();}
   else if(a==="tg"){const k=b.dataset.key,wd=+b.dataset.wd;S[k]=S[k].includes(wd)?S[k].filter(x=>x!==wd):S[k].concat(wd);save();b.setAttribute("aria-pressed",String(S[k].includes(wd)));}
   else if(a==="shuf")twoTap(b,()=>{genWeek();save();render();});
-  else if(a==="next")twoTap(b,()=>{archiveWeek();S.last=[].concat(...S.plan.map(d=>d.b.concat(d.l,d.d)));S.weekStart=iso(addDays(fromIso(S.weekStart),7));genWeek();save();render();});
+  else if(a==="next"||a==="wkNext"){if(S.wk==="next")return;const had=!!S.other;createNext();shopV=[];cookV="";menuScrolled=true;save();render();$("main").scrollTop=0;if(!had)toast("Next week is ready to plan. Approve meals and shop ahead; it takes over on Sunday "+label(0)+".");}
+  else if(a==="wkCur"){toCur();shopV=[];cookV="";menuScrolled=false;render();}
+  else if(a==="wkDrop"){twoTap(b,()=>{toCur();S.other=null;S.wk="cur";save();render();toast("Next week's plan discarded.");},"Tap again to discard");}
   else if(a==="shufV"){regenVisit(b.dataset.id);save();render();}
   else if(a==="okV"){const id=b.dataset.id;if(S.okv[id])delete S.okv[id];else S.okv[id]=true;save();render();}
   else if(a==="shopV"){const id=b.dataset.id;if(!id)shopV=[];else shopV=shopV.includes(id)?shopV.filter(x=>x!==id):shopV.concat(id);render();}
