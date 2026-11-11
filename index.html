@@ -1032,9 +1032,36 @@ function eatenItems(){
 }
 function archiveWeek(){
   const days=[0,1,2,3,4,5,6].map(eatenDay);
+  const nm=id=>(dish(id)||{}).name||"";
+  const menu=S.plan.map(d=>{const o={};MK.forEach(m=>{o[m]=d[m].filter(id=>dish(id)).map(id=>[id,nm(id)]);});return o;});
+  const ate=[0,1,2,3,4,5,6].map(i=>{const E=effEat(i);const r=[];for(const k in E){if(!(E[k]>0))continue;const p=k.split("|");const d=dish(p[2]);if(!d)continue;r.push([p[1],d.name,E[k],Math.round(E[k]*kcal(d)),Math.round(E[k]*prot(d))]);}
+    (S.extra[i]||[]).forEach(e=>r.push(["x",e.n,1,+e.k||0,0]));return r;});
   S.hist=S.hist||[];
-  S.hist.unshift({ws:S.weekStart,days,plan:[0,1,2,3,4,5,6].map(planDayK),wt:S.wt||"",target:S.target||"",top:eatenItems().slice(0,5).map(x=>[x.d.name,Math.round(x.k)])});
+  S.hist.unshift({ws:S.weekStart,days,plan:[0,1,2,3,4,5,6].map(planDayK),prot:[0,1,2,3,4,5,6].map(eatenDayP),wt:S.wt||"",target:S.target||"",
+    top:eatenItems().slice(0,5).map(x=>[x.d.name,Math.round(x.k)]),menu,ate,notes:Object.assign({},S.vn||{})});
   S.hist=S.hist.slice(0,80);S.eat={};S.extra={};S.eatT={};S.wt="";
+}
+function reuseWeek(n){
+  const w=(S.hist||[])[n];if(!w||!w.menu)return false;
+  toCur();if(!S.other)createNext();else swapWeek();
+  S.plan=w.menu.map(d=>{const o={};MK.forEach(m=>{o[m]=(d[m]||[]).map(x=>x[0]).filter(id=>dish(id));});return o;});
+  applyRepeats();S.okm={};S.dn={};S.lo={};S.nosend={};S.ck={};S.skip={};S.qo={};
+  return true;
+}
+function pastWeekHtml(w,n){
+  const d0=fromIso(w.ws);const lgd=w.days.filter(x=>x>0);
+  let h='<details style="border-top:1px solid var(--line);padding:8px 0"><summary style="cursor:pointer"><b>'+esc(weekRange(w.ws))+'</b> <span class="kc">'+(lgd.length?nf(lgd.reduce((a,b)=>a+b,0)/lgd.length)+' kcal a day':'not logged')+(w.wt?' · '+(+w.wt).toFixed(1)+' kg':'')+'</span></summary>';
+  h+='<table style="width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px;font-variant-numeric:tabular-nums"><tr style="text-align:left;color:var(--muted)"><th>Day</th><th style="text-align:right">Eaten</th><th style="text-align:right">Protein</th><th style="text-align:right">Planned</th></tr>'+
+    w.days.map((k,i)=>{const dd=addDays(d0,i);return '<tr style="border-top:1px solid var(--line)"><td style="padding:4px 0">'+DAY[dd.getDay()]+' '+dd.getDate()+'</td><td style="text-align:right">'+(k?nf(k):'–')+'</td><td style="text-align:right">'+(w.prot&&w.prot[i]?w.prot[i]+' g':'–')+'</td><td style="text-align:right">'+nf(w.plan[i])+'</td></tr>';}).join("")+'</table>';
+  if(w.top&&w.top.length)h+='<p class="hint">Most calories from: '+w.top.map(t=>esc(t[0])+' ('+nf(t[1])+')').join(", ")+'.</p>';
+  if(w.menu){
+    h+='<div style="margin-top:6px">'+w.menu.map((d,i)=>{const dd=addDays(d0,i);const ate=(w.ate&&w.ate[i])||[];
+      return '<details style="padding:4px 0"><summary style="cursor:pointer">'+DAY[dd.getDay()]+' '+dd.getDate()+' '+MON[dd.getMonth()]+'</summary>'+
+        '<div class="hint" style="margin:4px 0 0">'+MK.map(m=>(d[m]&&d[m].length)?'<div><b>'+MEALNAME[m]+':</b> '+d[m].map(x=>esc(x[1])).join(", ")+'</div>':'').join("")+'</div>'+
+        (ate.length?'<div style="margin-top:6px"><b style="font-size:13px">What I ate</b>'+ate.map(a=>'<div class="lib" style="padding:3px 0;font-size:13.5px"><span>'+esc(a[1])+(a[2]!==1?' ×'+a[2]:'')+'</span><span class="kc">'+nf(a[3])+' kcal</span></div>').join("")+'</div>':'<p class="hint">Nothing logged that day.</p>')+'</details>';}).join("")+'</div>'+
+      '<div class="row" style="margin-top:8px"><button class="btn plain small" data-act="reuseWk" data-n="'+n+'">Reuse this menu for next week</button></div>';
+  }
+  return h+'</details>';
 }
 const nf=n=>Math.round(n).toLocaleString("en-IN");
 
@@ -1727,14 +1754,8 @@ function vMe(){
   h+='<section class="card"><h2>What is holding back weight loss</h2>'+holdHtml()+'</section>';
   h+='<section class="card"><h2>Calories this week</h2>'+calChart()+'<h3>Weight by week</h3>'+wtChart()+'</section>';
   h+='<section class="card"><h2>Earlier weeks</h2>';
-  if(!(S.hist||[]).length)h+='<p class="hint">When you tap Plan next week on the Menu tab, this week\'s calories and weight are saved here.</p>';
-  (S.hist||[]).forEach(w=>{
-    const lgd=w.days.filter(x=>x>0);const d0=fromIso(w.ws);
-    h+='<details style="border-top:1px solid var(--line);padding:8px 0"><summary>Week of '+esc(w.ws)+' <span class="kc">'+(lgd.length?nf(lgd.reduce((a,b)=>a+b,0)/lgd.length)+' kcal a day':'not logged')+(w.wt?' · '+(+w.wt).toFixed(1)+' kg':'')+'</span></summary>'+
-      '<table style="width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px;font-variant-numeric:tabular-nums"><tr style="text-align:left;color:var(--muted)"><th>Day</th><th style="text-align:right">Eaten</th><th style="text-align:right">Planned</th></tr>'+
-      w.days.map((k,n)=>{const dd=addDays(d0,n);return '<tr style="border-top:1px solid var(--line)"><td style="padding:4px 0">'+DAY[dd.getDay()]+' '+dd.getDate()+' '+MON[dd.getMonth()]+'</td><td style="text-align:right">'+(k?nf(k):'–')+'</td><td style="text-align:right">'+nf(w.plan[n])+'</td></tr>';}).join("")+'</table>'+
-      (w.top&&w.top.length?'<p class="hint">Most calories from: '+w.top.map(t=>esc(t[0])+' ('+nf(t[1])+')').join(", ")+'.</p>':'')+'</details>';
-  });
+  if(!(S.hist||[]).length)h+='<p class="hint">Each Sunday the week that ended is saved here: its menu, what you ate each day, calories, protein and weight.</p>';
+  (S.hist||[]).forEach((w,n)=>{h+=pastWeekHtml(w,n);});
   h+='</section><p class="hint">Calories are estimates worked out from each recipe\'s ingredients and oil, so treat them as a guide. For a weight plan suited to you, check with a doctor or dietitian.</p>';
   return h;
 }
@@ -2228,6 +2249,7 @@ document.addEventListener("click",e=>{
   else if(a==="tg"){const k=b.dataset.key,wd=+b.dataset.wd;S[k]=S[k].includes(wd)?S[k].filter(x=>x!==wd):S[k].concat(wd);save();b.setAttribute("aria-pressed",String(S[k].includes(wd)));}
   else if(a==="shuf")twoTap(b,()=>{genWeek();save();render();});
   else if(a==="next"||a==="wkNext"){if(S.wk==="next")return;const had=!!S.other;createNext();shopV=[];cookV="";menuScrolled=true;save();render();$("main").scrollTop=0;if(!had)toast("Next week is ready to plan. Approve meals and shop ahead; it takes over on Sunday "+label(0)+".");}
+  else if(a==="reuseWk"){const n=+b.dataset.n;const had=!!S.other;twoTap(b,()=>{if(reuseWeek(n)){tab="week";shopV=[];cookV="";menuScrolled=true;save();render();$("main").scrollTop=0;toast("That menu is now next week's plan. Change anything and approve as usual.");}},had?"Tap again to replace next week's plan":"Tap again to confirm");}
   else if(a==="wkCur"){toCur();shopV=[];cookV="";menuScrolled=false;render();}
   else if(a==="wkDrop"){twoTap(b,()=>{toCur();S.other=null;S.wk="cur";save();render();toast("Next week's plan discarded.");},"Tap again to discard");}
   else if(a==="shufV"){regenVisit(b.dataset.id);save();render();}
