@@ -1095,15 +1095,16 @@ const MI={b:0,l:1,d:2}, MK=["b","l","d"], MEALLOW={b:"breakfast",l:"lunch",d:"di
 function visits(){
   const eve=S.cookTime!=="morn", tname=eve?"evening":"morning";
   const starts=[];
-  for(let i=0;i<7;i++)if(S.cookDays.includes(dateOf(i).getDay()))starts.push({i,at:i*3+(eve?2:0)});
+  const ND=S._tl?14:7,NS=ND*3;
+  for(let i=0;i<ND;i++)if(S.cookDays.includes(dateOf(i).getDay()))starts.push({i,at:i*3+(eve?2:0)});
   const slotsOf=(a,b)=>{const r=[];for(let x=a;x<b;x++)r.push([Math.floor(x/3),MK[x%3]]);return r;};
-  const out=[];const first=starts.length?starts[0].at:21;
+  const out=[];const first=starts.length?starts[0].at:NS;
   if(first>0){
     let lab="Whole week (no cook days set)",sh="this week";
     if(S.cookDays.length){for(let k=1;k<=7;k++){const d=addDays(fromIso(S.weekStart),-k);if(S.cookDays.includes(d.getDay())){lab=DAY[d.getDay()]+" "+d.getDate()+" "+MON[d.getMonth()]+" "+tname+" visit (week before)";sh=DAY[d.getDay()]+" "+(eve?"eve":"morn")+" before";break;}}}
     out.push({id:"pre",day:-1,label:lab,short:sh,slots:slotsOf(0,first)});
   }
-  starts.forEach((st,n)=>{const end=n+1<starts.length?starts[n+1].at:21;
+  starts.forEach((st,n)=>{const end=n+1<starts.length?starts[n+1].at:NS;
     out.push({id:"v"+st.i+(eve?"e":"m"),day:st.i,label:label(st.i)+" "+tname+" visit",short:DAY[dateOf(st.i).getDay()]+" "+(eve?"eve":"morn"),slots:slotsOf(st.at,end)});});
   return out;
 }
@@ -1146,6 +1147,15 @@ function weekSwitch(){
   return '<div class="chips" style="flex-wrap:nowrap;margin-bottom:2px"><button class="tog" data-act="wkCur" aria-pressed="'+(S.wk!=="next")+'">This week · '+esc(weekRange(cur.weekStart))+'</button>'+
     (nx?'<button class="tog" data-act="wkNext" aria-pressed="'+(S.wk==="next")+'">Next week · '+esc(weekRange(nx.weekStart))+'</button>':'<button class="tog" data-act="wkNext" aria-pressed="false">+ Plan next week</button>')+'</div>';
 }
+/* Cook and Shop see this week and next week as one timeline, so a Saturday visit can cover Sunday */
+function mergeTL(){
+  const N=S.other;const off=(o,sv)=>{const r={};for(const k in o){const p=k.split("|");p[0]=String(+p[0]+7);let v=o[k];if(sv&&typeof v==="string"){const q=v.split("|");q[0]=String(+q[0]+7);v=q.join("|");}r[p.join("|")]=v;}return r;};
+  S._orig={plan:S.plan,okm:S.okm,dn:S.dn,lo:S.lo,nosend:S.nosend};
+  S.plan=S.plan.concat(N.plan);S.okm=Object.assign({},S.okm,off(N.okm));S.dn=Object.assign({},S.dn,off(N.dn));S.lo=Object.assign({},S.lo,off(N.lo,true));S.nosend=Object.assign({},S.nosend,off(N.nosend));S._tl=true;
+}
+function splitTL(){const o=S._orig;S.plan=o.plan;S.okm=o.okm;S.dn=o.dn;S.lo=o.lo;S.nosend=o.nosend;delete S._orig;S._tl=false;}
+function withTL(fn){toCur();if(!S.other||S._tl)return fn();mergeTL();try{return fn();}finally{splitTL();}}
+function tlDict(name,k){const p=k.split("|");let W=S;if(+p[0]>=7&&S.other){W=S.other;p[0]=String(+p[0]-7);}W[name]=W[name]||{};return [W[name],p.join("|")];}
 function applyRepeats(){(S.rep||[]).forEach(r=>{if(!dish(r.id))return;for(let i=0;i<7;i++)if(!S.plan[i][r.m].includes(r.id))S.plan[i][r.m].push(r.id);});}
 function isRep(id,m){return (S.rep||[]).some(r=>r.id===id&&r.m===m);}
 function regenVisit(id){
@@ -1431,7 +1441,7 @@ function wa(text){return "https://wa.me/?text="+encodeURIComponent(text);}
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const $=id=>document.getElementById(id);
 function render(){
-  if((tab==="me"||tab==="settings")&&S.wk==="next")swapWeek();
+  if((tab==="me"||tab==="settings"||tab==="cook"||tab==="shop")&&S.wk==="next")swapWeek();
   $("weekLabel").textContent=(S.wk==="next"?"Next week, ":"Week of ")+label(0)+", for "+S.people+" people";
   document.querySelectorAll("nav button").forEach(b=>b.setAttribute("aria-current",String(b.dataset.tab===tab)));
   const m=$("main");const top=m.scrollTop;const de=$("set");if(de)setOpen=de.open;
@@ -1812,7 +1822,7 @@ function pickCookV(o){
   const t=todayIdx();const up=o.find(v=>v.day>=t);cookV=(up||o[0]).id;
 }
 function vCook(){
-  return weekSwitch()+vCook2();
+  return withTL(()=>(S.other?'<p class="hint" style="margin:0 0 4px">Showing this week and next week together, so a Saturday visit includes Sunday.</p>':'')+vCook2());
 }
 function vCook2(){
   const o=okVisits();
@@ -1820,7 +1830,7 @@ function vCook2(){
   pickCookV(o);const v=o.find(x=>x.id===cookV);
   const om=S.cookOpt.method!==false, oi=S.cookOpt.ing!==false;
   const span=x=>{const ds=[...new Set(okSlots(x).map(([j])=>DAY[dateOf(j).getDay()]))];return ds.join("–");};
-  let h='<p class="hint" style="margin:0">Grouped by the cook\'s visit. Each visit cooks the meals until the next one.</p><div class="chips">'+o.map(x=>'<button class="tog" data-act="cd" data-id="'+x.id+'" aria-pressed="'+(x.id===cookV)+'">'+esc(x.short)+' · '+esc(span(x))+'</button>').join("")+'</div>';
+  let h='<p class="hint" style="margin:0">Grouped by the cook\'s visit. Each visit cooks the meals until the next one.</p><div class="chips">'+o.map(x=>'<button class="tog" data-act="cd" data-id="'+x.id+'" aria-pressed="'+(x.id===cookV)+'">'+esc(x.short)+(x.day>=0?' '+dateOf(x.day).getDate():'')+' · '+esc(span(x))+'</button>').join("")+'</div>';
   h+='<section class="card"><h2>'+esc(v.label)+'</h2><p class="hint">Cooks: '+esc(covers({slots:okSlots(v)}))+'.</p><p class="hint">Tick what goes in the WhatsApp message. Amounts are for '+S.people+' people.</p>'+
      '<div class="chips"><button class="tog" data-act="cOpt" data-k="method" aria-pressed="'+om+'">Include method</button><button class="tog" data-act="cOpt" data-k="ing" aria-pressed="'+oi+'">Include ingredients</button></div>'+
      '<label class="field"><span>My instructions for this visit</span><textarea data-vn="'+v.id+'" rows="2" placeholder="e.g. Use less salt this week. Pack Tuesday lunch in a tiffin.">'+esc(S.vn[v.id]||"")+'</textarea></label></section>';
@@ -1853,7 +1863,7 @@ function itemRow(k,name,qty,sub){
    '<input type="text" data-qo="'+esc(k)+'" value="'+esc(S.qo[k]||"")+'" placeholder="'+esc(qty||(pant?"qty":""))+'" aria-label="Quantity for '+esc(name)+'" style="width:84px;padding:5px 7px;font-size:13px;text-align:right"></div>';
 }
 function vShop(){
-  return weekSwitch()+vShop2();
+  return withTL(()=>(S.other?'<p class="hint" style="margin:0 0 4px">Showing this week and next week together. Tap visits from both to club them into one trip.</p>':'')+vShop2());
 }
 function vShop2(){
   const o=okVisits();
@@ -1864,7 +1874,7 @@ function vShop2(){
   const sec=(cs)=>cs.map(([c,t])=>s[c].length?'<h3>'+t+'</h3>'+s[c].map(x=>itemRow(x.k,x.n,fmt(x.q,x.u),c==="F"&&(shopV.length!==1)?"for "+x.days.join(", "):"")).join(""):'').join("");
   const stock='<h3>Check stock at home</h3><p class="hint">Tick anything running low to add it.</p>'+s.P.map(n=>itemRow("P|"+n,n,"","")).join("");
   const btns=(what,fn)=>'<div class="row" style="margin-top:12px"><button class="btn" data-act="copy" data-what="'+what+'">Copy list</button><a class="btn ghost" target="_blank" rel="noopener" href="'+esc(wa(fn()))+'">Send on WhatsApp</a></div>';
-  let h='<div class="card"><h3 style="margin-top:0">Shop for which cook visits?</h3><div class="chips"><button class="tog" data-act="shopV" data-id="" aria-pressed="'+(!shopV.length)+'">All approved</button>'+o.map(v=>'<button class="tog" data-act="shopV" data-id="'+v.id+'" aria-pressed="'+shopV.includes(v.id)+'">'+esc(v.short)+' · '+esc([...new Set(okSlots(v).map(([j])=>DAY[dateOf(j).getDay()]))].join("–"))+'</button>').join("")+'</div>'+
+  let h='<div class="card"><h3 style="margin-top:0">Shop for which cook visits?</h3><div class="chips"><button class="tog" data-act="shopV" data-id="" aria-pressed="'+(!shopV.length)+'">All approved</button>'+o.map(v=>'<button class="tog" data-act="shopV" data-id="'+v.id+'" aria-pressed="'+shopV.includes(v.id)+'">'+esc(v.short)+(v.day>=0?' '+dateOf(v.day).getDate():'')+' · '+esc([...new Set(okSlots(v).map(([j])=>DAY[dateOf(j).getDay()]+" "+dateOf(j).getDate()))].join(", "))+'</button>').join("")+'</div>'+
    '<p class="hint">Tap two or three visits to club their shopping into one trip. Showing: <b>'+esc(weekTitle())+'</b>.</p>'+
    '<h3>List style</h3><div class="chips"><button class="tog" data-act="shopMode" data-k="split" aria-pressed="'+(!one)+'">Bazaar and online separately</button><button class="tog" data-act="shopMode" data-k="one" aria-pressed="'+one+'">One combined list</button></div></div>'+
    '<p class="hint">Ticked items go on the list and into the WhatsApp message. Untick anything you already have. Type your own quantity in the box on the right, for example 1 kg or 6 pcs.</p>';
@@ -2312,7 +2322,7 @@ document.addEventListener("click",e=>{
   else if(a==="addpick"&&sheetCtx){S.plan[sheetCtx.i][sheetCtx.m].push(b.dataset.id);save();closeSheet();render();}
   else if(a==="cd"){cookV=b.dataset.id;render();}
   else if(a==="cOpt"){const k=b.dataset.k;S.cookOpt[k]=S.cookOpt[k]===false;save();render();}
-  else if(a==="copy"){const w=b.dataset.what;copy(w==="menu"?menuText():w==="cookday"?cookText(visitById(cookV)||okVisits()[0]):w==="cookweek"?weekText():w==="bazaar"?bazaarText():w==="allshop"?allShopText():onlineText(),b);}
+  else if(a==="copy"){const w=b.dataset.what;withTL(()=>copy(w==="menu"?menuText():w==="cookday"?cookText(visitById(cookV)||okVisits()[0]):w==="cookweek"?weekText():w==="bazaar"?bazaarText():w==="allshop"?allShopText():onlineText(),b));}
   else if(a==="off"){const id=b.dataset.id;S.off=S.off.includes(id)?S.off.filter(x=>x!==id):S.off.concat(id);save();render();}
   else if(a==="view")viewSheet(b.dataset.id);
   else if(a==="new")editSheet(null);
@@ -2416,11 +2426,11 @@ document.addEventListener("change",e=>{
     else if(t.dataset.bu!=null)BLD.rows[+t.dataset.bu].u=t.value;
     else BLD.rows[+t.dataset.bk].kc=t.value;
     bRender();}
-  else if(t.dataset&&t.dataset.cs){const k=t.dataset.cs;if(t.checked)delete S.nosend[k];else S.nosend[k]=true;save();render();}
+  else if(t.dataset&&t.dataset.cs){const [D,k]=tlDict("nosend",t.dataset.cs);if(t.checked)delete D[k];else D[k]=true;save();render();}
   else if(t.dataset&&t.dataset.tk){const k=t.dataset.tk;if(k.startsWith("P|")){if(t.checked)S.ck[k]=true;else delete S.ck[k];}else{if(t.checked)delete S.skip[k];else S.skip[k]=true;}save();render();}
   else if(t.dataset&&t.dataset.qo){const v=t.value.trim();if(v)S.qo[t.dataset.qo]=v;else delete S.qo[t.dataset.qo];save();render();}
-  else if(t.dataset&&t.dataset.dq){const k=t.dataset.dq;const o=S.dn[k]||{};o.q=t.value.trim();S.dn[k]=o;save();render();}
-  else if(t.dataset&&t.dataset.dnn){const k=t.dataset.dnn;const o=S.dn[k]||{};o.n=t.value.trim();S.dn[k]=o;save();render();}
+  else if(t.dataset&&t.dataset.dq){const [D,k]=tab==="cook"?tlDict("dn",t.dataset.dq):[S.dn,t.dataset.dq];const o=D[k]||{};o.q=t.value.trim();D[k]=o;save();render();}
+  else if(t.dataset&&t.dataset.dnn){const [D,k]=tab==="cook"?tlDict("dn",t.dataset.dnn):[S.dn,t.dataset.dnn];const o=D[k]||{};o.n=t.value.trim();D[k]=o;save();render();}
   else if(t.dataset&&t.dataset.vn){S.vn[t.dataset.vn]=t.value.trim();save();render();}
   else if(t.id==="restore"&&t.files&&t.files[0]){t.files[0].text().then(tx=>{const o=JSON.parse(tx);if(!Array.isArray(o.plan)||o.plan.length!==7)throw 0;S=normalize(o);save();render();setOpen=true;}).catch(()=>{const m=$("bkMsg");if(m)m.textContent="That file is not a Rannaghar backup.";});}
   else if(t.id==="aiUrl"||t.id==="aiTok"){AI.url=$("aiUrl").value.trim();AI.token=$("aiTok").value.trim();saveAI();}
