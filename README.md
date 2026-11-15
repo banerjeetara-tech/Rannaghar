@@ -25,6 +25,10 @@ Every tab takes your own entries:
 - **Ideas**: **Add my own dish** saves your idea with your dishes and shows it at the top.
 - **Calories**: **Add my own** logs anything you ate.
 
+## Look and theme
+
+**Settings > Look and theme** changes the colour (Terracotta, Mustard, Leaf green, Indigo, Rose, Slate), light or dark mode, and text size. The choice is saved on that phone.
+
 ## Calories tab
 
 Every dish shows an estimated kcal per serving, worked out from its ingredients and oil. The Menu tab shows planned calories per meal and per day. In the **Calories** tab you log servings eaten each day, add extras, enter your weekly weight and an optional daily target, and see which dishes add the most calories with lighter swaps. **Plan next week** archives the week under Earlier weeks.

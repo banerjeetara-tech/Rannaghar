@@ -11,6 +11,32 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+/* Look and theme: applied before first paint. Saved per device. */
+var THEMES={
+ terracotta:{name:"Terracotta",l:{bg:"#f6ece0",card:"#fffaf2",ink:"#2b2118",muted:"#7a6a5a",line:"#e4d5c1",accent:"#b4532a","accent-ink":"#fff8f0",soft:"#f0e0cc"},d:{bg:"#1d1712",card:"#28201a",ink:"#f3e8da",muted:"#b3a290",line:"#3d3229",accent:"#e08a5c","accent-ink":"#22150d",soft:"#342a22"}},
+ mustard:{name:"Mustard",l:{bg:"#f8f1dc",card:"#fffbee",ink:"#2a2413",muted:"#766a48",line:"#e6dab2",accent:"#946200","accent-ink":"#fffaf0",soft:"#f1e6c2"},d:{bg:"#1b1810",card:"#262214",ink:"#f3ecd6",muted:"#b3a884",line:"#3b3521",accent:"#e2b23c","accent-ink":"#231a02",soft:"#322c1a"}},
+ leaf:{name:"Leaf green",l:{bg:"#eef4ec",card:"#fbfdf9",ink:"#1b2a1e",muted:"#5f7262",line:"#d3e0d0",accent:"#2e7d4f","accent-ink":"#ffffff",soft:"#dfeadb"},d:{bg:"#121a14",card:"#1a251d",ink:"#e3efe4",muted:"#94ab98",line:"#2b3a2e",accent:"#7fd09a","accent-ink":"#0c2414",soft:"#223026"}},
+ indigo:{name:"Indigo",l:{bg:"#eef0f8",card:"#fbfcff",ink:"#1b2038",muted:"#636a85",line:"#d5d9ea",accent:"#3f51b5","accent-ink":"#ffffff",soft:"#e1e5f5"},d:{bg:"#13151f",card:"#1c1f2e",ink:"#e6e9f7",muted:"#9aa1bd",line:"#2e3348",accent:"#93a4ff","accent-ink":"#10142e",soft:"#262a3e"}},
+ rose:{name:"Rose",l:{bg:"#f9eef0",card:"#fffafb",ink:"#2e1a20",muted:"#80626a",line:"#ecd3d9",accent:"#b83a5e","accent-ink":"#ffffff",soft:"#f3dde2"},d:{bg:"#1d1316",card:"#291b20",ink:"#f6e4e8",muted:"#b9979f",line:"#3f2a31",accent:"#f08aa6","accent-ink":"#2c0c16",soft:"#35232a"}},
+ slate:{name:"Slate",l:{bg:"#f1f2f4",card:"#ffffff",ink:"#1e2227",muted:"#666d77",line:"#dcdfe4",accent:"#37474f","accent-ink":"#ffffff",soft:"#e6e8ec"},d:{bg:"#14171a",card:"#1e2226",ink:"#e8ebee",muted:"#9aa3ad",line:"#30363c",accent:"#9fb4c0","accent-ink":"#121a1f",soft:"#282d32"}}
+};
+var UI={pal:"terracotta",mode:"auto",size:"1"};
+try{var _u=JSON.parse(localStorage.getItem("rannaghar.ui")||"null");if(_u)for(var _k in UI)if(_u[_k])UI[_k]=String(_u[_k]);}catch(e){}
+function isDark(){return UI.mode==="dark"||(UI.mode!=="light"&&window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches);}
+function applyUI(){
+  var T=THEMES[UI.pal]||THEMES.terracotta,dk=isDark(),c=dk?T.d:T.l,r=document.documentElement,st=r.style;
+  for(var k in c)st.setProperty("--"+k,c[k]);
+  var x=dk?{veg:"#8fcf9d","veg-bg":"#22362a",cn:"#e6c27a","cn-bg":"#3a2f18"}:{veg:"#3f7d4e","veg-bg":"#e2efdf",cn:"#8a5a12","cn-bg":"#f6e6c4"};
+  for(var j in x)st.setProperty("--"+j,x[j]);
+  st.setProperty("color-scheme",dk?"dark":"light");st.setProperty("--zoom",UI.size);
+  if(UI.mode==="auto")r.removeAttribute("data-theme");else r.setAttribute("data-theme",UI.mode);
+  var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute("content",c.accent);
+}
+function saveUI(){try{localStorage.setItem("rannaghar.ui",JSON.stringify(UI));}catch(e){}applyUI();}
+applyUI();
+if(window.matchMedia)try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",applyUI);}catch(e){}
+</script>
 <style>
 /* Layout idea: phone app shell. Fixed header, scrolling day cards, bottom tab bar. */
 :root{
@@ -41,20 +67,27 @@ button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .app{height:100%;display:flex;flex-direction:column;max-width:640px;margin:0 auto}
-header{padding:14px 16px 10px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line)}
-h1{font-family:var(--display);font-weight:600;font-size:24px;margin:0;line-height:1.1;text-wrap:balance}
-.sub{color:var(--muted);font-size:13px;margin-top:2px}
-.sync{color:var(--muted);font-size:11px;text-align:right;white-space:nowrap}
+header{padding:16px 18px 14px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px;background:var(--accent);color:var(--accent-ink);border-radius:0 0 20px 20px;box-shadow:0 4px 14px rgba(0,0,0,.12);position:relative;z-index:1}
+h1{font-family:var(--display);font-weight:600;font-size:25px;margin:0;line-height:1.1;text-wrap:balance}
+.sub{font-size:13px;margin-top:3px;opacity:.88}
+.sync{font-size:11px;text-align:right;white-space:nowrap;opacity:.8}
 main>*{flex-shrink:0}
-main{flex:1;overflow-y:auto;padding:14px 16px 24px;display:flex;flex-direction:column;gap:12px}
-nav{display:flex;border-top:1px solid var(--line);background:var(--card)}
-nav button{flex:1;background:none;border:0;padding:11px 0 12px;font-weight:600;font-size:11.5px;color:var(--muted);border-top:3px solid transparent}
-nav button[aria-current="true"]{color:var(--accent);border-top-color:var(--accent)}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+main{flex:1;overflow-y:auto;padding:16px 16px 24px;display:flex;flex-direction:column;gap:12px;zoom:var(--zoom,1)}
+nav{display:flex;border-top:1px solid var(--line);background:var(--card);padding:5px 4px calc(5px + env(safe-area-inset-bottom));box-shadow:0 -3px 12px rgba(0,0,0,.05)}
+nav button{flex:1;min-width:0;background:none;border:0;padding:3px 0 2px;font-weight:600;font-size:10.5px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:1px}
+nav button svg{width:21px;height:21px;padding:4px 13px;box-sizing:content-box;border-radius:99px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav button[aria-current="true"]{color:var(--accent);font-weight:700}
+nav button[aria-current="true"] svg{background:var(--soft)}
+@media (max-width:380px){nav button svg{padding:4px 9px}nav button{font-size:10px}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px 15px;box-shadow:0 1px 2px rgba(0,0,0,.03),0 6px 16px rgba(0,0,0,.04)}
+.swatch{display:flex;align-items:center;gap:7px;background:none;border:1.5px solid var(--line);border-radius:99px;padding:5px 12px 5px 6px;font-size:13px;color:var(--ink)}
+.swatch i{width:20px;height:20px;border-radius:50%;border:2px solid rgba(128,128,128,.25)}
+.swatch[aria-pressed="true"]{border-color:var(--accent);font-weight:700;background:var(--soft)}
 .card.today{border-color:var(--accent)}
 .card.ok{border-color:var(--veg);border-width:2px}
 .status{border-radius:10px;padding:9px 11px;margin-top:10px;font-size:13.5px;background:var(--soft)}
 .status.err{background:#f9dcd2;color:#7a2410}
+.card.today{box-shadow:0 0 0 1px var(--accent),0 6px 16px rgba(0,0,0,.05)}
 .mealhead{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .kc{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
 .bar{height:10px;border-radius:6px;background:var(--soft);overflow:hidden;flex:1}
@@ -72,9 +105,9 @@ h3{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute
 .pill.cn{background:var(--cn-bg);color:var(--cn)}
 .pill.tag{background:var(--soft);color:var(--muted)}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-size:14px;text-align:left}
+.chip{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:6px 10px;font-size:14px;text-align:left}
 .chip.add{background:none;border-style:dashed;color:var(--muted);padding:6px 11px}
-.btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:10px;padding:9px 14px;font-weight:700;font-size:14px;text-decoration:none;display:inline-block}
+.btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:12px;padding:9px 14px;font-weight:700;font-size:14px;text-decoration:none;display:inline-block}
 .btn.ghost{background:none;color:var(--accent);border:1px solid var(--accent)}
 .btn.small{padding:5px 10px;font-size:12px}
 .btn.plain{background:var(--soft);color:var(--ink);border:1px solid var(--line)}
@@ -109,7 +142,7 @@ input[type=text],input[type=date],input[type=number],input[type=search],select,t
 #toast{position:fixed;left:16px;right:16px;bottom:70px;z-index:20;background:var(--ink);color:var(--bg);border-radius:12px;padding:11px 14px;font-size:14px;max-width:608px;margin:0 auto}
 #toast[hidden]{display:none}
 .sheet-bg{position:absolute;inset:0;background:rgba(20,12,6,.5)}
-.sheet-body{position:relative;background:var(--card);border-radius:18px 18px 0 0;padding:16px 16px 22px;max-height:86%;overflow-y:auto;max-width:640px;width:100%;margin:0 auto}
+.sheet-body{zoom:var(--zoom,1);position:relative;background:var(--card);border-radius:22px 22px 0 0;box-shadow:0 -8px 30px rgba(0,0,0,.18);padding:16px 16px 22px;max-height:86%;overflow-y:auto;max-width:640px;width:100%;margin:0 auto}
 .pick{display:block;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:10px 0}
 .ing{display:grid;grid-template-columns:1fr 62px 74px 88px;gap:5px;margin-top:5px}
 .ing input,.ing select{padding:7px 6px;font-size:13px}
@@ -125,13 +158,13 @@ input[type=text],input[type=date],input[type=number],input[type=search],select,t
   </header>
   <main id="main"></main>
   <nav>
-    <button data-tab="week">Menu</button>
-    <button data-tab="cook">Cook</button>
-    <button data-tab="shop">Shop</button>
-    <button data-tab="ideas">Ideas</button>
-    <button data-tab="dishes">Dishes</button>
-    <button data-tab="me">Calories</button>
-    <button data-tab="settings">Settings</button>
+    <button data-tab="week"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Menu</button>
+    <button data-tab="cook"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11h16v5a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4zM2 11h20M9 7c0-1.5 1.5-1.5 1.5-3M14 7c0-1.5 1.5-1.5 1.5-3"/></svg>Cook</button>
+    <button data-tab="shop"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h18l-2 11H5zM8 9l4-6 4 6"/></svg>Shop</button>
+    <button data-tab="ideas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z"/></svg>Ideas</button>
+    <button data-tab="dishes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg>Dishes</button>
+    <button data-tab="me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c1 3 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z"/></svg>Calories</button>
+    <button data-tab="settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h8M16 6h4M4 12h2M10 12h10M4 18h10M18 18h2"/><circle cx="14" cy="6" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="16" cy="18" r="2"/></svg>Settings</button>
   </nav>
 </div>
 <div id="toast" role="status" hidden></div>
@@ -1798,8 +1831,16 @@ function vMe(){
   h+='</section><p class="hint">Calories are estimates worked out from each recipe\'s ingredients and oil, so treat them as a guide. For a weight plan suited to you, check with a doctor or dietitian.</p>';
   return h;
 }
+function lookCard(){
+  const dk=isDark();
+  return '<section class="card"><h2>Look and theme</h2>'+
+   '<div class="field"><span>Colour</span><div class="chips">'+Object.keys(THEMES).map(k=>'<button class="swatch" data-act="uiPal" data-k="'+k+'" aria-pressed="'+(UI.pal===k)+'"><i style="background:'+THEMES[k][dk?"d":"l"].accent+'"></i>'+THEMES[k].name+'</button>').join("")+'</div></div>'+
+   '<div class="field"><span>Light or dark</span><div class="chips">'+[["auto","Same as phone"],["light","Light"],["dark","Dark"]].map(([k,t])=>'<button class="tog" data-act="uiMode" data-k="'+k+'" aria-pressed="'+(UI.mode===k)+'">'+t+'</button>').join("")+'</div></div>'+
+   '<div class="field"><span>Text size</span><div class="chips">'+[["1","Normal"],["1.1","Large"],["1.2","Extra large"]].map(([k,t])=>'<button class="tog" data-act="uiSize" data-k="'+k+'" aria-pressed="'+(UI.size===k)+'">'+t+'</button>').join("")+'</div></div>'+
+   '<p class="hint">Saved on this phone only.</p></section>';
+}
 function vSettings(){
-  return '<section class="card"><h2>Claude API for new dish ideas</h2>'+
+  return lookCard()+'<section class="card"><h2>Claude API for new dish ideas</h2>'+
    '<p class="hint">Used only when you tap Ideas through web on the Dishes tab. Paste your Cloudflare Worker link and the passcode (APP_TOKEN) you set on it.</p>'+
    '<label class="field"><span>Worker link</span><input type="text" id="aiUrl" inputmode="url" autocapitalize="off" spellcheck="false" placeholder="https://rannaghar.yourname.workers.dev" value="'+esc(AI.url)+'"></label>'+
    '<label class="field"><span>Passcode</span><input type="text" id="aiTok" autocomplete="off" autocapitalize="off" spellcheck="false" value="'+esc(AI.token)+'"></label>'+
@@ -2303,6 +2344,7 @@ document.addEventListener("click",e=>{
   const b=e.target.closest("[data-act]");if(!b)return;
   const a=b.dataset.act,i=+b.dataset.i;
   if(a==="close")closeSheet();
+  else if(a==="uiPal"||a==="uiMode"||a==="uiSize"){UI[a==="uiPal"?"pal":a==="uiMode"?"mode":"size"]=b.dataset.k;saveUI();render();}
   else if(a==="ppl"){S.people=Math.min(10,Math.max(1,S.people+(+b.dataset.n)));save();render();}
   else if(a==="tg"){const k=b.dataset.key,wd=+b.dataset.wd;S[k]=S[k].includes(wd)?S[k].filter(x=>x!==wd):S[k].concat(wd);save();b.setAttribute("aria-pressed",String(S[k].includes(wd)));}
   else if(a==="shuf")twoTap(b,()=>{const kv=S.vn,kc=S.cx;genWeek();S.vn=kv;S.cx=kc||{};save();render();});
