@@ -2,7 +2,7 @@
 
 Weekly family meal planner: a day-wise menu (breakfast, lunch, dinner), cooking instructions for the cook, and separate bazaar and online shopping lists you can send on WhatsApp.
 
-Single HTML file with about 2,180 built-in dishes and 32 ready-made menu lists (Bengali, home-style Chinese, breakfasts, veg). Your menu and own dishes are saved in Chrome on your phone. Use **Settings > Save backup file** now and then.
+Single HTML file with about 2,500 built-in dishes and 32 ready-made menu lists (Bengali, home-style Chinese, breakfasts, veg). Your menu and own dishes are saved in Chrome on your phone. Use **Settings > Save backup file** now and then.
 
 Open the app in Chrome and choose **Add to Home screen**.
 
@@ -12,7 +12,18 @@ The menu is grouped by **cook visit**. Set the days the cook comes in Settings (
 
 1. **Menu**: each card is one cook visit. Tap a dish to swap it, or **Ideas** on a meal for veg and non-veg suggestions. Tap **Approve this visit** when it looks right.
 2. **Shop** and **Cook** show only approved visits, and update when you change a dish. Shop can show one visit at a time.
-3. **Ideas with Claude** suggests new dishes by meal and by veg and non-veg. It costs about 10 paise a time; web search (about ₹3) is off unless you switch it on in Settings.
+3. On **Cook**, tap two or three visits to club their instructions into one WhatsApp message, the same way Shop clubs visits into one trip.
+4. **Ideas with Claude** suggests new dishes by meal and by veg and non-veg. It costs about 10 paise a time; web search (about ₹3) is off unless you switch it on in Settings.
+
+## Adding your own
+
+Every tab takes your own entries:
+
+- **Menu**: tap **+ add** on a meal, then **Add my own item** (or build it from ingredients).
+- **Cook**: under each visit, **My own items for this visit** adds anything outside the menu for the cook, with a tick to include it in the message.
+- **Shop**: **Add my own item** puts anything on the bazaar or online list. It stays until you remove it.
+- **Ideas**: **Add my own dish** saves your idea with your dishes and shows it at the top.
+- **Calories**: **Add my own** logs anything you ate.
 
 ## Calories tab
 
