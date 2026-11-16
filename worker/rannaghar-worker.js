@@ -1,4 +1,4 @@
-// Rannaghar ideas worker (Cloudflare Workers), version 7
+// Rannaghar ideas worker (Cloudflare Workers), version 8
 // Holds your Anthropic API key so it never sits in the app or on GitHub.
 //
 // Secrets to set in Cloudflare (Settings > Variables and Secrets):
@@ -7,7 +7,7 @@
 // Optional plain variable:
 //   ALLOWED_ORIGIN     defaults to https://banerjeetara-tech.github.io
 
-const VERSION = 7;
+const VERSION = 8;
 const MODEL = "claude-haiku-5-5";
 // USD per million tokens for prompts under 100k tokens. Edit if Anthropic changes prices.
 const PRICE_IN = 0.10;
@@ -75,6 +75,44 @@ export default {
     let input;
     try { input = await request.json(); } catch { return reply(env, 400, { error: "Bad request" }); }
     if (input.ping) return reply(env, 200, { ok: true, version: VERSION, model: MODEL });
+
+    // Free-text question: "make a low calorie plan for this week", "what can I cook with paneer", anything.
+    if (input.ask) {
+      const ask = String(input.ask).slice(0, 1500);
+      const context = String(input.context || "").slice(0, 4000);
+      const askPrompt =
+        `You are the kitchen helper inside Rannaghar, a weekly meal planner used by a Bengali family in Kolkata. ` +
+        `Answer the family's request. Home-style Bengali and Indian food first, little oil, no deep frying, unless they ask otherwise.\n` +
+        (context ? `What you know about them:\n${context}\n` : "") +
+        `Their request: ${ask}\n\n` +
+        `Reply in exactly this shape.\n` +
+        `<answer>Plain friendly text, at most 150 words, no markdown, no tables. Say what you prepared or answer the question.</answer>\n` +
+        `If the request needs dishes, a menu or a diet plan, add after it: <dishes>JSON array</dishes> and nothing else inside the tags. Each element: ` +
+        `{"name":string, "day":number 1 to 7 (only for a plan across days; 1 is the first day of their week), "meal":"breakfast"|"lunch"|"dinner", ` +
+        `"type":one of ${TYPES.join("|")}, "veg":boolean, "k":kcal per serving (number), "pr":protein grams per serving (number), ` +
+        `"ing":[{"n":ingredient name, "q":number for 4 people (0 for spices), "u":"g"|"ml"|"pc"|"bunch"|"pack", ` +
+        `"c":"F" fish or meat|"E" eggs|"V" vegetables and fruit|"G" grocery|"P" spices and pantry}], "note":one short sentence for the cook}. ` +
+        `At most 5 main ingredients per dish. For a week plan cover every day 1 to 7 with breakfast, lunch and dinner ` +
+        `(leave out breakfast only for a fasting plan), each as one complete plate; the same dish may be used on two days. ` +
+        `If no dishes are needed, leave out the <dishes> block.`;
+      const ar = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
+        body: JSON.stringify({ model: MODEL, max_tokens: 9000, messages: [{ role: "user", content: askPrompt }] }),
+      });
+      const ad = await ar.json().catch(() => ({}));
+      if (!ar.ok) return reply(env, 502, { error: "Claude API: " + ((ad.error && ad.error.message) || "error " + ar.status) });
+      const atext = (ad.content || []).filter(b => b.type === "text").map(b => b.text).join("\n");
+      const am = atext.match(/<answer>([\s\S]*?)(<\/answer>|<dishes>|$)/i);
+      const hasDishes = /<dishes>/i.test(atext);
+      const answer = (am ? am[1] : atext.replace(/<dishes>[\s\S]*$/i, "")).trim().slice(0, 3000);
+      const au = ad.usage || {};
+      return reply(env, 200, {
+        answer, dishes: hasDishes ? findDishes(atext.slice(atext.search(/<dishes>/i))) : [], version: VERSION,
+        usd: ((au.input_tokens || 0) * PRICE_IN + (au.output_tokens || 0) * PRICE_OUT) / 1e6,
+        tin: au.input_tokens || 0, tout: au.output_tokens || 0, stop: ad.stop_reason,
+      });
+    }
 
     const have = (Array.isArray(input.have) ? input.have : []).slice(0, 600).map(s => String(s).slice(0, 60));
     // A diet plan (low calorie, keto, fasting and so on) replaces the usual free-text wish.

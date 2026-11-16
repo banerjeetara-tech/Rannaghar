@@ -1841,13 +1841,14 @@ function lookCard(){
 }
 function vSettings(){
   return lookCard()+'<section class="card"><h2>Claude API for new dish ideas</h2>'+
-   '<p class="hint">Used only when you tap Ideas through web on the Dishes tab. Paste your Cloudflare Worker link and the passcode (APP_TOKEN) you set on it.</p>'+
+   '<p class="hint">Used when you ask Claude on the Ideas tab. Paste your Cloudflare Worker link and the passcode (APP_TOKEN) you set on it.</p>'+
    '<label class="field"><span>Worker link</span><input type="text" id="aiUrl" inputmode="url" autocapitalize="off" spellcheck="false" placeholder="https://rannaghar.yourname.workers.dev" value="'+esc(AI.url)+'"></label>'+
    '<label class="field"><span>Passcode</span><input type="text" id="aiTok" autocomplete="off" autocapitalize="off" spellcheck="false" value="'+esc(AI.token)+'"></label>'+
    '<div class="row" style="margin-top:10px"><button class="btn" data-act="aiSave">Save connection</button>'+(aiReady()?'<button class="btn ghost" data-act="aiTest">Test connection</button><button class="btn plain" data-act="aiClear">Disconnect</button>':'')+'</div><div class="status" id="testMsg" hidden></div>'+
    '<div class="field"><span>Web search for Claude ideas</span><div class="chips"><button class="tog" data-act="aiWeb" aria-pressed="'+(!!AI.web)+'">'+(AI.web?'On, about ₹3 each time':'Off, about 10 paise each time')+'</button></div></div>'+
    '<p class="hint">With web search off, Claude suggests dishes from what it already knows, which is much cheaper.</p>'+
-   '<p class="hint" id="aiState">'+(aiReady()?'Connected.':'Not connected yet.')+'</p></section>'+
+   '<p class="hint" id="aiState">'+(aiReady()?'Connected.':'Not connected yet.')+'</p>'+
+   '<div class="row"><button class="btn plain small" data-act="wkCode">Copy the latest Worker code</button></div><p class="hint">To update the Worker: copy the code, open your Worker in Cloudflare, Edit code, replace everything, Deploy. Then tap Test connection.</p></section>'+
    usageCard()+
    '<section class="card"><h2>Cook visits</h2>'+
    '<div class="field"><span>Cook comes on</span><div class="chips">'+dayToggles("cookDays")+'</div></div>'+
@@ -1980,7 +1981,7 @@ function listCard(L){
 function vIdeas(){
   const A=activeList();
   if(!freeG)freePick();
-  let h=ideasCard()+dietCard()+'<h2 style="margin-top:8px">Menu lists</h2><p class="hint">A list is a set of dishes. Choose one to follow and the next Shuffle and Plan next week pick only from it. Rice, ruti, and any kind of dish the list does not have still come from all dishes.</p>'+
+  let h=askCard()+ideasCard()+dietCard()+'<h2 style="margin-top:8px">Menu lists</h2><p class="hint">A list is a set of dishes. Choose one to follow and the next Shuffle and Plan next week pick only from it. Rice, ruti, and any kind of dish the list does not have still come from all dishes.</p>'+
    '<div class="card"><h3 style="margin-top:0">Next week follows</h3><b>'+(A?esc(A.name):'All dishes (no list)')+'</b></div>';
   h+='<h2>My lists</h2><div class="row"><button class="btn" data-act="listNew">Create a new list</button></div>';
   (S.lists||[]).forEach(L=>{h+=listCard(L);});
@@ -2170,6 +2171,65 @@ const own=ideaOwn.filter(id=>{const d=dish(id);return d&&d.veg===(k==="v")&&meal
    '<label class="field"><span>For Claude, anything in mind? (optional)</span><input type="text" id="wish" placeholder="e.g. prawn dishes, quick, uses shim" value="'+esc(lastWish)+'"></label>'+
    '<p class="hint">Ideas from your saved dishes are free. Claude finds new ones, '+(AI.web?'about ₹3 each time with web search on':'about 10 paise each time')+'. Put on menu works for any meal: you can put a breakfast dish at dinner.</p></section>';
 }
+/* ---------- Ask Claude anything ---------- */
+let askQ="", askBusy=false, askRes=null;
+const ASKEX=["Make a low calorie diet plan for this week","Suggest a light dinner for tonight","What can I cook with paneer and spinach?","Plan a high protein vegetarian week"];
+function askContext(){
+  const menu=S.plan.map((d,i)=>label(i)+": "+MK.map(m=>MEALNAME[m][0]+" "+(d[m].map(id=>(dish(id)||{}).name).filter(Boolean).join(", ")||"-")).join("; ")).join("\n");
+  const t=new Date();
+  return ["People eating: "+S.people+".",+S.target?"Daily calorie target per person: "+S.target+" kcal.":"",+S.wt?"Weight "+S.wt+" kg"+(+S.twt?", goal "+S.twt+" kg.":"."):"",
+    S.vegDays.length?"Fully vegetarian days: "+S.vegDays.map(w=>DAY[w]).join(", ")+".":"",
+    "Today is "+DAY[t.getDay()]+" "+t.getDate()+" "+MON[t.getMonth()]+". Their week runs "+label(0)+" (day 1) to "+label(6)+" (day 7).",
+    "Menu for that week now:\n"+menu.slice(0,2200),
+    askRes&&askRes.q?"Earlier request: "+askRes.q.slice(0,200)+"\nYour earlier answer: "+String(askRes.answer||"").slice(0,400):""].filter(Boolean).join("\n");
+}
+function askCard(){
+  const R=askRes;
+  let h='<section class="card today"><h2>Ask Claude anything</h2><p class="hint">Type what you want in your own words: a diet plan, a menu for guests, what to cook with what you have, or any food question.</p>'+
+   '<label class="field" style="margin-top:6px"><span>Your request</span><textarea id="askQ" rows="3" maxlength="1200" placeholder="e.g. Make a low calorie diet plan for this week">'+esc(askQ)+'</textarea></label>'+
+   '<div class="chips" style="margin-top:8px">'+ASKEX.map((t,n)=>'<button class="tog" data-act="askEx" data-n="'+n+'">'+esc(t)+'</button>').join("")+'</div>'+
+   '<div class="row" style="margin-top:10px"><button class="btn" data-act="askGo"'+(askBusy?' disabled':'')+'>'+(askBusy?'Claude is thinking…':'Ask Claude')+'</button>'+(R?'<button class="btn plain small" data-act="askClr">Clear answer</button>':'')+'</div>';
+  if(askBusy)h+='<div class="status">Asking Claude. A full week plan can take up to a minute. Keep this tab open.</div>';
+  else if(R&&R.error)h+='<div class="status err">'+esc(R.error)+'</div>';
+  else if(R){
+    h+='<div class="status" style="white-space:pre-wrap"><b>Claude:</b> '+esc(R.answer||"Done.")+'</div>';
+    if(R.plan)h+='<div class="row" style="margin-top:10px"><button class="btn" data-act="dietShow">See the week plan and use it</button></div>';
+    else if(R.ids.length)h+='<h3>Dishes from Claude</h3>'+R.ids.map(id=>ideaRow(id,mealsOf(dish(id))[0])).join("");
+    h+='<p class="hint">'+(R.usd?'Cost about ₹'+(R.usd*INR).toFixed(2)+'. ':'')+(R.ids.length?'The dishes are saved to your Dishes. ':'')+'General food ideas, not medical advice.</p>';
+  }
+  return h+'</section>';
+}
+async function askFree(){
+  if(askBusy)return;const q=askQ.trim();
+  if(!q){toast("Type your request first.");return;}
+  if(!aiReady()){askRes={error:"Claude is not connected. Open the Settings tab, paste your Worker link and passcode, and tap Save connection."};render();return;}
+  const context=askContext();askBusy=true;render();
+  const done=o=>{askBusy=false;askRes=Object.assign({q,ids:[]},o);render();};
+  let r,j;
+  try{r=await fetch(AI.url.replace(/\/+$/,""),{method:"POST",headers:{"Content-Type":"application/json","x-rannaghar-token":AI.token},body:JSON.stringify({ask:q,context})});}
+  catch(e){return done({error:"Could not reach your Worker. Check the Worker link in the Settings tab, and that you are online."});}
+  j=await r.json().catch(()=>({}));
+  if(r.status===401)return done({error:"The passcode in Settings does not match APP_TOKEN on your Worker."});
+  if(!r.ok)return done({error:(j.error||"The Worker answered with error "+r.status)+"."});
+  if(!(j.version>=8)||typeof j.answer!=="string")return done({error:"Your Worker is an older version and cannot take free-text questions yet. Update it with the new worker/rannaghar-worker.js from GitHub (paste it into Cloudflare and deploy), then ask again."});
+  if(j.usd){const k=monthKey();AI.spend[k]=(AI.spend[k]||0)+j.usd;}
+  const list=(Array.isArray(j.dishes)?j.dishes:[]).filter(o=>o&&typeof o.name==="string"&&o.name.trim());
+  const ML={breakfast:"b",lunch:"l",dinner:"d"};
+  const got=[];list.forEach(o=>{const m=ML[String(o.meal||"").toLowerCase()]||"";const id=addIdeas([o],m,true)[0];if(id)got.push({id,m:m||mealsOf(dish(id))[0],day:Math.round(+o.day)});});
+  const ids=[...new Set(got.map(x=>x.id))];
+  AI.log=(AI.log||[]);AI.log.unshift({t:Date.now(),what:"Ask: "+q.slice(0,60),usd:j.usd||0,tin:j.tin||0,tout:j.tout||0,s:0,n:ids.length});AI.log=AI.log.slice(0,200);saveAI();
+  const withDay=got.filter(x=>x.day>=1&&x.day<=7);const dset=[...new Set(withDay.map(x=>x.day))].sort((a,b)=>a-b);
+  let plan=false;
+  if(dset.length>=3){
+    const mk=n=>{const o={b:[],l:[],d:[]};withDay.filter(x=>x.day===n).forEach(x=>{if(!o[x.m].includes(x.id))o[x.m].push(x.id);});return o;};
+    const days=[1,2,3,4,5,6,7].map((n,i)=>mk(dset.includes(n)?n:dset[i%dset.length]));
+    dietPlan={sel:"",name:"Claude's plan",T:+S.target||0,days,tip:dset.length<7?"Claude planned "+dset.length+" days, so they are repeated to fill the week.":""};plan=true;
+    const now=new Date();const name="Claude's plan, "+now.getDate()+" "+MON[now.getMonth()];
+    S.lists=(S.lists||[]).filter(L=>L.name!==name).concat({id:"L"+Date.now().toString(36),name,ids});
+  }
+  if(ids.length)save();
+  done({answer:j.answer+(j.stop==="max_tokens"?"\n(The answer was cut short. Ask for something a little smaller.)":""),ids,plan,usd:j.usd||0});
+}
 /* ---------- Diet plan from Claude ---------- */
 const DIETS={
   low:{name:"Low calorie",tip:"Small portions of rice or ruti, more protein and vegetables. Drink water before meals.",
@@ -2219,11 +2279,11 @@ async function dietAsk(){
   render();dietSheet();
 }
 function dietSheet(){
-  const P=dietPlan;if(!P)return;const D=DIETS[P.sel];
+  const P=dietPlan;if(!P)return;const D=DIETS[P.sel]||{tip:P.tip||""};
   const dayK=d=>MK.reduce((a,m)=>a+d[m].reduce((b,id)=>b+kcal(dish(id)),0),0), dayP=d=>MK.reduce((a,m)=>a+d[m].reduce((b,id)=>b+prot(dish(id)),0),0);
   const avg=Math.round(P.days.reduce((a,d)=>a+dayK(d),0)/7);
   const cur=S.wk==="next"&&S.other?S.other.weekStart:S.weekStart;
-  openSheet('<h2>'+esc(P.name)+' week</h2><p class="hint">About '+nf(avg)+' kcal a day per person (you asked for '+nf(P.T)+'). '+esc(D.tip)+'</p>'+
+  openSheet('<h2>'+esc(P.name)+(P.sel?' week':'')+'</h2><p class="hint">About '+nf(avg)+' kcal a day per person'+(P.T?' ('+(P.sel?'you asked for ':'your target is ')+nf(P.T)+')':'')+'. '+esc(D.tip)+'</p>'+
    '<div class="row" style="margin:10px 0"><button class="btn" data-act="dietUse" data-k="cur">Use for this week</button><button class="btn ghost" data-act="dietUse" data-k="next">Use for next week</button><button class="btn plain" data-act="close">Close</button></div>'+
    P.days.map((d,i)=>{const dd=addDays(fromIso(cur),i);
      return '<div class="dish"><div class="row between"><b>'+DAY[dd.getDay()]+'</b><span class="kc">'+nf(dayK(d))+' kcal · '+dayP(d)+' g protein</span></div>'+
@@ -2312,6 +2372,7 @@ function findDishes(text){
   }
   return [];
 }
+let IDSEQ=0;
 function addIdeas(out,forceMeal,keepK){
   const ids=[];
   (Array.isArray(out)?out:[]).forEach((o,n)=>{
@@ -2322,7 +2383,7 @@ function addIdeas(out,forceMeal,keepK){
     if(old){ids.push(old.id);return;}
     const ing=normIng(o.ing||o.ingredients);
     const mm=forceMeal||{breakfast:"b",lunch:"l",dinner:"d"}[String(o.meal||"").toLowerCase()]||"";
-    const d={id:"u"+Date.now().toString(36)+n,name:o.name.trim().slice(0,60),type:o.type,veg:!!o.veg,ing,note:String(o.note||o.instructions||o.tip||"").slice(0,300),mine:true,ai:true};
+    const d={id:"u"+Date.now().toString(36)+"x"+(IDSEQ++),name:o.name.trim().slice(0,60),type:o.type,veg:!!o.veg,ing,note:String(o.note||o.instructions||o.tip||"").slice(0,300),mine:true,ai:true};
     if(mm)d.meal=mm;if(o.type==="bf"&&!forceMeal)d.meal="b";
     if(keepK){const k=+(o.k||o.kcal||o.calories),pr=+(o.pr||o.protein);if(k>30&&k<1500)d.k=Math.round(k);if(pr>0&&pr<150)d.pr=Math.round(pr);d.diet=true;}
     S.mine.push(d);ids.push(d.id);
@@ -2414,6 +2475,9 @@ document.addEventListener("click",e=>{
   const b=e.target.closest("[data-act]");if(!b)return;
   const a=b.dataset.act,i=+b.dataset.i;
   if(a==="close")closeSheet();
+  else if(a==="askGo"){const el=$("askQ");if(el)askQ=el.value;askFree();}
+  else if(a==="askEx"){askQ=ASKEX[+b.dataset.n];render();const el=$("askQ");if(el)el.focus();}
+  else if(a==="askClr"){askRes=null;askQ="";render();}
   else if(a==="dietSel"){dietSel=b.dataset.k;render();}
   else if(a==="dietVeg"){dietVeg=!dietVeg;render();}
   else if(a==="dietAsk"){const w=$("dietWish"),k=$("dietK");if(w)dietWish=w.value.trim();if(k)dietK=+k.value||0;dietAsk();}
@@ -2556,13 +2620,15 @@ document.addEventListener("click",e=>{
     S.lists=S.lists||[];const at=S.lists.findIndex(x=>x.id===L.id);if(at>=0)S.lists[at]=L;else S.lists.push(L);
     save();listDraft=null;closeSheet();render();}
   else if(a==="listDel"&&listDraft){const id=listDraft.id;S.lists=S.lists.filter(x=>x.id!==id);if(S.activeList===id)S.activeList="";save();listDraft=null;closeSheet();render();}
+  else if(a==="wkCode"){b.textContent="Fetching…";fetch("https://raw.githubusercontent.com/banerjeetara-tech/Rannaghar/main/worker/rannaghar-worker.js",{cache:"no-store"}).then(r=>{if(!r.ok)throw 0;return r.text();}).then(tx=>{b.textContent="Copy the latest Worker code";copy(tx,b);}).catch(()=>{b.textContent="Copy the latest Worker code";toast("Could not fetch the code. Open worker/rannaghar-worker.js on GitHub instead.");});}
   else if(a==="aiTest"){
     setStatus("testMsg","Checking your Worker…",false);
     fetch(AI.url.replace(/\/+$/,""),{method:"POST",headers:{"Content-Type":"application/json","x-rannaghar-token":AI.token},body:JSON.stringify({ping:true})})
      .then(async r=>{const j=await r.json().catch(()=>({}));
        if(r.status===401)setStatus("testMsg","Reached the Worker, but the passcode does not match APP_TOKEN.",true);
        else if(!r.ok)setStatus("testMsg","The Worker answered with an error: "+(j.error||r.status),true);
-       else if(j.ok&&j.version>=4)setStatus("testMsg","All good. Worker version "+j.version+" is connected and the passcode matches.",false);
+       else if(j.ok&&j.version>=8)setStatus("testMsg","All good. Worker version "+j.version+" is connected and the passcode matches.",false);
+       else if(j.ok&&j.version>=4)setStatus("testMsg","Connected with Worker version "+j.version+". Ideas work, but Ask Claude anything and strict diet plans need version 8: tap Copy the latest Worker code, paste it into Cloudflare and deploy.",true);
        else setStatus("testMsg","Connected, but your Worker is an old version. Paste the new code from worker/rannaghar-worker.js on GitHub into Cloudflare and deploy.",true);})
      .catch(()=>setStatus("testMsg","Could not reach the Worker. Check the link: it should look like https://rannaghar.yourname.workers.dev",true));}
   else if(a==="calDay"){calDay=i;render();}
@@ -2611,6 +2677,7 @@ document.addEventListener("change",e=>{
   else if(t.dataset&&t.dataset.sxq){const x=(S.sx||[]).find(y=>y.id===t.dataset.sxq);if(x)x.q=t.value.trim().slice(0,20);save();render();}
   else if(t.id==="restore"&&t.files&&t.files[0]){t.files[0].text().then(tx=>{const o=JSON.parse(tx);if(!Array.isArray(o.plan)||o.plan.length!==7)throw 0;adopt(o);shopV=[];cookVs=[];calDay=-1;save();setOpen=true;render();toast("Backup restored.");}).catch(()=>{const m=$("bkMsg");if(m)m.textContent="That file is not a Rannaghar backup.";});}
   else if(t.id==="aiUrl"||t.id==="aiTok"){AI.url=$("aiUrl").value.trim();AI.token=$("aiTok").value.trim();saveAI();}
+  else if(t.id==="askQ"){askQ=t.value;}
   else if(t.id==="dietK"){dietK=+t.value||0;}
   else if(t.id==="dietWish"){dietWish=t.value.trim();}
   else if(t.id==="wt"){S.wt=t.value;save();render();}

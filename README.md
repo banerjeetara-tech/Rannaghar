@@ -25,6 +25,10 @@ Every tab takes your own entries:
 - **Ideas**: **Add my own dish** saves your idea with your dishes and shows it at the top.
 - **Calories**: **Add my own** logs anything you ate.
 
+## Ask Claude anything
+
+At the top of the **Ideas** tab, type any request in your own words, for example "Make a low calorie diet plan for this week" or "What can I cook with paneer and spinach?". Claude answers in text. If it prepares a week plan you can preview it and use it for this week or next week; if it suggests dishes, each has **Put on menu**. Needs Worker version 8: in **Settings**, tap **Copy the latest Worker code**, paste it into your Worker in Cloudflare and deploy.
+
 ## Diet plan with Claude
 
 On the **Ideas** tab, **Diet plan with Claude** prepares a full week for a chosen diet: Low calorie, Vegetarian, Intermittent fasting 16:8, Keto or High protein. Set the calories a day, tick Veg only if you want, and add anything else for Claude. You see the week first with calories and protein per day, then choose **Use for this week** or **Use for next week**. The dishes are also saved as a list under My lists. It costs about 30 paise and needs Worker version 7 or later to follow the diet strictly. These are general meal ideas, not medical advice.
