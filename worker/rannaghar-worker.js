@@ -1,4 +1,4 @@
-// Rannaghar ideas worker (Cloudflare Workers), version 6
+// Rannaghar ideas worker (Cloudflare Workers), version 7
 // Holds your Anthropic API key so it never sits in the app or on GitHub.
 //
 // Secrets to set in Cloudflare (Settings > Variables and Secrets):
@@ -7,7 +7,7 @@
 // Optional plain variable:
 //   ALLOWED_ORIGIN     defaults to https://banerjeetara-tech.github.io
 
-const VERSION = 6;
+const VERSION = 7;
 const MODEL = "claude-haiku-5-5";
 // USD per million tokens for prompts under 100k tokens. Edit if Anthropic changes prices.
 const PRICE_IN = 0.10;
@@ -77,9 +77,11 @@ export default {
     if (input.ping) return reply(env, 200, { ok: true, version: VERSION, model: MODEL });
 
     const have = (Array.isArray(input.have) ? input.have : []).slice(0, 600).map(s => String(s).slice(0, 60));
-    const wish = String(input.wish || "").slice(0, 300);
+    // A diet plan (low calorie, keto, fasting and so on) replaces the usual free-text wish.
+    const diet = String(input.diet || "").slice(0, 700);
+    const wish = diet ? "" : String(input.wish || "").slice(0, 300);
     const count = Math.min(25, Math.max(1, parseInt(input.count, 10) || 6));
-    const search = input.search === true; // web search costs about 30 times more, so it is off unless the app asks
+    const search = input.search === true && !diet; // web search costs about 30 times more, so it is off unless the app asks
     const meal = ["breakfast", "lunch", "dinner"].includes(input.meal) ? input.meal : "any";
     const veg = ["veg", "non"].includes(input.veg) ? input.veg : "both";
 
@@ -93,14 +95,17 @@ export default {
     const prompt =
       (search ? "Search the web (Bengali food blogs and recipe sites) and suggest " : "Suggest ") + `${count} home-style dishes for a Bengali family in Kolkata (3-4 people). ` +
       `They must NOT be in this list the family already has: ${have.join("; ")}.\n` +
-      `Bengali home food first, with the occasional home-made Chinese dish. Every dish must use very little oil and no deep frying.\n` +
+      (diet
+        ? `The family is following this diet plan, and every dish must fit it strictly: ${diet}\nBengali and Indian home food. No deep frying.\n`
+        : `Bengali home food first, with the occasional home-made Chinese dish. Every dish must use very little oil and no deep frying.\n`) +
       `${mealRule} ${vegRule}\n` +
       (wish ? `The family also asked for: ${wish}\n` : "") +
       `Put your final answer between <dishes> and </dishes> as a JSON array, and nothing else inside the tags. Each element: ` +
       `{"name":string, "meal":"breakfast"|"lunch"|"dinner", "type":one of ${TYPES.join("|")}, "veg":boolean, ` +
       `"ing":[{"n":ingredient name, "q":number for 4 people (0 for spices), "u":"g"|"ml"|"pc"|"bunch"|"pack", ` +
       `"c":"F" fish or meat|"E" eggs|"V" vegetables and fruit|"G" grocery|"P" spices and pantry}], ` +
-      `"note":one short sentence telling the cook how to make it with less oil}. Main ingredients only, at most 7 per dish. ` +
+      (diet ? `"k":kcal per serving (number), "pr":protein grams per serving (number), "note":one short sentence telling the cook how to make it}. ` : `"note":one short sentence telling the cook how to make it with less oil}. `) +
+      `Main ingredients only, at most 7 per dish. ` +
       `Types: bf breakfast, dal, side vegetable side, fish, chicken, egg, mutton, vegmain vegetarian main, cncarb Chinese rice or noodles, cnmain Chinese side dish.`;
 
     const call = (withSearch) => fetch("https://api.anthropic.com/v1/messages", {

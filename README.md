@@ -25,6 +25,10 @@ Every tab takes your own entries:
 - **Ideas**: **Add my own dish** saves your idea with your dishes and shows it at the top.
 - **Calories**: **Add my own** logs anything you ate.
 
+## Diet plan with Claude
+
+On the **Ideas** tab, **Diet plan with Claude** prepares a full week for a chosen diet: Low calorie, Vegetarian, Intermittent fasting 16:8, Keto or High protein. Set the calories a day, tick Veg only if you want, and add anything else for Claude. You see the week first with calories and protein per day, then choose **Use for this week** or **Use for next week**. The dishes are also saved as a list under My lists. It costs about 30 paise and needs Worker version 7 or later to follow the diet strictly. These are general meal ideas, not medical advice.
+
 ## Look and theme
 
 **Settings > Look and theme** changes the colour (Terracotta, Mustard, Leaf green, Indigo, Rose, Slate), light or dark mode, and text size. The choice is saved on that phone.

@@ -1980,7 +1980,7 @@ function listCard(L){
 function vIdeas(){
   const A=activeList();
   if(!freeG)freePick();
-  let h=ideasCard()+'<h2 style="margin-top:8px">Menu lists</h2><p class="hint">A list is a set of dishes. Choose one to follow and the next Shuffle and Plan next week pick only from it. Rice, ruti, and any kind of dish the list does not have still come from all dishes.</p>'+
+  let h=ideasCard()+dietCard()+'<h2 style="margin-top:8px">Menu lists</h2><p class="hint">A list is a set of dishes. Choose one to follow and the next Shuffle and Plan next week pick only from it. Rice, ruti, and any kind of dish the list does not have still come from all dishes.</p>'+
    '<div class="card"><h3 style="margin-top:0">Next week follows</h3><b>'+(A?esc(A.name):'All dishes (no list)')+'</b></div>';
   h+='<h2>My lists</h2><div class="row"><button class="btn" data-act="listNew">Create a new list</button></div>';
   (S.lists||[]).forEach(L=>{h+=listCard(L);});
@@ -2170,6 +2170,75 @@ const own=ideaOwn.filter(id=>{const d=dish(id);return d&&d.veg===(k==="v")&&meal
    '<label class="field"><span>For Claude, anything in mind? (optional)</span><input type="text" id="wish" placeholder="e.g. prawn dishes, quick, uses shim" value="'+esc(lastWish)+'"></label>'+
    '<p class="hint">Ideas from your saved dishes are free. Claude finds new ones, '+(AI.web?'about ₹3 each time with web search on':'about 10 paise each time')+'. Put on menu works for any meal: you can put a breakfast dish at dinner.</p></section>';
 }
+/* ---------- Diet plan from Claude ---------- */
+const DIETS={
+  low:{name:"Low calorie",tip:"Small portions of rice or ruti, more protein and vegetables. Drink water before meals.",
+    rule:(M,x,T)=>"Weight-loss plan of about "+T+" kcal a day. This "+M+" is a complete plate of about "+x+" kcal per serving: high in protein and fibre, a small portion of rice or ruti, steamed, grilled or lightly sauteed."},
+  veg:{name:"Vegetarian",veg:true,tip:"Every meal has a protein source such as dal, paneer, chana, soya or curd.",
+    rule:(M,x)=>"Balanced vegetarian plan, no fish, meat or egg. This "+M+" is a complete plate of about "+x+" kcal per serving with a good protein source such as dal, paneer, chana, soya or curd."},
+  fast:{name:"Intermittent fasting 16:8",two:true,tip:"Two meals a day: lunch around 12 to 1 and dinner finished by 8 pm. Outside that, only water and black tea or coffee without sugar. Breakfast is left empty on purpose.",
+    rule:(M,x)=>"Intermittent fasting 16:8 with only two meals a day, eaten between 12 noon and 8 pm. This "+M+" is a complete, filling plate of about "+x+" kcal per serving, high in protein and fibre to stay full."},
+  keto:{name:"Keto",tip:"No rice, ruti, potato, sugar or dal. The cook can skip rice and ruti for the person on keto. Drink plenty of water.",
+    rule:(M,x)=>"Keto plan, under 30 g net carbs a day. No rice, ruti, bread, potato, sugar, dal, flour or sweet fruit. Use fish, egg, chicken, mutton, paneer and leafy or low-carb vegetables, with mustard oil, ghee, coconut or nuts for fat. This "+M+" is a complete plate of about "+x+" kcal per serving."},
+  prot:{name:"High protein",tip:"Each meal aims for 25 g of protein or more.",
+    rule:(M,x)=>"High-protein plan. This "+M+" is a complete plate with at least 25 g protein per serving, about "+x+" kcal, moderate carbs."}
+};
+let dietSel="low", dietVeg=false, dietWish="", dietK=0, dietPlan=null, dietStatus="", dietErr=false, dietBusy=false;
+function dietTarget(){return Math.min(3000,Math.max(1000,+dietK||+S.target||suggestTarget()||1500));}
+function dietCard(){
+  const D=DIETS[dietSel];
+  return '<section class="card"><h2>Diet plan with Claude</h2><p class="hint">Pick a diet and Claude prepares a full week of meals for it, with calories and protein. You see the plan first, then choose to use it.</p>'+
+   '<div class="chips" style="margin-top:8px">'+Object.keys(DIETS).map(k=>'<button class="tog" data-act="dietSel" data-k="'+k+'" aria-pressed="'+(dietSel===k)+'">'+DIETS[k].name+'</button>').join("")+'</div>'+
+   '<p class="hint">'+esc(D.tip)+'</p>'+
+   '<div class="ing" style="grid-template-columns:1fr 1fr;gap:8px"><label class="field" style="margin:0"><span>Calories a day</span><input type="number" id="dietK" inputmode="numeric" step="50" value="'+dietTarget()+'"></label>'+
+   '<div class="field" style="margin:0"><span>Food</span><div class="chips"><button class="tog" data-act="dietVeg" aria-pressed="'+(dietVeg||!!D.veg)+'"'+(D.veg?' disabled':'')+'>Veg only</button></div></div></div>'+
+   '<label class="field"><span>Anything else for Claude? (optional)</span><input type="text" id="dietWish" maxlength="120" placeholder="e.g. no mushroom, more fish, quick to cook" value="'+esc(dietWish)+'"></label>'+
+   '<div class="row" style="margin-top:10px"><button class="btn" data-act="dietAsk"'+(dietBusy?' disabled':'')+'>'+(dietBusy?'Claude is preparing…':'Ask Claude to prepare the plan')+'</button>'+(dietPlan?'<button class="btn ghost" data-act="dietShow">See the plan</button>':'')+'</div>'+
+   '<div class="status'+(dietErr?' err':'')+'" id="dietMsg"'+(dietStatus?'':' hidden')+'>'+esc(dietStatus)+'</div>'+
+   '<p class="hint">Costs about 30 paise. The dishes are also saved as a list under My lists. These are general meal ideas, not medical advice: check with a doctor before keto or fasting, especially with diabetes, pregnancy or any medicine.</p></section>';
+}
+async function dietAsk(){
+  if(dietBusy)return;
+  const sel=dietSel,D=DIETS[sel],T=dietTarget(),vegOnly=dietVeg||!!D.veg;
+  const share=D.two?{l:.55,d:.45}:{b:.25,l:.4,d:.35};const ms=Object.keys(share);
+  dietBusy=true;dietErr=false;dietStatus="Claude is preparing your "+D.name.toLowerCase()+" week. This can take up to a minute. Keep this tab open.";render();
+  const rs=await Promise.all(ms.map(m=>{const x=Math.round(T*share[m]/10)*10;
+    const rule=D.rule(MEALKEY[m],x,T)+(vegOnly&&!D.veg?" Vegetarian only.":"")+(dietWish?" Also: "+dietWish+".":"")+" Each dish is one complete meal by itself, Bengali or Indian home-style.";
+    return askClaude({label:D.name+" plan: "+MEALKEY[m],meal:MEALKEY[m],veg:vegOnly?"veg":"both",count:7,diet:rule,wish:rule}).catch(()=>({error:"Something went wrong."}));}));
+  dietBusy=false;
+  const by={b:[],l:[],d:[]};let usd=0,old=false;
+  rs.forEach((r,n)=>{if(r.ids)by[ms[n]]=[...new Set(r.ids)].filter(id=>dish(id));usd+=r.usd||0;if(r.ids&&!(r.ver>=7))old=true;});
+  const bad=rs.find(r=>r.error);
+  if(ms.some(m=>!by[m].length)){dietErr=true;dietStatus=(bad?bad.error:"Claude did not send a full plan.")+" Nothing was changed. Please try again.";render();return;}
+  const days=[0,1,2,3,4,5,6].map(i=>{const o={b:[],l:[],d:[]};ms.forEach(m=>{o[m]=[by[m][i%by[m].length]];});return o;});
+  const all=[...new Set([].concat(...ms.map(m=>by[m])))];
+  const now=new Date();const name=D.name+" plan, "+now.getDate()+" "+MON[now.getMonth()];
+  S.lists=(S.lists||[]).filter(L=>L.name!==name).concat({id:"L"+Date.now().toString(36),name,ids:all});
+  dietPlan={sel,name:D.name+(vegOnly&&!D.veg?", veg":""),T,days,old};save();
+  dietStatus="Your "+D.name.toLowerCase()+" week is ready with "+all.length+" dishes."+(usd?" Cost about ₹"+(usd*INR).toFixed(2)+".":"")+(old?" Your Worker is an older version, so the diet is followed less strictly: update it from GitHub.":"");
+  render();dietSheet();
+}
+function dietSheet(){
+  const P=dietPlan;if(!P)return;const D=DIETS[P.sel];
+  const dayK=d=>MK.reduce((a,m)=>a+d[m].reduce((b,id)=>b+kcal(dish(id)),0),0), dayP=d=>MK.reduce((a,m)=>a+d[m].reduce((b,id)=>b+prot(dish(id)),0),0);
+  const avg=Math.round(P.days.reduce((a,d)=>a+dayK(d),0)/7);
+  const cur=S.wk==="next"&&S.other?S.other.weekStart:S.weekStart;
+  openSheet('<h2>'+esc(P.name)+' week</h2><p class="hint">About '+nf(avg)+' kcal a day per person (you asked for '+nf(P.T)+'). '+esc(D.tip)+'</p>'+
+   '<div class="row" style="margin:10px 0"><button class="btn" data-act="dietUse" data-k="cur">Use for this week</button><button class="btn ghost" data-act="dietUse" data-k="next">Use for next week</button><button class="btn plain" data-act="close">Close</button></div>'+
+   P.days.map((d,i)=>{const dd=addDays(fromIso(cur),i);
+     return '<div class="dish"><div class="row between"><b>'+DAY[dd.getDay()]+'</b><span class="kc">'+nf(dayK(d))+' kcal · '+dayP(d)+' g protein</span></div>'+
+      MK.map(m=>d[m].length?'<div class="note"><b style="color:var(--ink)">'+MEALNAME[m]+':</b> '+d[m].map(id=>{const x=dish(id);return x?'<button class="mini" style="font-weight:600;text-align:left" data-act="dietInfo" data-id="'+id+'">'+esc(x.name)+'</button> <span class="kc">'+kcal(x)+'</span>':'';}).join(", ")+'</div>':(m==="b"&&D.two?'<div class="note"><b style="color:var(--ink)">Breakfast:</b> fasting</div>':'')).join("")+'</div>';}).join("")+
+   '<div class="status" id="dietInfo" hidden></div>'+
+   '<p class="hint" style="margin-top:10px">Using it replaces that week\'s menu. Your daily repeats stay. After that, change any dish, approve, and Cook and Shop follow as usual.</p>');
+}
+function dietUse(next){
+  const P=dietPlan;if(!P)return;
+  toCur();if(next){if(!S.other)createNext();else swapWeek();}
+  S.plan=P.days.map(d=>{const o={};MK.forEach(m=>{o[m]=d[m].filter(id=>dish(id));});return o;});
+  applyRepeats();S.okm={};S.dn={};S.lo={};S.nosend={};S.ck={};S.skip={};S.qo={};
+  shopV=[];cookVs=[];menuScrolled=true;tab="week";save();closeSheet();render();$("main").scrollTop=0;
+  toast(P.name+" plan is now "+(next?"next":"this")+" week's menu. Approve the meals to send them to Cook and Shop.");
+}
 let ideaStatus="", toastT=null;
 function toast(t){const el=$("toast");if(!el)return;el.textContent=t;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{el.hidden=true;},3500);}
 function setStatus(id,text,err){const el=$(id);if(id==="ideasMsg")ideaStatus=text;if(!el)return;el.hidden=!text;el.textContent=text;el.classList.toggle("err",!!err);}
@@ -2243,7 +2312,7 @@ function findDishes(text){
   }
   return [];
 }
-function addIdeas(out,forceMeal){
+function addIdeas(out,forceMeal,keepK){
   const ids=[];
   (Array.isArray(out)?out:[]).forEach((o,n)=>{
     if(!o||typeof o.name!=="string"||!o.name.trim())return;
@@ -2254,7 +2323,8 @@ function addIdeas(out,forceMeal){
     const ing=normIng(o.ing||o.ingredients);
     const mm=forceMeal||{breakfast:"b",lunch:"l",dinner:"d"}[String(o.meal||"").toLowerCase()]||"";
     const d={id:"u"+Date.now().toString(36)+n,name:o.name.trim().slice(0,60),type:o.type,veg:!!o.veg,ing,note:String(o.note||o.instructions||o.tip||"").slice(0,300),mine:true,ai:true};
-    if(mm)d.meal=mm;if(o.type==="bf")d.meal="b";
+    if(mm)d.meal=mm;if(o.type==="bf"&&!forceMeal)d.meal="b";
+    if(keepK){const k=+(o.k||o.kcal||o.calories),pr=+(o.pr||o.protein);if(k>30&&k<1500)d.k=Math.round(k);if(pr>0&&pr<150)d.pr=Math.round(pr);d.diet=true;}
     S.mine.push(d);ids.push(d.id);
   });
   return ids;
@@ -2267,7 +2337,7 @@ async function askClaude(opts){
     let r,j;
     try{
       r=await fetch(AI.url.replace(/\/+$/,""),{method:"POST",headers:{"Content-Type":"application/json","x-rannaghar-token":AI.token},
-        body:JSON.stringify({have,search:!!AI.web,meal:opts.meal,veg:opts.veg,count:opts.count,wish:[opts.wish,opts.meal!=="any"?"All for "+opts.meal+".":"",opts.veg==="veg"?"Vegetarian only.":opts.veg==="non"?"Non-vegetarian only.":"Half veg, half non-veg.","For each dish add a field meal: breakfast, lunch or dinner."].filter(Boolean).join(" ")})});
+        body:JSON.stringify({have,diet:opts.diet||undefined,search:!!AI.web&&!opts.diet,meal:opts.meal,veg:opts.veg,count:opts.count,wish:[opts.wish,opts.meal!=="any"?"All for "+opts.meal+".":"",opts.veg==="veg"?"Vegetarian only.":opts.veg==="non"?"Non-vegetarian only.":"Half veg, half non-veg.","For each dish add a field meal: breakfast, lunch or dinner."].filter(Boolean).join(" ")})});
     }catch(e){return {error:"Could not reach your Worker. Check the Worker link in the Settings tab, and that you are online."};}
     j=await r.json().catch(()=>({}));
     if(r.status===401)return {error:"The passcode in Settings does not match APP_TOKEN on your Worker."};
@@ -2278,19 +2348,19 @@ async function askClaude(opts){
     let list=Array.isArray(j.dishes)?j.dishes.filter(o=>o&&o.name):[];
     if(!list.length)list=findDishes(j.text);
     if(!list.length&&j.text)list=salvage(j.text);
-    const ids=addIdeas(list,forceMeal);
+    const ids=addIdeas(list,forceMeal,!!opts.diet);
     entry.n=ids.length;saveAI();
     if(!ids.length){
       const why=j.stop==="max_tokens"?" Claude's answer was cut off.":list.length?" Claude sent "+list.length+" items in an unexpected shape.":"";
       return {error:"Claude answered but no dishes could be read."+why+(j.version>=4?"":" Your Worker is an old version: update it from GitHub.")+(j.text?" Claude said: "+String(j.text).replace(/\s+/g," ").slice(0,200):"")+" Please try once more.",usd:j.usd};
     }
-    save();return {ids,usd:j.usd||0,searched:j.searched,old:!(j.version>=3)};
+    save();return {ids,usd:j.usd||0,searched:j.searched,old:!(j.version>=3),ver:j.version||0};
   }
   if(sampleFn){
     const prompt="Suggest "+opts.count+" home-style low-oil dishes for a Bengali family in Kolkata, not in this list: "+have.join("; ")+". "+(opts.wish||"")+
       (opts.meal!=="any"?" All for "+opts.meal+".":" Spread across breakfast, lunch and dinner.")+(opts.veg==="veg"?" Vegetarian only.":opts.veg==="non"?" Non-vegetarian only.":" Half veg, half non-veg.")+
-      " Return ONLY a JSON array of {name, meal:breakfast|lunch|dinner, type: bf|dal|side|fish|chicken|egg|mutton|vegmain|cncarb|cnmain, veg:boolean, ing:[{n,q (for 4 people),u:g|ml|pc|bunch|pack,c:F|E|V|G|P}], note}.";
-    try{let out=await sampleFn.json(prompt);if(out&&!Array.isArray(out)&&Array.isArray(out.dishes))out=out.dishes;const ids=addIdeas(out,forceMeal);if(!ids.length)return {error:"No usable ideas came back. Try again."};save();return {ids,usd:0};}
+      (opts.diet?" Add k (kcal per serving) and pr (protein grams per serving) to each.":"")+" Return ONLY a JSON array of {name, meal:breakfast|lunch|dinner, type: bf|dal|side|fish|chicken|egg|mutton|vegmain|cncarb|cnmain, veg:boolean, ing:[{n,q (for 4 people),u:g|ml|pc|bunch|pack,c:F|E|V|G|P}], note}.";
+    try{let out=await sampleFn.json(prompt);if(out&&!Array.isArray(out)&&Array.isArray(out.dishes))out=out.dishes;const ids=addIdeas(out,forceMeal,!!opts.diet);if(!ids.length)return {error:"No usable ideas came back. Try again."};save();return {ids,usd:0,ver:99};}
     catch(e){return {error:"Could not get ideas just now. Try again in a minute."};}
   }
   return {error:"Claude is not connected. Open the Settings tab, paste your Worker link and passcode, and tap Save connection."};
@@ -2344,6 +2414,12 @@ document.addEventListener("click",e=>{
   const b=e.target.closest("[data-act]");if(!b)return;
   const a=b.dataset.act,i=+b.dataset.i;
   if(a==="close")closeSheet();
+  else if(a==="dietSel"){dietSel=b.dataset.k;render();}
+  else if(a==="dietVeg"){dietVeg=!dietVeg;render();}
+  else if(a==="dietAsk"){const w=$("dietWish"),k=$("dietK");if(w)dietWish=w.value.trim();if(k)dietK=+k.value||0;dietAsk();}
+  else if(a==="dietShow")dietSheet();
+  else if(a==="dietInfo"){const d=dish(b.dataset.id),el=$("dietInfo");if(d&&el){el.hidden=false;el.textContent=d.name+" ("+kcal(d)+" kcal, "+prot(d)+" g protein): "+(d.note||"")+(useLine(d)?" Uses: "+useLine(d):"");el.scrollIntoView({block:"nearest"});}}
+  else if(a==="dietUse"){const nx=b.dataset.k==="next";twoTap(b,()=>dietUse(nx),"Tap again to replace "+(nx?"next":"this")+" week's menu");}
   else if(a==="uiPal"||a==="uiMode"||a==="uiSize"){UI[a==="uiPal"?"pal":a==="uiMode"?"mode":"size"]=b.dataset.k;saveUI();render();}
   else if(a==="ppl"){S.people=Math.min(10,Math.max(1,S.people+(+b.dataset.n)));save();render();}
   else if(a==="tg"){const k=b.dataset.key,wd=+b.dataset.wd;S[k]=S[k].includes(wd)?S[k].filter(x=>x!==wd):S[k].concat(wd);save();b.setAttribute("aria-pressed",String(S[k].includes(wd)));}
@@ -2535,6 +2611,8 @@ document.addEventListener("change",e=>{
   else if(t.dataset&&t.dataset.sxq){const x=(S.sx||[]).find(y=>y.id===t.dataset.sxq);if(x)x.q=t.value.trim().slice(0,20);save();render();}
   else if(t.id==="restore"&&t.files&&t.files[0]){t.files[0].text().then(tx=>{const o=JSON.parse(tx);if(!Array.isArray(o.plan)||o.plan.length!==7)throw 0;adopt(o);shopV=[];cookVs=[];calDay=-1;save();setOpen=true;render();toast("Backup restored.");}).catch(()=>{const m=$("bkMsg");if(m)m.textContent="That file is not a Rannaghar backup.";});}
   else if(t.id==="aiUrl"||t.id==="aiTok"){AI.url=$("aiUrl").value.trim();AI.token=$("aiTok").value.trim();saveAI();}
+  else if(t.id==="dietK"){dietK=+t.value||0;}
+  else if(t.id==="dietWish"){dietWish=t.value.trim();}
   else if(t.id==="wt"){S.wt=t.value;save();render();}
   else if(t.id==="fit"){S.fit=t.checked;save();render();if(S.fit)toast("New menus will stay near "+nf(S.target)+" kcal a day by swapping heavier dishes for lighter ones of the same kind.");}
   else if(t.id==="twt"){S.twt=t.value;save();render();}
