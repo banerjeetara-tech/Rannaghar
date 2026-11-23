@@ -945,6 +945,674 @@ const BUILTIN = RAW.concat(RAW2).map(r=>({id:r[0],name:r[1],type:r[2],veg:!!r[3]
   [["Chicken","Boneless chicken:200g:F",0],["Prawn","Prawns (chingri):200g:F",0],["Egg","Eggs:2pc:E",0],["Fish","Bhetki fillet:200g:F",0],["Vegetable","Carrot:1pc:V;Cabbage:150g:V;Beans:80g:V",1],["Mushroom","Mushroom:200g:V",1],["Tofu","Tofu:150g:G",1],["Paneer","Paneer:120g:G",1]].forEach(([p,ing,veg])=>[["clear soup","Spring onion:1bunch:V"],["hot and sour soup","Cabbage:100g:V;Carrot:1pc:V;Cornflour:20g:G"],["sweet corn soup","Sweet corn:250g:V;Cornflour:20g:G"],["manchow soup","Cabbage:100g:V;Capsicum:1pc:V;Cornflour:20g:G"],["lemon coriander soup","Coriander leaves:2bunch:V;Lemon:2pc:V"],["noodle soup","Hakka noodles:150g:G;Cabbage:100g:V"],["ginger garlic soup","Garlic bulb:1pc:V;Spring onion:1bunch:V"]].forEach(([s2,ex])=>add(p+" "+s2,"cnmain",veg,ing+";"+ex,"Simmer in water or stock with ginger, garlic, pepper and a dash of soy for 10 minutes. No oil.")));
 })();
 
+/* ---------- More Bengali home-style dishes: each one a real recipe, light on oil. easy = quick and simple ---------- */
+(function(){
+  const seen=new Set(BUILTIN.map(d=>d.name.toLowerCase()));
+  /* rows: [name, ingredients, note, 0 if not easy] */
+  const add=(type,veg,rows,meal)=>rows.forEach(r=>{
+    const k=r[0].toLowerCase();if(seen.has(k))return;seen.add(k);
+    const d={id:"h_"+k.replace(/[^a-z0-9]+/g,"_"),name:r[0],type,veg:!!veg,ing:parseIng(r[1]),note:r[2]};
+    if(r[3]!==0)d.easy=true;if(meal)d.meal=meal;BUILTIN.push(d);});
+  const SEAR="Sear the fish lightly on a non-stick pan with a brush of oil, do not deep fry. ";
+
+  /* ----- Vegetable sides ----- */
+  add("side",1,[
+   ["Aloo seddho makha","Potato:4pc:V;Onion:1pc:V","Boil the potatoes, peel and mash with a few drops of mustard oil, chopped raw onion, green chilli and salt. Best with hot rice and dal."],
+   ["Aloo jhuri bhaja, tawa","Potato:3pc:V;Kalonji::P","Cut potato into thin matchsticks, rinse and dry. Toss on a non-stick tawa with 1 tsp oil, kalonji and salt, covered then open, till crisp."],
+   ["Aloo kumro bhaja","Potato:2pc:V;Pumpkin:300g:V","Thin slices of both, rubbed with turmeric and salt. Roast on a non-stick tawa with a brush of oil till golden at the edges."],
+   ["Aloo dhonepata","Potato:4pc:V;Coriander leaves:2bunch:V","Boil and cube the potato. Fry lightly in 2 tsp oil with green chilli, then toss with a paste of coriander leaves, green chilli and salt."],
+   ["Aloo phulkopi, Bengali","Potato:2pc:V;Cauliflower:1pc:V;Green peas:100g:V;Tomato:1pc:V","Panch phoron in 2 tsp oil, add vegetables, tomato and a little water. Cover and cook till dry. A Sunday-lunch classic."],
+   ["Aloo potol, dry","Potato:2pc:V;Potol:6pc:V","Cumin and bay leaf in 2 tsp oil, add potato and potol with salt and turmeric, cover and cook with a splash of water."],
+   ["Aloo pyaz bhaja","Potato:3pc:V;Onion:2pc:V","Thin slices roasted together on a non-stick tawa with a brush of oil, nigella seeds and green chilli, till brown."],
+   ["Aloo bhaja with kalo jeere","Potato:3pc:V;Kalonji::P","Thin round slices, salt and turmeric. Roast on a tawa with a brush of oil till golden, turning once. A side for dal-bhat."],
+   ["Alu kumro ghonto","Potato:2pc:V;Pumpkin:300g:V;Bori:20g:G","Dry-roast the bori. Cook pumpkin and potato with cumin and ginger, covered. Mash a few pieces, add the bori and a pinch of sugar."],
+   ["Begun beshon","Brinjal:2pc:V;Besan:40g:G","Cut brinjal in rounds. Coat lightly with besan, turmeric and chilli paste. Roast on a non-stick tawa with a brush of oil."],
+   ["Nim begun","Brinjal:1pc:V;Neem leaves:30g:V","Fry neem leaves lightly in 1 tsp oil till crisp and set aside. Roast brinjal cubes the same way. Toss together with salt. A bitter starter for the first course."],
+   ["Begun jhol","Brinjal:2pc:V;Potato:1pc:V;Tomato:1pc:V","Cumin and ginger in 2 tsp oil, add brinjal, potato and tomato with water. Simmer till soft. A thin everyday jhol."],
+   ["Begun alu jhol","Brinjal:2pc:V;Potato:2pc:V","Kalonji and green chilli in 2 tsp oil, add vegetables and water, cook till soft. Eaten with plain rice."],
+   ["Begun shorshe bata","Brinjal:2pc:V;Mustard seeds:25g:G","Cook brinjal slices halfway on a tawa. Add a mustard and green chilli paste with a splash of water and cover for 5 minutes."],
+   ["Tomato diye begun","Brinjal:2pc:V;Tomato:3pc:V;Onion:1pc:V","Onion and tomato soften in 2 tsp oil, add brinjal cubes, salt and turmeric, cover and cook till soft."],
+   ["Begun pora bhorta","Brinjal (large):2pc:V;Onion:1pc:V","Roast the brinjal on the flame, peel and mash. Mix raw onion, green chilli, coriander and a few drops of mustard oil."],
+   ["Kumro posto","Pumpkin:500g:V;Posto (poppy seeds):30g:G","Cube the pumpkin, cook covered with a splash of water in 2 tsp mustard oil. Add posto and green chilli paste, cook 3 minutes."],
+   ["Kumro chokka with narkel","Pumpkin:400g:V;Coconut pieces:40g:V","Panch phoron in 2 tsp oil, add small pumpkin cubes, cook covered. Finish with a pinch of sugar and chopped coconut."],
+   ["Kumro shorshe","Pumpkin:400g:V;Mustard seeds:25g:G","Boil pumpkin halfway. Add mustard and green chilli paste with a splash of water and cook covered for 5 minutes."],
+   ["Kumro fuler bora, tawa","Pumpkin flowers:12pc:V;Besan:50g:G","Dip the flowers in a thin besan and rice flour batter. Roast on a non-stick tawa with a brush of oil. A monsoon snack."],
+   ["Lau shorshe","Lau (bottle gourd):500g:V;Mustard seeds:25g:G","Cook lau halfway in its own water. Add mustard and green chilli paste, cover and simmer 5 minutes."],
+   ["Lau chingri bhaja","Lau (bottle gourd):500g:V;Small prawns:150g:F","Cook lau covered with kalonji in 2 tsp oil. Add the prawns in the last 5 minutes."],
+   ["Lau posto","Lau (bottle gourd):500g:V;Posto (poppy seeds):30g:G","Cook lau covered in 2 tsp mustard oil, add posto and green chilli paste, simmer 3 minutes."],
+   ["Lau bhaja, tawa","Lau (bottle gourd):500g:V;Besan:30g:G","Thin slices with salt and turmeric, a light dusting of besan. Roast on a tawa with a brush of oil."],
+   ["Lau diye chholar dal torkari","Lau (bottle gourd):400g:V;Chana dal:60g:G","Soak the dal for 1 hour. Cook with lau cubes, cumin and ginger, covered, till the dal is soft but whole."],
+   ["Lau pata chorchori","Lau leaves:2bunch:V;Potato:1pc:V","Panch phoron in 2 tsp oil, add chopped lau leaves and potato cubes, cover and cook till dry."],
+   ["Shaak bhaja, mixed","Spinach (palong):1bunch:V;Methi leaves:1bunch:V;Lal shaak:1bunch:V","Garlic and dried red chilli in 2 tsp oil, wilt the mixed greens, cook without water till dry."],
+   ["Palong shaak chorchori","Spinach (palong):2bunch:V;Potato:1pc:V","Panch phoron in 2 tsp oil, add potato cubes and chopped palong, cover, cook till dry."],
+   ["Palong paneer, Bengali style","Spinach (palong):2bunch:V;Paneer:200g:G","Blanch and blend palong with green chilli. Cook with a light cumin tempering, add paneer cubes for 3 minutes."],
+   ["Kochu shaak","Kochu shaak:2bunch:V;Posto (poppy seeds):20g:G","Boil the leaves and stems well, drain. Temper with panch phoron and add posto paste. Always cook kochu thoroughly."],
+   ["Kochur loti bhaja","Kochur loti:400g:V","Boil the loti, drain. Roast on a tawa with 2 tsp oil, panch phoron and green chilli till dry."],
+   ["Kochu pata bata","Kochu leaves:2bunch:V;Mustard seeds:25g:G;Coconut pieces:30g:V","Boil kochu leaves very well and drain. Mix with a mustard, coconut and green chilli paste and steam 5 minutes."],
+   ["Data chorchori with posto","Drumstick:6pc:V;Posto (poppy seeds):30g:G;Potato:1pc:V","Cook the drumstick pieces and potato covered with panch phoron. Add posto paste and cook 3 minutes."],
+   ["Sojne data jhol","Drumstick:8pc:V;Potato:2pc:V;Tomato:1pc:V","Cumin and ginger in 2 tsp oil, drumstick, potato, tomato and water. Simmer till soft. Suck the pulp from the stalk."],
+   ["Sojne data shorshe","Drumstick:8pc:V;Mustard seeds:25g:G","Boil drumstick pieces halfway. Mustard and green chilli paste in 1 tsp oil, cover and simmer 6 minutes."],
+   ["Sojne phul bhaja","Sojne phul:200g:V;Potato:1pc:V","Cook the flowers and potato cubes in 2 tsp oil with green chilli, covered, till dry. A spring special."],
+   ["Mochar chop, tawa","Mocha (banana flower):1pc:V;Potato:2pc:V;Besan:30g:G","Boil chopped mocha and potato, mash with ginger, chilli and besan. Shape patties and roast on a non-stick tawa with a brush of oil."],
+   ["Mocha chingri","Mocha (banana flower):1pc:V;Small prawns:150g:F","Boil and chop the mocha. Cook with coconut, kalonji and the prawns in 2 tsp oil.",0],
+   ["Thor chingri","Thor (banana stem):400g:V;Small prawns:150g:F","Boil chopped thor. Cook with panch phoron, prawns and coconut in 2 tsp oil.",0],
+   ["Thor bhaja","Thor (banana stem):400g:V;Besan:30g:G","Boil chopped thor and squeeze dry. Toss with besan and green chilli on a tawa with 1 tsp oil."],
+   ["Kanch kolar kopta","Raw banana:2pc:V;Besan:40g:G","Boil and mash raw banana with ginger and besan. Shape koftas and steam or air-fry. Serve in a thin tomato jhol.",0],
+   ["Kanch kolar jhol","Raw banana:2pc:V;Potato:1pc:V","Light cumin jhol with raw banana, potato and ginger in 2 tsp oil. A hospital-diet classic."],
+   ["Kanch kolar bhaja","Raw banana:2pc:V","Slice thin, rub with turmeric and salt, roast on a tawa with a brush of oil. A crisp side."],
+   ["Kanch kolar chorchori","Raw banana:2pc:V;Potato:1pc:V","Panch phoron in 2 tsp mustard oil, add banana and potato, covered, with a splash of water."],
+   ["Kachkola posto","Raw banana:2pc:V;Posto (poppy seeds):30g:G","Cook banana pieces covered with a splash of water. Add posto and green chilli paste at the end."],
+   ["Dhundul bhaja","Dhundul:400g:V;Besan:30g:G","Slice thin, season, dust with besan. Roast on a tawa with a brush of oil."],
+   ["Chichinga shorshe","Chichinga (snake gourd):400g:V;Mustard seeds:25g:G","Cook chichinga halfway on a tawa, add mustard and green chilli paste, cover 5 minutes."],
+   ["Chichinga chorchori","Chichinga (snake gourd):400g:V;Potato:1pc:V","Panch phoron in 2 tsp oil, add vegetables, cook covered with a splash of water."],
+   ["Jhinge chingri","Jhinge (ridge gourd):400g:V;Small prawns:150g:F","Cook jhinge with kalonji in 2 tsp oil, add prawns for 5 minutes.",0],
+   ["Jhinge bhaja","Jhinge (ridge gourd):300g:V;Besan:30g:G","Thin slices with turmeric and salt, a light dusting of besan, roast on a tawa with a brush of oil."],
+   ["Jhinge ar alu posto","Jhinge (ridge gourd):300g:V;Potato:1pc:V;Posto (poppy seeds):30g:G","Cook vegetables covered in 2 tsp mustard oil, add posto and green chilli paste at the end."],
+   ["Potol bhaja","Potol:8pc:V;Besan:30g:G","Slice lengthways, rub with turmeric and salt, dust with besan, roast on a tawa with a brush of oil."],
+   ["Potol chingri","Potol:8pc:V;Small prawns:150g:F","Steam potol halfway. Cook with kalonji, ginger and prawns in 2 tsp oil.",0],
+   ["Potol shorshe","Potol:8pc:V;Mustard seeds:25g:G","Boil potol halfway. Mustard and green chilli paste in 1 tsp oil, cover and cook 5 minutes."],
+   ["Potol alu jhol","Potol:6pc:V;Potato:2pc:V","Cumin and ginger in 2 tsp oil, potol, potato and water, simmer till soft. A light jhol."],
+   ["Potol chhana dolma","Potol:6pc:V;Paneer:150g:G","Scoop the potol, fill with seasoned crumbled paneer and steam. Serve in a light tomato gravy.",0],
+   ["Uchhe bhaja","Karela:3pc:V","Thin slices, salted and squeezed, roast on a non-stick tawa with a brush of oil till crisp. A bitter starter."],
+   ["Uchhe alu torkari","Karela:2pc:V;Potato:2pc:V","Kalonji in 2 tsp oil, add karela and potato, cook covered with a splash of water till soft."],
+   ["Uchhe begun","Karela:2pc:V;Brinjal:1pc:V","Salt and squeeze karela. Roast with brinjal cubes in 2 tsp oil, cover and cook till soft. Finish with a pinch of sugar."],
+   ["Uchhe chingri","Karela:2pc:V;Small prawns:150g:F","Cook karela slices lightly, add prawns and a little onion. Finish with a pinch of sugar.",0],
+   ["Karela bhaja, tawa","Karela:3pc:V","Thin rounds, salted and squeezed. Roast on a non-stick tawa with a brush of oil till crisp."],
+   ["Shukto, mixed vegetables","Raw banana:1pc:V;Brinjal:1pc:V;Drumstick:4pc:V;Karela:1pc:V;Milk:150ml:G","Panch phoron in 1 tsp oil, vegetables with water, add milk and a mustard paste at the end. Bitter to begin the meal.",0],
+   ["Labra","Pumpkin:200g:V;Brinjal:1pc:V;Potato:1pc:V;Cabbage:150g:V;Raw banana:1pc:V","Panch phoron in 2 tsp oil, all vegetables cut small, cover and cook with a little water. Mix at the end, with a pinch of sugar."],
+   ["Niramish chhanchra","Cabbage:150g:V;Pumpkin:150g:V;Potato:1pc:V;Brinjal:1pc:V;Bori:20g:G","Mixed vegetables with dry-roasted bori and panch phoron, cooked covered in 2 tsp oil till dry."],
+   ["Mixed vegetable dalna","Potato:1pc:V;Cauliflower:0.5pc:V;Carrot:1pc:V;Green peas:100g:V;Tomato:1pc:V","Cumin, ginger and tomato in 2 tsp oil. Add vegetables and water, simmer 12 minutes."],
+   ["Chhanar dalna with potato","Paneer:250g:G;Potato:2pc:V;Tomato:1pc:V","Roast paneer cubes lightly on a tawa. Cumin, ginger and tomato gravy in 2 tsp oil with potato, add the paneer.",0],
+   ["Chhanar jhol","Paneer:200g:G;Potato:1pc:V;Tomato:1pc:V","Cumin and ginger in 1 tsp oil, potato and tomato with water, add paneer pieces at the end. A light jhol."],
+   ["Chhana shorshe","Paneer:250g:G;Mustard seeds:25g:G","Mustard and green chilli paste in 2 tsp oil, thin with water, simmer paneer cubes for 5 minutes.",0],
+   ["Chhana posto","Paneer:250g:G;Posto (poppy seeds):30g:G","Posto and green chilli paste in 2 tsp mustard oil, a little water, simmer paneer for 5 minutes.",0],
+   ["Dhokar dalna, steamed","Chana dal:150g:G;Potato:1pc:V;Tomato:1pc:V","Grind soaked chana dal with ginger, steam as a block and cut into pieces. Simmer in a light cumin and tomato gravy.",0],
+   ["Bandhakopi chingri","Cabbage:500g:V;Small prawns:150g:F","Panch phoron in 2 tsp oil, cabbage and peas, then prawns for 5 minutes.",0],
+   ["Bandhakopi narkel","Cabbage:500g:V;Coconut pieces:40g:V","Cabbage cooked covered with cumin and bay leaf. Toss in chopped coconut and a pinch of sugar."],
+   ["Bandhakopi alu torkari","Cabbage:400g:V;Potato:2pc:V;Green peas:100g:V","Panch phoron in 2 tsp oil, cabbage, potato and peas, covered, with a splash of water till dry."],
+   ["Phulkopi narkel","Cauliflower:1pc:V;Coconut pieces:40g:V","Steam cauliflower halfway. Cook with cumin and ginger in 2 tsp oil, finish with chopped coconut and a pinch of sugar."],
+   ["Phulkopi shorshe","Cauliflower:1pc:V;Mustard seeds:25g:G","Steam florets halfway. Mustard and green chilli paste, cook covered for 5 minutes."],
+   ["Phulkopir roast","Cauliflower:1pc:V;Curd:100g:G","Marinate florets in curd, turmeric and chilli. Roast on a non-stick tawa with a brush of oil till browned."],
+   ["Phulkopi chingri","Cauliflower:1pc:V;Small prawns:150g:F","Steam the florets halfway. Cook with ginger, tomato and prawns in 2 tsp oil.",0],
+   ["Echor chingri","Echor (raw jackfruit):500g:V;Small prawns:150g:F","Pressure cook jackfruit 1 whistle. Onion, ginger and tomato masala in 1 tbsp oil, add jackfruit and prawns.",0],
+   ["Echorer kofta, steamed","Echor (raw jackfruit):400g:V;Besan:40g:G","Boil and mash jackfruit with ginger, chilli and besan. Shape koftas, steam, serve in a light tomato gravy.",0],
+   ["Kochur shaak with echor","Kochu shaak:1bunch:V;Echor (raw jackfruit):200g:V","Boil kochu leaves well and drain. Cook with jackfruit pieces and mustard paste in 2 tsp oil.",0],
+   ["Mulo bhaja","Mooli:1pc:V;Besan:30g:G","Thin sticks with turmeric and salt, a light dusting of besan, roast on a tawa with a brush of oil."],
+   ["Mulor ghonto with posto","Mooli:2pc:V;Posto (poppy seeds):30g:G","Cook grated mooli covered in 2 tsp oil. Add posto and green chilli paste, cook till dry."],
+   ["Mulo shorshe","Mooli:2pc:V;Mustard seeds:25g:G","Boil mooli halfway. Mustard and green chilli paste in 1 tsp oil, cook covered for 5 minutes."],
+   ["Beet ar gajor torkari","Beetroot:2pc:V;Carrot:2pc:V;Green peas:80g:V","Panch phoron in 2 tsp oil, grated beet and carrot, cover and cook till dry. Add peas at the end."],
+   ["Gajor beans torkari","Carrot:2pc:V;Beans:200g:V;Potato:1pc:V","Cumin in 2 tsp oil, vegetables with salt and turmeric. Cover and cook with a splash of water."],
+   ["Shim ar alu torkari","Shim (flat beans):300g:V;Potato:2pc:V","Panch phoron in 2 tsp oil, shim and potato, cover and cook with a splash of water till dry."],
+   ["Shim ar kumro ghonto","Shim (flat beans):200g:V;Pumpkin:200g:V","Chop fine, cook covered with panch phoron in 2 tsp oil, finish with a pinch of sugar."],
+   ["Shim bichi bhaja","Shim (flat beans):300g:V","Pod the beans, toss with salt and turmeric, roast on a tawa with 1 tsp oil till dry."],
+   ["Borboti chingri","Borboti (long beans):300g:V;Small prawns:150g:F","Cook borboti with kalonji, add prawns for 5 minutes. A summer lunch.",0],
+   ["Borboti torkari with kumro","Borboti (long beans):250g:V;Pumpkin:200g:V","Panch phoron in 2 tsp oil, vegetables, cover with a splash of water till dry."],
+   ["Matar ghonto, dry","Green peas:300g:V;Ginger::P","Mash cooked peas with ginger, green chilli and a pinch of hing. A dry side, or filling for paratha."],
+   ["Chhana matar torkari","Green peas:200g:V;Paneer:200g:G;Tomato:2pc:V","Cumin and ginger in 2 tsp oil, tomato, peas and paneer. Light gravy."],
+   ["Chhana matar, tomato gravy","Green peas:200g:V;Paneer:200g:G;Onion:1pc:V;Tomato:2pc:V","Onion and tomato masala in 2 tsp oil, peas and water, paneer for the last 3 minutes."],
+   ["Capsicum aloo","Capsicum:2pc:V;Potato:2pc:V","Cumin in 2 tsp oil, potato cubes cooked covered, capsicum added for the last 3 minutes."],
+   ["Tomato bhaja","Tomato:4pc:V;Besan:30g:G","Thick tomato slices with salt and chilli, dust with besan, roast on a tawa with a brush of oil."],
+   ["Tomato chutney with dates","Tomato:4pc:V;Dates:40g:G","Panch phoron in 1 tsp oil, tomato and chopped dates, simmer to a thick chutney with a little sugar."],
+   ["Kancha aam chutney","Raw mango:2pc:V","Boil raw mango pieces with a little sugar, kalonji and a pinch of chilli till soft and thick."],
+   ["Anarosher chutney","Pineapple:300g:V","Cook pineapple with panch phoron, a little sugar and raisins till syrupy. A festive finishing chutney."],
+   ["Papaya chutney","Raw papaya:300g:V;Raisins:30g:G","Cook diced papaya with panch phoron, sugar and raisins till soft."],
+   ["Dhonepata chutney","Coriander leaves:2bunch:V;Green chilli::P;Lemon:1pc:V","Blend coriander with green chilli, lemon and salt. A fresh side for any meal."],
+   ["Peyaj posto","Onion:4pc:V;Posto (poppy seeds):30g:G","Cook sliced onion till soft in 2 tsp mustard oil. Add posto and green chilli paste, cook 3 minutes."],
+   ["Peyaj koli diye alu","Peyaj koli (onion stalks):300g:V;Potato:2pc:V","Cook with kalonji in 2 tsp oil, covered, till dry. A winter special."],
+   ["Peyaj koli bhaja","Peyaj koli (onion stalks):300g:V;Besan:30g:G","Chop, mix with besan and spices, roast on a non-stick tawa with a brush of oil."],
+   ["Palong bhaja, light","Spinach (palong):2bunch:V;Garlic bulb:1pc:V","High flame, 1 tsp oil. Garlic first, then spinach for 2 minutes, salt at the end."],
+   ["Methi aloo, Bengali","Methi leaves:2bunch:V;Potato:2pc:V","Cook potato cubes with kalonji, add chopped methi, cover until dry."],
+   ["Mushroom onion stir fry","Mushroom:400g:V;Onion:1pc:V","Mushroom on high heat to dry, then onion, green chilli and a little pepper."],
+   ["Shorshe mushroom","Mushroom:400g:V;Mustard seeds:25g:G","Cook mushroom till its water dries, add mustard and green chilli paste, cover 4 minutes."],
+   ["Jhal muri, light","Muri:150g:G;Cucumber:1pc:V;Onion:1pc:V;Tomato:1pc:V","Mix muri, chopped onion, tomato, cucumber, green chilli and a few drops of mustard oil. No chanachur."],
+   ["Peyaj lebu salad","Onion:2pc:V;Lemon:1pc:V","Onion rings with lemon, salt and green chilli. Served with khichuri or biryani."],
+   ["Aam diye ol","Ol (elephant yam):300g:V;Raw mango:1pc:V","Boil ol well, cook with kalonji and raw mango pieces in 2 tsp oil. Sweet and tangy.",0],
+   ["Gathi kochu chingri","Gathi kochu (arbi):300g:V;Small prawns:150g:F","Boil kochu, cook with prawns, onion and ginger in 2 tsp oil.",0],
+   ["Gathi kochu jhol","Gathi kochu (arbi):400g:V","Boil and peel, simmer in a light jhol with cumin, ginger and tomato in 1 tsp oil."]
+  ]);
+
+  /* ----- Dals ----- */
+  add("dal",1,[
+   ["Sada moong dal","Moong dal:150g:G","Dry-roast the dal, boil with turmeric and salt till soft. Tadka of 1 tsp ghee and green chilli. For a light stomach."],
+   ["Moong dal with gondhoraj","Moong dal:150g:G;Gondhoraj lemon:1pc:V","Boil roasted moong dal, finish with ghee, cumin, and a squeeze of gondhoraj lemon."],
+   ["Masoor dal with tomato","Masoor dal:150g:G;Tomato:2pc:V","Boil the dal and tomato, tadka of panch phoron and dried chilli in 1 tsp oil."],
+   ["Masoor dal with posto","Masoor dal:150g:G;Posto (poppy seeds):20g:G","Boil dal and cook with posto and green chilli paste, finish with kalonji in 1 tsp oil.",0],
+   ["Khesari dal, thin","Matar dal:150g:G","Soak, then boil till soft. Tadka of cumin and garlic in 1 tsp oil. Thin everyday dal."],
+   ["Matar dal with narkel","Matar dal:150g:G;Coconut pieces:30g:V","Soak the dal for 2 hours, boil, add chopped coconut and a pinch of sugar, tadka of cumin and bay leaf."],
+   ["Moong dal with kumro","Moong dal:150g:G;Pumpkin:200g:V","Boil roasted dal with pumpkin cubes, tadka with panch phoron in 1 tsp oil."],
+   ["Tomato dal","Masoor dal:150g:G;Tomato:3pc:V","Boil dal, tomato and turmeric, tadka with mustard seeds and curry leaves. Thin and comforting."],
+   ["Tok dal with tomato","Moong dal:150g:G;Tomato:2pc:V;Tamarind::P","Boil roasted moong dal, tamarind and a pinch of sugar. Tadka of panch phoron."],
+   ["Dal with lau","Moong dal:150g:G;Lau (bottle gourd):300g:V","Boil roasted moong dal with lau cubes till soft. Tadka of cumin in 1 tsp ghee."],
+   ["Biuli dal","Urad dal:150g:G","Soak 2 hours, boil with ginger. Tadka of ghee, cumin and dried chilli. Eaten with hot rice."],
+   ["Kalai dal bhaja","Urad dal:150g:G;Onion:1pc:V","Roast the dal lightly, boil till soft with ginger, finish with a fried onion tadka in 1 tsp ghee."],
+   ["Moong dal with bandhakopi","Moong dal:150g:G;Cabbage:200g:V","Boil roasted dal with finely shredded cabbage, tadka with cumin in 1 tsp ghee."],
+   ["Moong dal with methi","Moong dal:150g:G;Methi leaves:1bunch:V","Boil dal, add chopped methi leaves for the last 5 minutes. Tadka of garlic and dried chilli."],
+   ["Moong dal with palong","Moong dal:150g:G;Spinach (palong):1bunch:V","Boil roasted moong dal, add chopped palong, tadka with garlic."],
+   ["Masoor dal with pui shaak","Masoor dal:150g:G;Pui shaak:1bunch:V","Boil dal with tomato, add pui leaves, tadka of panch phoron in 1 tsp oil."],
+   ["Mixed dal, Bengali","Moong dal:60g:G;Masoor dal:50g:G;Chana dal:40g:G","Boil together with turmeric and ginger. Tadka with panch phoron and dried chilli in 1 tsp oil."],
+   ["Dal with bori and kumro","Moong dal:100g:G;Pumpkin:200g:V;Bori:30g:G","Roast the dal, boil with pumpkin, fried bori on top.",0],
+   ["Arhar dal with lau","Toor dal:150g:G;Lau (bottle gourd):300g:V","Pressure cook dal and lau together, tadka of cumin and garlic in 1 tsp ghee."],
+   ["Dhaniya dal, home style","Toor dal:150g:G;Coriander leaves:1bunch:V","Pressure cook dal, tadka with cumin, then stir in a handful of chopped coriander."],
+   ["Chana dal with lau","Chana dal:150g:G;Lau (bottle gourd):300g:V","Soak the dal for 1 hour, pressure cook with lau 3 whistles, tadka of cumin and green chilli."],
+   ["Moong dal khichuri, light","Moong dal:100g:G;Gobindobhog rice:250g:G;Potato:1pc:V;Green peas:80g:V","Roast the dal, cook with rice, vegetables, turmeric and ginger in 2 tsp ghee. Serve with begun bhaja."],
+   ["Musur dal with kancha lanka","Masoor dal:150g:G","Boil dal, tadka with kalonji and whole green chillies in 1 tsp mustard oil. Everyday dal."],
+   ["Pui diye moong dal","Moong dal:150g:G;Pui shaak:1bunch:V","Boil roasted moong dal, add pui leaves and stems, tadka of kalonji in 1 tsp oil."]
+  ]);
+
+  /* ----- Vegetarian mains and rice dishes ----- */
+  add("vegmain",1,[
+   ["Niramish aloor dum","Baby potato:400g:V;Tomato:2pc:V;Curd:50g:G","Prick and boil baby potatoes, roast lightly. Tomato and ginger gravy in 2 tsp oil, simmer the potatoes 8 minutes."],
+   ["Bhoger khichuri, Puja style","Gobindobhog rice:250g:G;Moong dal:100g:G;Cauliflower:1pc:V;Green peas:100g:V;Potato:1pc:V","Roasted dal, rice and vegetables with ginger and ghee, soft and thick. For a rainy day. Serve with begun bhaja.",0],
+   ["Dal bhaat with alu seddho","Rice:300g:G;Moong dal:100g:G;Potato:3pc:V","A plain Bengali lunch: hot rice, thin moong dal and mashed boiled potato with a drop of mustard oil. Easy and comforting."],
+   ["Bhaat with alu bhaja and begun bhaja","Rice:300g:G;Potato:2pc:V;Brinjal:1pc:V","Rice with potato and brinjal bhaja. The simplest lunch."],
+   ["Chholar dal with koraishuti","Chana dal:150g:G;Green peas:100g:V","Cook the dal with green peas and cumin, finish with ghee and coconut."],
+   ["Moong dal pulao with veg","Basmati rice:300g:G;Moong dal:60g:G;Green peas:100g:V;Carrot:1pc:V","Roast the dal, cook with rice, vegetables and whole spices in 2 tsp ghee."],
+   ["Basanti pulao, light","Basmati rice:300g:G;Green peas:80g:V;Raisins:30g:G","Rice cooked with turmeric, ghee, whole spices and a pinch of sugar. A festive pulao."],
+   ["Veg biryani, Bengali style","Basmati rice:300g:G;Potato:2pc:V;Cauliflower:1pc:V;Green peas:100g:V;Curd:100g:G","Marinate vegetables in curd, layer with half-cooked rice and dum for 20 minutes.",0],
+   ["Alur dom with ruti","Baby potato:400g:V;Atta:250g:G;Tomato:2pc:V","Roast boiled baby potatoes lightly. Tomato and ginger gravy in 2 tsp oil, simmer 8 minutes. Rolled with ruti."],
+   ["Ghugni, light, with ruti","Dried yellow peas:200g:G;Atta:250g:G;Onion:1pc:V","Soak the peas overnight and pressure cook. Onion and tomato masala in 2 tsp oil. Serve with dry-roasted rutis."],
+   ["Mishti kumro with ruti","Pumpkin:400g:V;Atta:250g:G","Cook pumpkin with panch phoron and a little jaggery till soft. Serve with dry-roasted ruti."],
+   ["Kancha moong salad","Moong sprouts:150g:V;Cucumber:1pc:V;Tomato:1pc:V","Raw sprouts with chopped cucumber, tomato, lemon, salt and chilli."],
+   ["Tofu jhol, Bengali style","Tofu:300g:G;Potato:1pc:V;Tomato:1pc:V","Sear the tofu on a tawa. Cumin and ginger jhol with potato and tomato, add tofu at the end."],
+   ["Soya chunk jhol","Soya chunks:150g:G;Potato:2pc:V;Tomato:1pc:V","Soak and squeeze the soya. Cumin and ginger jhol in 2 tsp oil with potato and tomato."],
+   ["Soya keema matar","Soya granules:100g:G;Green peas:150g:V;Tomato:2pc:V","Soak the soya granules. Onion and tomato masala in 2 tsp oil, add granules and peas."]
+  ]);
+
+  /* ----- Fish: Bengali home style ----- */
+  add("fish",0,[
+   ["Rui macher jhol, Sunday style","Rohu (rui) fish:600g:F;Potato:2pc:V;Tomato:1pc:V","Sear the fish lightly. Kalonji and green chilli in 2 tsp oil, potato and water, then fish. Simmer 8 minutes. Serve with plain rice."],
+   ["Katla macher jhol","Katla fish:600g:F;Potato:2pc:V;Tomato:1pc:V","Sear the fish lightly. Cumin and ginger in 2 tsp oil, potato and tomato with water, simmer the fish 8 minutes."],
+   ["Katla macher kalia, light","Katla fish:600g:F;Onion:2pc:V;Tomato:1pc:V;Curd:50g:G","Sear the fish. Onion and ginger paste in 1 tbsp oil, tomato and curd, simmer 8 minutes.",0],
+   ["Katla shorshe bhapa","Katla fish:600g:F;Mustard seeds:30g:G","Marinate the fish in mustard and green chilli paste with a little mustard oil. Steam 12 minutes.",0],
+   ["Katla paturi","Katla fish:500g:F;Mustard seeds:30g:G;Coconut pieces:30g:V;Banana leaf:6pc:V","Coat with mustard and coconut paste, wrap in banana leaf and steam 15 minutes.",0],
+   ["Rui kalia, home style","Rohu (rui) fish:600g:F;Onion:2pc:V;Tomato:2pc:V","Sear the fish. Onion, tomato and ginger masala in 1 tbsp oil, simmer 8 minutes.",0],
+   ["Rui macher doi","Rohu (rui) fish:600g:F;Curd:200g:G","Sear the fish lightly. Whisked curd with ginger and turmeric on low flame, simmer 6 minutes."],
+   ["Rui macher paturi","Rohu (rui) fish:500g:F;Mustard seeds:30g:G;Banana leaf:6pc:V","Mustard and green chilli paste on the fish, wrap in banana leaf, steam 15 minutes.",0],
+   ["Rui macher jhal, light","Rohu (rui) fish:600g:F;Tomato:2pc:V","Sear the fish. Tomato masala with red chilli and kalonji in 2 tsp mustard oil, simmer 6 minutes."],
+   ["Rui macher matha diye dal","Fish head:1pc:F;Moong dal:150g:G","Roast the dal, boil, add fried fish head pieces. A weekend special, low oil.",0],
+   ["Rui macher chop, tawa","Rohu (rui) fish:400g:F;Potato:2pc:V","Mash cooked fish and potato with ginger and chilli, shape patties and roast on a non-stick tawa."],
+   ["Bhetki macher jhol, light","Bhetki fish:500g:F;Potato:1pc:V;Tomato:1pc:V","Sear the fish. Cumin and ginger jhol in 2 tsp oil with potato and tomato, add fish 6 minutes."],
+   ["Bhetki shorshe","Bhetki fish:500g:F;Mustard seeds:30g:G","Mustard and green chilli paste with kalonji in 2 tsp mustard oil, add water and fish, cover 6 minutes."],
+   ["Bhetki macher kalia, light","Bhetki fish:500g:F;Onion:2pc:V;Tomato:1pc:V;Curd:50g:G","Sear the fish. Onion and ginger paste in 1 tbsp oil, tomato and curd, simmer 6 minutes.",0],
+   ["Bhetki fish fry, tawa","Bhetki fillet:500g:F;Lemon:1pc:V","Marinate with lemon, ginger, garlic and chilli. Cook on a non-stick tawa with a brush of oil till golden."],
+   ["Bhetki mach bhapa","Bhetki fish:500g:F;Mustard seeds:30g:G","Marinate in mustard paste and steam 12 minutes. Eat with plain rice.",0],
+   ["Pabda macher jhol","Pabda fish:500g:F;Potato:1pc:V;Tomato:1pc:V","Cumin and ginger jhol in 2 tsp oil, add potato, tomato and fish for 5 minutes. Soft fish, handle gently."],
+   ["Pabda tel jhal","Pabda fish:500g:F;Mustard seeds:20g:G","Mustard oil, whole green chilli and panch phoron, add water and fish, simmer 5 minutes."],
+   ["Pabda macher bhapa","Pabda fish:500g:F;Mustard seeds:30g:G","Mustard and coconut paste on the fish, steam 10 minutes.",0],
+   ["Parshe macher tel jhal","Parshe fish:500g:F;Tomato:1pc:V","Sear lightly. Mustard oil, kalonji, tomato and green chilli, simmer fish 6 minutes."],
+   ["Parshe shorshe","Parshe fish:500g:F;Mustard seeds:30g:G","Mustard and green chilli paste in 2 tsp oil, add water and fish, cover 6 minutes."],
+   ["Tangra macher jhol","Tangra fish:500g:F;Potato:1pc:V;Tomato:1pc:V","Cumin and ginger jhol with potato and tomato in 2 tsp oil, add the fish for 6 minutes."],
+   ["Tangra macher jhal, Bengali","Tangra fish:500g:F;Onion:1pc:V;Tomato:1pc:V","Sear lightly. Onion and tomato masala in 1 tbsp oil with red chilli, simmer fish 6 minutes."],
+   ["Tangra begun jhol","Tangra fish:500g:F;Brinjal:1pc:V;Potato:1pc:V","Kalonji jhol in 2 tsp oil with brinjal and potato, add fish 6 minutes."],
+   ["Magur macher jhol, light","Magur fish:500g:F;Potato:1pc:V;Raw papaya:150g:V","Sear lightly. Cumin and ginger jhol with raw papaya and potato, simmer 8 minutes. Good when someone is recovering."],
+   ["Shing macher jhol with papaya","Shing fish:400g:F;Raw papaya:200g:V","Thin jhol with papaya, cumin and ginger in 2 tsp oil. Light and healing."],
+   ["Koi macher jhol","Koi fish:500g:F;Tomato:1pc:V;Potato:1pc:V","Sear the koi. Kalonji, cumin and ginger in 2 tsp oil, potato and tomato, simmer fish 6 minutes."],
+   ["Koi macher jhal","Koi fish:500g:F;Onion:2pc:V;Tomato:1pc:V","Sear the fish. Onion and ginger masala in 1 tbsp oil with chilli, simmer fish 6 minutes."],
+   ["Mourala macher jhol","Mourala fish:300g:F;Potato:1pc:V;Tomato:1pc:V","Small fish, light jhol with potato and tomato in 2 tsp oil, 5 minutes."],
+   ["Mourala macher chorchori","Mourala fish:300g:F;Potato:1pc:V;Brinjal:1pc:V","Panch phoron in 2 tsp oil, brinjal and potato covered, add the small fish for the last 5 minutes."],
+   ["Mourala posto","Mourala fish:300g:F;Posto (poppy seeds):30g:G","Posto and green chilli paste in 2 tsp mustard oil, add small fish, simmer 5 minutes."],
+   ["Chitol macher kofta","Chitol fish:500g:F;Potato:1pc:V","Scrape the chitol flesh, mix with boiled potato and ginger. Steam as koftas and simmer in a light jhol.",0],
+   ["Chitol macher kalia, light","Chitol fish:500g:F;Onion:2pc:V;Tomato:1pc:V","Sear the fish. Onion and ginger paste in 1 tbsp oil, tomato and curd. Simmer 8 minutes.",0],
+   ["Topse macher bhaja","Topse fish:400g:F;Besan:30g:G","Marinate with turmeric and salt. Dust with besan and roast on a non-stick tawa with a brush of oil."],
+   ["Topse macher jhol","Topse fish:400g:F;Tomato:1pc:V;Potato:1pc:V","Light jhol of cumin, tomato and potato in 2 tsp oil, add the fish for 4 minutes."],
+   ["Ilish bhapa with shorshe","Ilish (hilsa):500g:F;Mustard seeds:30g:G","Marinate in mustard, green chilli and mustard oil. Steam 12 minutes in a closed box. Eat with plain rice.",0],
+   ["Ilish paturi","Ilish (hilsa):500g:F;Mustard seeds:30g:G;Coconut pieces:30g:V;Banana leaf:6pc:V","Mustard and coconut paste on the ilish, wrap in banana leaf and steam 15 minutes.",0],
+   ["Ilish macher jhol with begun","Ilish (hilsa):500g:F;Brinjal:1pc:V;Potato:1pc:V","Kalonji and green chilli in 2 tsp mustard oil, brinjal and potato with water, add ilish for 6 minutes."],
+   ["Ilish macher tel jhal","Ilish (hilsa):500g:F;Mustard seeds:20g:G","Mustard oil, whole green chillies and kalonji. Add water and fish, simmer 6 minutes."],
+   ["Ilish macher matha diye kochu shaak","Fish head:1pc:F;Kochu shaak:2bunch:V","Boil kochu shaak well and drain. Cook with ilish head and mustard oil.",0],
+   ["Chingri macher malaikari with coconut milk","Prawns (chingri):500g:F;Coconut milk:150ml:G;Onion:1pc:V","Ginger-onion paste in 2 tsp oil, thin coconut milk, simmer prawns 5 minutes.",0],
+   ["Chingri macher jhal","Prawns (chingri):500g:F;Onion:1pc:V;Tomato:1pc:V","Onion and tomato masala with red chilli in 2 tsp mustard oil, add prawns for 5 minutes."],
+   ["Chingri shorshe","Prawns (chingri):500g:F;Mustard seeds:30g:G","Mustard and green chilli paste with a little coconut in 2 tsp mustard oil, simmer prawns for 5 minutes."],
+   ["Chingri macher jhol","Prawns (chingri):400g:F;Potato:2pc:V;Tomato:1pc:V","Light jhol of cumin, ginger and tomato with potato, add prawns for 5 minutes."],
+   ["Chingri bhaja, tawa","Prawns (chingri):400g:F;Lemon:1pc:V","Marinate in lemon, turmeric and salt. Roast on a non-stick tawa with a brush of oil, 2 minutes a side."],
+   ["Chingri posto","Prawns (chingri):400g:F;Posto (poppy seeds):30g:G","Posto and green chilli paste in 2 tsp mustard oil, prawns for 5 minutes."],
+   ["Chingri paturi","Prawns (chingri):400g:F;Mustard seeds:30g:G;Coconut pieces:30g:V;Banana leaf:6pc:V","Mustard and coconut paste on the prawns, wrap in banana leaf and steam 12 minutes.",0],
+   ["Chingri kumro","Prawns (chingri):300g:F;Pumpkin:300g:V","Cook pumpkin with kalonji, add prawns for 5 minutes. Lightly sweet.",0],
+   ["Chingri bandhakopi","Prawns (chingri):300g:F;Cabbage:400g:V","Cabbage cooked with panch phoron, add prawns for 5 minutes.",0],
+   ["Chingri begun","Prawns (chingri):300g:F;Brinjal:2pc:V","Brinjal cubes cooked with kalonji, prawns added for 5 minutes."],
+   ["Chingri tomato","Prawns (chingri):400g:F;Tomato:3pc:V","Soft tomato masala in 2 tsp oil, add prawns for 5 minutes."],
+   ["Lau chingri, light","Prawns (chingri):300g:F;Lau (bottle gourd):400g:V","Lau cooked covered with kalonji. Add prawns for the last 5 minutes."],
+   ["Muri ghonto, light","Fish head:1pc:F;Gobindobhog rice:150g:G","Thick rice and fish-head masala cooked with ghee and whole spices.",0],
+   ["Macher muitha in tomato jhol","Rohu (rui) fish:400g:F;Tomato:2pc:V","Steam fish-and-potato dumplings, add to a light tomato jhol.",0],
+   ["Macher dimer bora with begun","Fish roe:250g:F;Brinjal:1pc:V","Roe patties on a tawa with a brush of oil. Brinjal bhaja on the side."],
+   ["Macher dim bhuna","Fish roe:250g:F;Onion:1pc:V;Tomato:1pc:V","Cook the roe gently in an onion and tomato masala in 2 tsp oil. Use only a little."],
+   ["Macher jhol with kumro and bori","Rohu (rui) fish:500g:F;Pumpkin:200g:V;Bori:30g:G","Light jhol with pumpkin, add roasted bori, simmer fish 6 minutes."],
+   ["Macher jhol with mulo","Rohu (rui) fish:500g:F;Mooli:1pc:V","Cumin and ginger jhol with mooli, add fish for 6 minutes."],
+   ["Macher jhol with kancha lanka","Rohu (rui) fish:500g:F;Potato:2pc:V","Kalonji, whole green chillies and potato in 2 tsp oil, add water and the fish. Everyday jhol."],
+   ["Macher kofta with potol","Rohu (rui) fish:400g:F;Potol:6pc:V","Steam fish koftas, simmer with potol in a light gravy.",0],
+   ["Dhone pata diye macher jhol","Rohu (rui) fish:500g:F;Coriander leaves:2bunch:V","No frying. Coriander and green chilli paste in 2 tsp oil, thin with water, add fish for 6 minutes."],
+   ["Maach bhaja, tawa","Rohu (rui) fish:500g:F","Rub the pieces with turmeric and salt, roast on a non-stick tawa with a brush of mustard oil till golden. Eaten with dal-bhat."],
+   ["Macher jhol with aloo and kancha kola","Rohu (rui) fish:500g:F;Potato:2pc:V;Raw banana:1pc:V","Kalonji jhol with potato and raw banana, add fish for 6 minutes."],
+   ["Shol macher jhol","Shol fish:500g:F;Potato:1pc:V;Tomato:1pc:V","Sear the shol. Cumin and tomato jhol in 2 tsp oil, simmer 6 minutes."],
+   ["Shol macher jhal","Shol fish:500g:F;Onion:1pc:V;Tomato:1pc:V","Onion and tomato masala with red chilli in 1 tbsp oil, simmer 6 minutes."],
+   ["Boal macher jhol","Boal fish:500g:F;Potato:1pc:V","Cumin, ginger and green chilli jhol in 2 tsp oil, add fish for 6 minutes."],
+   ["Aar macher jhal","Aar fish:600g:F;Onion:1pc:V;Tomato:1pc:V","Sear lightly. Onion and tomato masala with red chilli in 1 tbsp oil, simmer 8 minutes."],
+   ["Bata macher chorchori","Bata fish:300g:F;Potato:1pc:V;Brinjal:1pc:V","Panch phoron in 2 tsp oil, brinjal and potato, add the small fish at the end."],
+   ["Bata macher jhal","Bata fish:300g:F;Tomato:1pc:V","Small fish cooked with tomato and chilli in 2 tsp mustard oil, 5 minutes."],
+   ["Pangash macher jhol","Pangash fish:500g:F;Potato:1pc:V;Tomato:1pc:V","Cumin jhol with potato and tomato in 2 tsp oil, add fish for 6 minutes."],
+   ["Pangash macher jhal","Pangash fish:500g:F;Onion:1pc:V;Tomato:1pc:V","Onion and tomato masala in 1 tbsp oil, simmer fish 6 minutes."],
+   ["Mrigel macher jhol","Mrigel fish:500g:F;Potato:1pc:V;Tomato:1pc:V","Sear lightly. Cumin and ginger jhol with potato and tomato, simmer fish 8 minutes."],
+   ["Bhola macher jhal","Bhola fish:500g:F;Onion:1pc:V;Tomato:1pc:V","Sear lightly. Onion and tomato masala in 1 tbsp oil, simmer 6 minutes."],
+   ["Folui macher jhol","Folui fish:400g:F;Potato:1pc:V","Light jhol with cumin, ginger and potato in 2 tsp oil, add fish for 5 minutes."],
+   ["Tilapia macher jhol","Tilapia:500g:F;Potato:1pc:V;Tomato:1pc:V","Sear the fish. Cumin jhol with potato and tomato in 2 tsp oil, simmer 6 minutes."],
+   ["Chara pona macher jhal","Chara pona fish:300g:F;Onion:1pc:V;Tomato:1pc:V","Small fish cooked in an onion tomato masala in 1 tbsp oil, 5 minutes."],
+   ["Kajoli macher jhol","Kajoli fish:400g:F;Potato:1pc:V","Do not fry, the fish is delicate. Light jhol with cumin, kalonji and potato, add fish 5 minutes."],
+   ["Fish curry with raw mango","Rohu (rui) fish:500g:F;Raw mango:1pc:V","Sear the fish. Mustard seeds in 1 tsp oil, raw mango, water, simmer fish 6 minutes. Tangy summer curry."],
+   ["Fish curry with tamarind","Rohu (rui) fish:500g:F;Tamarind::P;Tomato:1pc:V","Sear the fish. Mustard seeds and curry leaves in 1 tsp oil, tomato and tamarind water, simmer 6 minutes."],
+   ["Fish tikka, tawa","Bhetki fillet:500g:F;Curd:100g:G;Lemon:1pc:V","Marinate cubes in curd, ginger garlic and lemon for 1 hour. Roast on a non-stick tawa with a brush of oil.",0],
+   ["Fish cutlet, tawa","Bhetki fillet:400g:F;Potato:1pc:V;Breadcrumbs:50g:G","Mash cooked fish with potato and spices, shape, crumb and roast on a non-stick tawa with a brush of oil.",0],
+   ["Fish kabiraji, baked","Bhetki fillet:400g:F;Eggs:2pc:E;Breadcrumbs:50g:G","Fish strips in a thin egg coat, baked in the oven or air-fried. Serve with kasundi.",0],
+   ["Prawn cutlet, baked","Prawns (chingri):300g:F;Potato:1pc:V;Breadcrumbs:50g:G","Mash prawns and potato with ginger and chilli, shape, crumb and bake 15 minutes.",0],
+   ["Fish tomato rice","Basmati rice:300g:G;Bhetki fillet:300g:F;Tomato:3pc:V","One-pot rice with seared fish pieces, tomato, ginger and whole spices.",0],
+   ["Fish khichuri","Gobindobhog rice:250g:G;Moong dal:100g:G;Bhetki fillet:300g:F","Roasted moong dal, rice and seared fish pieces cooked with ginger and ghee.",0],
+   ["Macher jhol with shaak","Rohu (rui) fish:500g:F;Spinach (palong):1bunch:V","Garlic in 2 tsp oil, wilt the greens, add water and the fish, simmer 6 minutes."],
+   ["Dahi maach, light","Rohu (rui) fish:500g:F;Curd:200g:G","Sear lightly. Curd with ginger and turmeric on low flame, simmer 6 minutes."],
+   ["Macher jhol with gondhoraj","Bhetki fish:500g:F;Gondhoraj lemon:1pc:V;Potato:1pc:V","Cumin jhol in 2 tsp oil, fish for 6 minutes, finish with gondhoraj lemon juice and leaf."],
+   ["Doi chingri","Prawns (chingri):400g:F;Curd:150g:G","Prawns cooked in a gently spiced whisked curd with ginger, on low flame, 5 minutes."],
+   ["Chingri dimer bora","Small prawns:150g:F;Eggs:2pc:E;Besan:30g:G","Chop prawns, mix with egg, onion, chilli and besan. Small patties on a non-stick tawa.",0],
+   ["Pomfret macher jhol","Pomfret:600g:F;Potato:1pc:V;Tomato:1pc:V","Cumin and ginger jhol in 2 tsp oil with potato and tomato, add pomfret for 8 minutes."],
+   ["Pomfret shorshe","Pomfret:600g:F;Mustard seeds:30g:G","Mustard and green chilli paste in 2 tsp oil, water and pomfret, cover 8 minutes."],
+   ["Pomfret tawa fry","Pomfret:600g:F;Lemon:1pc:V","Score, rub with lemon, turmeric, salt and ginger garlic. Roast on a non-stick tawa with a brush of oil."],
+   ["Bhetki paturi, light","Bhetki fish:500g:F;Mustard seeds:30g:G;Banana leaf:6pc:V","Mustard and green chilli paste, wrap in banana leaf and steam 15 minutes.",0],
+   ["Sardine curry, Bengali style","Sardine fish:500g:F;Tomato:1pc:V","Mustard oil, kalonji, tomato and green chilli. Simmer cleaned sardines for 8 minutes."],
+   ["Tuna salad, home style","Tuna fish (canned):200g:G;Cucumber:1pc:V;Tomato:1pc:V","Mix flaked tuna with chopped onion, tomato, cucumber, lemon and pepper. No mayonnaise."]
+  ]);
+
+  /* ----- Chicken: Bengali home style ----- */
+  add("chicken",0,[
+   ["Murgir jhol, Sunday style","Chicken:700g:F;Potato:2pc:V;Tomato:1pc:V;Onion:1pc:V","Skinless chicken. Onion, ginger garlic and tomato masala in 2 tsp oil, add potato, water and chicken, simmer 25 minutes. Thin and spicy."],
+   ["Murgir jhol with kancha kola","Chicken:600g:F;Raw banana:2pc:V;Potato:1pc:V","Light cumin and ginger jhol in 2 tsp oil with raw banana and potato, simmer chicken 25 minutes."],
+   ["Murgir jhol with lau","Chicken:600g:F;Lau (bottle gourd):300g:V","Cumin, ginger and green chilli jhol with lau, simmer chicken 25 minutes. Very light."],
+   ["Murgir jhol with potol","Chicken:600g:F;Potol:6pc:V;Potato:1pc:V","Light jhol of cumin and ginger, add potol and potato, simmer chicken 25 minutes."],
+   ["Murgir jhol with shim","Chicken:600g:F;Shim (flat beans):200g:V;Potato:1pc:V","Kalonji and ginger jhol in 2 tsp oil, vegetables and chicken, simmer 25 minutes."],
+   ["Murgir kosha, home style","Chicken:700g:F;Onion:3pc:V;Tomato:1pc:V","Cook the masala slowly in 1 tbsp oil with splashes of water till it coats the skinless chicken. Covered, 30 minutes."],
+   ["Murgir kosha, light","Chicken:700g:F;Onion:3pc:V;Curd:100g:G","Slow-cooked onion masala with curd in 1 tbsp oil, covered, till the chicken is tender.",0],
+   ["Murgir korma, Bengali","Chicken:700g:F;Onion:2pc:V;Curd:100g:G;Cashew:20g:G","Onion and cashew paste, curd and whole spices in 1 tbsp oil, covered, 25 minutes.",0],
+   ["Murgir rezala, home style","Chicken:700g:F;Curd:150g:G;Onion:2pc:V","White gravy of curd, onion paste and cashew with whole spices, no oil beyond 1 tbsp. Serve with ruti or pulao.",0],
+   ["Murgir rosha","Chicken:700g:F;Onion:2pc:V;Tomato:2pc:V;Garlic bulb:1pc:V","Thick onion, garlic and tomato gravy in 1 tbsp oil, coat the chicken, cover 25 minutes."],
+   ["Murgir jhol with aloo and begun","Chicken:600g:F;Potato:2pc:V;Brinjal:1pc:V","Kalonji and ginger jhol in 2 tsp oil, add vegetables and chicken, simmer 25 minutes."],
+   ["Murgir jhal, Bengali","Chicken:700g:F;Onion:2pc:V;Tomato:1pc:V","Onion and tomato masala with plenty of green and red chilli in 2 tsp mustard oil, simmer 25 minutes."],
+   ["Murgir posto","Chicken:600g:F;Posto (poppy seeds):40g:G;Onion:1pc:V","Posto and green chilli paste with onion in 2 tsp mustard oil, simmer chicken 25 minutes.",0],
+   ["Murgir dimer jhol","Chicken:500g:F;Eggs:4pc:E;Potato:2pc:V","Chicken and boiled eggs simmered with potato in a spicy jhol. Eggs added in the last 5 minutes."],
+   ["Murgir stew with potatoes","Chicken:500g:F;Potato:2pc:V;Carrot:1pc:V;Green peas:100g:V","Clear stew with whole spices, potato, carrot and peas in 1 tsp oil, 25 minutes."],
+   ["Murgir curry with raw mango","Chicken:600g:F;Raw mango:1pc:V","Onion and ginger masala in 2 tsp oil, add raw mango pieces and chicken. Sweet and sour."],
+   ["Chicken curry, Bengali, with peas","Chicken:600g:F;Green peas:150g:V;Potato:1pc:V","Cumin and ginger gravy in 2 tsp oil, add potato, peas and chicken, simmer 25 minutes."],
+   ["Murgir jhol with mulo","Chicken:600g:F;Mooli:1pc:V","Cumin and ginger jhol with mooli, simmer chicken 25 minutes. Winter dish."],
+   ["Chicken bhuna, Bengali","Chicken:700g:F;Onion:3pc:V;Tomato:1pc:V","Slow-cooked onion masala with splashes of water in 1 tbsp oil, covered till tender."],
+   ["Murgir jhol with kumro","Chicken:600g:F;Pumpkin:250g:V","Light jhol with pumpkin pieces, simmer chicken 25 minutes. Mildly sweet."],
+   ["Murgir jhol with dim","Chicken:500g:F;Eggs:3pc:E;Tomato:1pc:V","Chicken in a tomato jhol with boiled eggs added at the end."],
+   ["Chicken keema, Bengali","Chicken keema:500g:F;Green peas:100g:V;Tomato:2pc:V","Cumin and ginger in 2 tsp oil, tomato, keema and peas, covered, 15 minutes."],
+   ["Chicken keema with kumro","Chicken keema:400g:F;Pumpkin:250g:V","Cook keema with pumpkin cubes, cumin and ginger in 2 tsp oil, covered, 15 minutes."],
+   ["Chicken keema with potato","Chicken keema:400g:F;Potato:2pc:V;Tomato:1pc:V","Alu keema: cumin and tomato masala in 2 tsp oil with keema and potato, covered."],
+   ["Chicken cutlet, tawa","Chicken keema:300g:F;Potato:1pc:V;Breadcrumbs:50g:G","Mix keema with mashed potato and spices, shape, crumb and roast on a non-stick tawa with a brush of oil.",0],
+   ["Chicken tikka, tawa","Boneless chicken:500g:F;Curd:150g:G;Lemon:1pc:V","Marinate cubes in curd, ginger garlic and spices for 2 hours. Cook on a non-stick tawa.",0],
+   ["Lemon pepper chicken, tawa","Boneless chicken:500g:F;Lemon:2pc:V","Marinate in lemon, crushed pepper and garlic, roast on a non-stick tawa, 4 minutes a side."],
+   ["Chicken stew, Bengali","Chicken:500g:F;Potato:2pc:V;Carrot:1pc:V;Beans:100g:V","Whole spices in 1 tsp oil, chicken and vegetables with water, simmer till tender."],
+   ["Chicken do pyaza, Bengali","Chicken:600g:F;Onion:4pc:V;Tomato:1pc:V","Half the onion as paste in 2 tsp oil, the rest as petals at the end."],
+   ["Chicken dak bungalow, home style","Chicken:600g:F;Eggs:3pc:E;Potato:2pc:V","Chicken curry with potato and boiled eggs, in a thin spicy gravy. Colonial classic.",0],
+   ["Chicken with mushroom","Chicken:500g:F;Mushroom:250g:V;Onion:1pc:V","Cook mushroom first to dry, then onion masala in 2 tsp oil, add chicken, simmer 25 minutes."],
+   ["Chicken with spinach and garlic","Chicken:600g:F;Spinach (palong):2bunch:V;Garlic bulb:1pc:V","Garlic in 2 tsp oil, spinach puree, chicken simmered till tender."],
+   ["Chicken pulao, Bengali","Basmati rice:300g:G;Chicken:500g:F;Green peas:100g:V","Whole spices in 2 tsp ghee, rice, chicken pieces and water. Cook covered till done.",0],
+   ["Chicken khichuri, light","Gobindobhog rice:250g:G;Moong dal:100g:G;Chicken:300g:F","Roasted dal, rice and small chicken pieces cooked with ginger and ghee in one pot.",0],
+   ["Chicken ghugni","Dried yellow peas:150g:G;Chicken keema:200g:F;Onion:1pc:V","Pressure cooked peas with chicken keema and onion masala in 2 tsp oil.",0],
+   ["Chicken shorshe","Chicken:600g:F;Mustard seeds:30g:G","Mustard and green chilli paste with curd in 2 tsp mustard oil, simmer chicken 25 minutes."],
+   ["Chicken liver masala, light","Chicken liver:300g:F;Onion:2pc:V","Cook liver with onion, ginger garlic and pepper in 2 tsp oil, 10 minutes. Use occasionally."],
+   ["Chicken salad bowl","Boneless chicken:300g:F;Cucumber:1pc:V;Tomato:2pc:V;Lettuce:100g:V","Poach the chicken, shred and toss with raw vegetables, lemon and pepper."],
+   ["Chicken soup, clear","Chicken:400g:F;Carrot:1pc:V;Beans:100g:V","Simmer chicken with ginger, pepper and vegetables, serve as a thin soup."],
+   ["Chicken tomato jhol","Chicken:600g:F;Tomato:4pc:V","Thin tomato-based jhol with ginger and chilli, simmer chicken 25 minutes."],
+   ["Chicken with beans","Chicken:600g:F;Beans:200g:V;Potato:1pc:V","Cumin and ginger gravy in 2 tsp oil with potato and beans, simmer chicken 25 minutes."],
+   ["Chicken dhaniya, home style","Chicken:600g:F;Coriander leaves:2bunch:V;Curd:100g:G","Green coriander paste with curd and chilli, covered, 25 minutes."],
+   ["Chicken with raw papaya","Chicken:600g:F;Raw papaya:200g:V","Light jhol with raw papaya and cumin, simmer 25 minutes. Tenderises the chicken."],
+   ["Chicken chaap on tawa","Chicken legs:700g:F;Curd:150g:G;Onion:2pc:V","Marinate legs in curd, onion paste and spices, cook covered on a heavy tawa with 1 tsp oil.",0],
+   ["Chicken kabiraji, baked","Boneless chicken:400g:F;Eggs:2pc:E;Breadcrumbs:50g:G","Chicken strips in a thin egg coat, baked or air-fried. Serve with kasundi.",0],
+   ["Mughlai paratha, tawa, light","Boneless chicken:300g:F;Eggs:2pc:E;Atta:250g:G","Egg and chicken keema wrapped in atta, tawa roasted.",0]
+  ]);
+
+  /* ----- Egg dishes ----- */
+  add("egg",0,[
+   ["Dimer jhol with potato","Eggs:6pc:E;Potato:2pc:V;Tomato:1pc:V","Boil the eggs, make slits. Cumin and ginger jhol in 2 tsp oil with potato and tomato, add the eggs at the end. Everyday dish."],
+   ["Dimer dalna, home style","Eggs:6pc:E;Potato:2pc:V;Onion:1pc:V;Tomato:1pc:V","Boil the eggs, lightly roast. Onion tomato gravy in 2 tsp oil, simmer with potato and eggs 8 minutes."],
+   ["Dimer kosha","Eggs:6pc:E;Onion:3pc:V;Tomato:1pc:V","Boiled eggs in a thick brown onion masala cooked with a splash of water, in 1 tbsp oil."],
+   ["Dimer curry with peas","Eggs:6pc:E;Green peas:100g:V;Tomato:2pc:V","Onion and tomato gravy in 2 tsp oil, peas, then boiled eggs for 3 minutes."],
+   ["Dimer posto","Eggs:6pc:E;Posto (poppy seeds):30g:G","Boiled eggs in a posto and green chilli paste cooked in 2 tsp mustard oil."],
+   ["Dim shorshe","Eggs:6pc:E;Mustard seeds:25g:G","Boiled eggs in a mustard and green chilli paste, simmered 5 minutes in 2 tsp mustard oil."],
+   ["Dimer devil, tawa","Eggs:6pc:E;Potato:1pc:V;Breadcrumbs:50g:G","Cover boiled eggs with spiced mashed potato, crumb and roast on a tawa with a brush of oil. Cook gently."],
+   ["Dimer chop","Eggs:4pc:E;Potato:2pc:V","Boiled egg wrapped in seasoned mash, crumbed and baked. Eaten with kasundi.",0],
+   ["Dim bhaja","Eggs:6pc:E","Boiled eggs, halved, rubbed with turmeric and salt, roasted on a non-stick tawa with a brush of oil."],
+   ["Omelette with onion and green chilli","Eggs:6pc:E;Onion:1pc:V","Beat eggs with chopped onion, green chilli and coriander. Cook on a non-stick pan with a brush of oil."],
+   ["Dim ghonto","Eggs:5pc:E;Cabbage:300g:V;Potato:1pc:V","Panch phoron in 2 tsp oil, cabbage and potato, covered, add the egg crumbles at the end.",0],
+   ["Dim bhurji with palong","Eggs:6pc:E;Spinach (palong):1bunch:V","Wilt the palong with garlic, scramble the eggs in, 1 tsp oil."],
+   ["Dim bhurji, Bengali","Eggs:6pc:E;Onion:1pc:V;Tomato:1pc:V","Onion, green chilli and tomato in 1 tsp oil, eggs scrambled in. Serve with ruti."],
+   ["Dimer kalia, light","Eggs:6pc:E;Onion:2pc:V;Tomato:1pc:V;Curd:50g:G","Onion and ginger paste in 1 tbsp oil, tomato and curd, simmer boiled eggs 5 minutes."],
+   ["Dim dhone pata","Eggs:6pc:E;Coriander leaves:2bunch:V","Boiled eggs in a green coriander and chilli gravy, light."],
+   ["Dimer paturi, steamed","Eggs:6pc:E;Mustard seeds:30g:G;Banana leaf:6pc:V","Boiled eggs coated with mustard, wrapped in banana leaf and steamed 10 minutes.",0],
+   ["Dimer jhol with kumro","Eggs:6pc:E;Pumpkin:250g:V","Light jhol with pumpkin, boiled eggs added at the end."],
+   ["Dimer jhol with lau","Eggs:6pc:E;Lau (bottle gourd):300g:V","Cook lau in a cumin and ginger jhol, add boiled eggs for 3 minutes. Very light."],
+   ["Dimer jhol with phulkopi","Eggs:6pc:E;Cauliflower:1pc:V;Potato:1pc:V","Cumin and ginger jhol with cauliflower and potato, add boiled eggs at the end."],
+   ["Dim pulao","Basmati rice:300g:G;Eggs:4pc:E;Green peas:80g:V","Whole spices in 2 tsp ghee, rice and peas. Boiled eggs added for the last 5 minutes.",0],
+   ["Dim khichuri","Gobindobhog rice:250g:G;Moong dal:100g:G;Eggs:4pc:E","Roasted moong dal and rice cooked with ginger and ghee. Boiled eggs on top.",0],
+   ["Egg roll, tawa","Eggs:4pc:E;Atta:250g:G;Onion:1pc:V","Thin atta paratha with an omelette inside, with onion, chilli, lemon and chutney. Kolkata street style, low oil."],
+   ["Egg chowmein, home style","Hakka noodles:300g:G;Eggs:3pc:E;Cabbage:150g:V;Carrot:1pc:V","Scrambled eggs and vegetable stir fry with noodles in 1 tbsp oil."],
+   ["Egg sandwich, home style","Brown bread:8pc:G;Eggs:4pc:E;Cucumber:1pc:V","Boiled egg and cucumber with pepper between brown bread slices."],
+   ["Muger dal with dim","Moong dal:150g:G;Eggs:4pc:E","Plain moong dal with a boiled egg per person, and a drop of ghee."],
+   ["Egg curry with tomato, light","Eggs:6pc:E;Tomato:4pc:V","Thin tomato-based gravy with ginger and chilli, boiled eggs added for 5 minutes."],
+   ["Dim torkari with alu","Eggs:5pc:E;Potato:3pc:V;Tomato:1pc:V","Home-style egg and potato curry. Cumin and ginger in 2 tsp oil, boiled eggs and potato."],
+   ["Egg stuffed capsicum, baked","Eggs:4pc:E;Capsicum:4pc:V","Bake capsicum cups filled with beaten egg and herbs, 15 minutes.",0],
+   ["Egg and spinach bake","Eggs:6pc:E;Spinach (palong):1bunch:V","Wilt the spinach with garlic, add beaten eggs, bake 15 minutes.",0],
+   ["Dim ar lau torkari","Eggs:4pc:E;Lau (bottle gourd):400g:V","Lau cooked with kalonji, eggs scrambled in at the end."],
+   ["Dimer cutlet, baked","Eggs:4pc:E;Potato:2pc:V;Breadcrumbs:50g:G","Boiled egg and mashed potato patties, crumbed and baked.",0],
+   ["Dim posto with potol","Eggs:5pc:E;Potol:6pc:V;Posto (poppy seeds):30g:G","Boiled eggs with potol in a posto gravy in 2 tsp oil.",0]
+  ]);
+
+  /* ----- Easy breakfasts and light meals ----- */
+  add("bf",1,[
+   ["Ruti with alu bhaja","Atta:250g:G;Potato:3pc:V","Dry-roasted ruti with roasted potato slices and a pinch of kalonji."],
+   ["Ruti with begun bhaja","Atta:250g:G;Brinjal:2pc:V","Phulka rutis with brinjal slices roasted on a tawa with a brush of oil."],
+   ["Ruti with kumro chokka","Atta:250g:G;Pumpkin:400g:V","Dry-roasted rutis with a quick pumpkin chokka."],
+   ["Ruti with alu posto","Atta:250g:G;Potato:3pc:V;Posto (poppy seeds):30g:G","Dry-roasted rutis with potato and posto, cooked in 2 tsp oil."],
+   ["Ruti with dim bhaji","Atta:250g:G;Eggs:4pc:E","Rutis with a plain scrambled egg, onion and chilli."],
+   ["Ruti with chhanar torkari","Atta:250g:G;Paneer:150g:G;Tomato:1pc:V","Rutis with a light paneer and tomato sabzi."],
+   ["Ruti with aloo seddho","Atta:250g:G;Potato:3pc:V","Rutis with mashed boiled potato, green chilli and a drop of mustard oil. A quick breakfast."],
+   ["Chirer pulao with peas","Chire (poha):250g:G;Green peas:100g:V;Peanuts:30g:G","Rinse chire, toss with peas, peanuts, turmeric and lemon in 2 tsp oil."],
+   ["Moong dal chilla with onion","Moong dal:150g:G;Onion:1pc:V","Soak and grind moong dal, spread thin on a non-stick tawa with a brush of oil. With green chutney."],
+   ["Vegetable oats upma","Oats:150g:G;Carrot:1pc:V;Green peas:80g:V","Roast oats lightly. Mustard seeds in 1 tsp oil, vegetables, water and oats, cook 5 minutes."],
+   ["Besan chilla, Bengali","Besan:200g:G;Onion:1pc:V;Tomato:1pc:V","Batter with chopped onion, tomato and green chilli. Thin chilla on a non-stick tawa with a brush of oil."],
+   ["Suji vegetable cheela","Suji:200g:G;Curd:100g:G;Carrot:1pc:V","Batter of suji and curd with grated carrot, a thin cheela on a non-stick tawa."],
+   ["Dahi chire with fruit","Chire (poha):150g:G;Curd:300g:G;Banana:2pc:V","Soak chire, mix with curd, banana and a little jaggery. A cooling breakfast."],
+   ["Muri makha, home style","Muri:200g:G;Cucumber:1pc:V;Onion:1pc:V","Muri with cucumber, onion, green chilli, lemon and a drop of mustard oil."],
+   ["Cholar dal with ruti","Chana dal:100g:G;Atta:250g:G","Pressure cooked chana dal with coconut, rolled ruti."],
+   ["Banana ruti roll","Atta:250g:G;Banana:3pc:V","Ruti rolled with mashed banana and honey. A sweet breakfast for children."],
+   ["Alu paratha, tawa, with curd","Atta:300g:G;Potato:3pc:V;Curd:150g:G","Stuff with spiced mashed potato, roast with a brush of ghee. Serve with curd."],
+   ["Palak paratha with curd","Atta:300g:G;Spinach (palong):1bunch:V;Curd:150g:G","Knead with puréed spinach, roast on a tawa with a brush of ghee."],
+   ["Moong dal pancake","Moong dal:150g:G;Spinach (palong):1bunch:V","Blended moong dal and palong, spread thin on a non-stick tawa."],
+   ["Vegetable poha with peanuts","Chire (poha):250g:G;Onion:1pc:V;Peanuts:40g:G","Rinse the poha. Mustard seeds in 1 tsp oil, onion, peanuts and turmeric. Lemon on top."],
+   ["Sattu paratha","Atta:250g:G;Sattu:100g:G","Stuff dough with sattu, onion, green chilli and ajwain. Roast on a tawa with a brush of ghee."],
+   ["Sattu drink, salted","Sattu:60g:G;Lemon:1pc:V","Sattu with water, lemon, roasted cumin and salt. A cool and filling morning drink."]
+  ],"b");
+  /* non-veg breakfast */
+  add("bf",0,[
+   ["Egg toast, Bengali","Brown bread:8pc:G;Eggs:4pc:E;Onion:1pc:V","Beaten egg with onion and chilli, bread dipped and roasted on a tawa with a brush of oil."],
+   ["Dim ruti roll","Atta:250g:G;Eggs:4pc:E","Egg omelette folded in rutis with onion and lemon."],
+   ["Dim pauruti with tomato","Brown bread:6pc:G;Eggs:4pc:E;Tomato:1pc:V","Bread with egg and tomato, roasted on a non-stick tawa."],
+   ["Boiled egg with ruti and alu bhaja","Eggs:4pc:E;Atta:250g:G;Potato:2pc:V","Boiled eggs with rutis and roasted potato."],
+   ["Chicken keema paratha, tawa","Chicken keema:200g:F;Atta:250g:G","Spiced keema stuffed in atta, roast on a tawa with a brush of ghee.",0],
+   ["Egg and veg poha","Chire (poha):250g:G;Eggs:3pc:E;Onion:1pc:V","Poha with onion, green chilli and scrambled egg in 2 tsp oil."],
+   ["Masala omelette with ruti","Eggs:6pc:E;Atta:250g:G;Onion:1pc:V","Masala omelette with onion, tomato and green chilli, with dry-roasted ruti."]
+  ],"b");
+  /* ----- Second batch: more shaak, bhate, bata, fish, chicken, egg and easy one-pot meals ----- */
+  add("side",1,[
+   ["Notey shaak bhaja","Notey shaak:2bunch:V;Garlic bulb:1pc:V","Garlic and dried chilli in 2 tsp oil, wilt the notey shaak, cook uncovered till dry."],
+   ["Kolmi shaak with posto","Kolmi shaak:2bunch:V;Posto (poppy seeds):20g:G","Wilt the kolmi shaak with green chilli, add posto paste at the end, cook 2 minutes."],
+   ["Kolmi shaak chingri","Kolmi shaak:2bunch:V;Small prawns:100g:F","Garlic in 2 tsp oil, wilt the greens, add prawns for 4 minutes.",0],
+   ["Lal shaak chorchori","Lal shaak:2bunch:V;Potato:1pc:V;Pumpkin:150g:V","Panch phoron in 2 tsp oil, potato and pumpkin cubes, then the chopped shaak, covered till dry."],
+   ["Lal shaak chingri","Lal shaak:2bunch:V;Small prawns:100g:F","Garlic in 2 tsp oil, wilt the shaak, add prawns for 4 minutes.",0],
+   ["Pui shaak with chingri","Pui shaak:2bunch:V;Small prawns:100g:F","Cook pui stems first, add leaves and prawns, finish with a pinch of sugar.",0],
+   ["Pui shaak posto","Pui shaak:2bunch:V;Posto (poppy seeds):20g:G","Cook pui with green chilli, add posto paste at the end."],
+   ["Methi shaak with moong dal","Methi leaves:2bunch:V;Moong dal:60g:G","Boil roasted moong dal till half done, add methi, cook till dry, tadka of garlic."],
+   ["Sorshe shaak","Sarson (mustard greens):2bunch:V;Garlic bulb:1pc:V","Blanch the greens and chop, cook with garlic and green chilli in 2 tsp mustard oil."],
+   ["Mulo shaak bhaja","Mulo shaak:2bunch:V;Garlic bulb:1pc:V","Garlic in 2 tsp oil, wilt the mulo shaak, cover for 3 minutes. Simple winter side."],
+   ["Beet shaak chorchori","Beetroot:2pc:V;Spinach (palong):1bunch:V","Panch phoron in 2 tsp oil, grated beet cooked, then spinach for 2 minutes."],
+   ["Kumro shaak with chingri","Kumro shaak:2bunch:V;Small prawns:100g:F","Cook the pumpkin leaves with garlic, add prawns for 4 minutes.",0],
+   ["Sojne data bhaja, tawa","Drumstick:8pc:V","Boil drumstick halfway, roast on a tawa with 1 tsp oil, green chilli and turmeric."],
+   ["Sojne pata bhaja","Sojne phul:200g:V;Potato:1pc:V","Drumstick leaves tossed with potato cubes, green chilli and 2 tsp oil, cooked covered."],
+   ["Aloo seddho with mustard oil","Potato:4pc:V;Onion:1pc:V","Boiled potatoes mashed with mustard oil, salt and green chilli. The side for dal-bhat."],
+   ["Alu chorchori with kalo jeere","Potato:4pc:V;Kalonji::P","Thin potato slices in 2 tsp mustard oil with kalonji, cooked covered till soft and dry."],
+   ["Alu piyaj bhaja","Potato:3pc:V;Onion:2pc:V","Matchstick potato and sliced onion roasted on a non-stick tawa with 1 tsp oil."],
+   ["Alu torkari with tomato","Potato:4pc:V;Tomato:2pc:V","Cumin and ginger in 2 tsp oil, tomato, potato cubes and water. Cover and simmer. Everyday."],
+   ["Alu ar kumro torkari","Potato:2pc:V;Pumpkin:300g:V","Panch phoron in 2 tsp oil, potato and pumpkin cubes, covered with a splash of water."],
+   ["Alu posto with kalo jeere","Potato:4pc:V;Posto (poppy seeds):40g:G","Potato cubes in 2 tsp mustard oil, add posto and green chilli paste, cook till dry."],
+   ["Alu begun torkari","Potato:2pc:V;Brinjal:2pc:V","Panch phoron in 2 tsp oil, brinjal and potato, cover and cook till soft."],
+   ["Alu matar torkari, Bengali","Potato:3pc:V;Green peas:200g:V;Tomato:1pc:V","Cumin and ginger in 2 tsp oil, tomato, potato and peas. Cover and simmer 12 minutes."],
+   ["Alu mulo torkari","Potato:2pc:V;Mooli:2pc:V","Cumin in 2 tsp oil, potato and mooli, covered, with a splash of water."],
+   ["Alu shaak","Potato:2pc:V;Spinach (palong):1bunch:V","Cook potato cubes with panch phoron, add spinach, cover till dry."],
+   ["Begun bhaja with kalonji","Brinjal:2pc:V;Kalonji::P","Brinjal rounds with turmeric and salt, roasted on a tawa with a brush of oil. Sprinkle kalonji."],
+   ["Begun chorchori","Brinjal:3pc:V;Potato:1pc:V","Panch phoron in 2 tsp oil, brinjal and potato, cover and cook till soft."],
+   ["Begun shorshe jhal","Brinjal:3pc:V;Mustard seeds:25g:G","Brinjal cubes in a mustard and chilli gravy in 2 tsp mustard oil, covered 8 minutes."],
+   ["Begun diye muger dal","Brinjal:2pc:V;Moong dal:100g:G","Roast the dal, cook with brinjal cubes and ginger, tadka of cumin. A mix of dal and torkari."],
+   ["Phulkopi alu jhol","Cauliflower:1pc:V;Potato:2pc:V;Tomato:1pc:V","Cumin and ginger jhol in 2 tsp oil with vegetables. Thin, with plain rice."],
+   ["Phulkopi mutter torkari","Cauliflower:1pc:V;Green peas:100g:V","Cumin and ginger in 2 tsp oil, cauliflower and peas, cover and cook till dry."],
+   ["Phulkopir shingara filling, dry","Cauliflower:1pc:V;Green peas:100g:V","Dry cauliflower and peas cooked with ginger, no gravy. Eat with ruti or as a tawa-roasted filling."],
+   ["Bandhakopi muger dal","Cabbage:300g:V;Moong dal:100g:G","Roast the dal, cook with cabbage and ginger, tadka of cumin."],
+   ["Bandhakopi bhaja, dry","Cabbage:500g:V","Shred the cabbage, toss with cumin, green chilli and turmeric in 2 tsp oil, uncovered till dry."],
+   ["Bandhakopi posto","Cabbage:500g:V;Posto (poppy seeds):30g:G","Cabbage cooked covered in 2 tsp mustard oil, posto and green chilli paste at the end."],
+   ["Bandhakopi peyaj koli","Cabbage:300g:V;Peyaj koli (onion stalks):200g:V","Cabbage and onion stalks tossed together in 2 tsp oil with green chilli, covered till dry."],
+   ["Lau diye moong dal ghonto","Lau (bottle gourd):300g:V;Moong dal:60g:G","Roast the dal, cook with grated lau and ginger till soft and dry."],
+   ["Lau ar chingri bhaate","Lau (bottle gourd):200g:V;Small prawns:100g:F","Steam lau and prawns on top of the rice. Mash with mustard oil and green chilli.",0],
+   ["Lau bhate","Lau (bottle gourd):300g:V","Steam cubes of lau on top of the rice, mash with mustard oil, salt and green chilli."],
+   ["Pumpkin bhate","Pumpkin:300g:V","Steam pumpkin on top of the rice, mash with mustard oil, salt and green chilli."],
+   ["Potol bhate","Potol:6pc:V","Steam potol with the rice, mash with mustard oil and green chilli."],
+   ["Alu bhate with ghee","Potato:3pc:V","Steam potato with the rice, mash with a spoon of ghee, salt and green chilli. Comfort food."],
+   ["Dal bhate","Moong dal:60g:G","Cook dal in the rice pot. Mash with a spoon of ghee, salt and green chilli."],
+   ["Dim bhate","Eggs:4pc:E","Steam eggs with the rice, mash with ghee or mustard oil, salt and green chilli.",0],
+   ["Kancha aam bhate","Raw mango:1pc:V","Steam raw mango on top of the rice, mash with mustard oil, salt, sugar and green chilli. A summer treat."],
+   ["Kolar bora","Raw banana:2pc:V;Besan:40g:G","Mash raw banana with besan and spices, make small patties and roast on a non-stick tawa."],
+   ["Shosha bata","Cucumber:2pc:V;Mustard seeds:20g:G","Grated cucumber with mustard paste, green chilli, salt and a drop of mustard oil. Cooling."],
+   ["Kumro bata","Pumpkin:400g:V;Mustard seeds:20g:G","Steam pumpkin, mash with mustard paste, green chilli and a drop of mustard oil."],
+   ["Jhinge bata","Jhinge (ridge gourd):400g:V;Mustard seeds:20g:G","Boil jhinge, mash with mustard paste, green chilli and salt."],
+   ["Kochu bata","Gathi kochu (arbi):300g:V;Mustard seeds:20g:G","Boil kochu well, mash with mustard paste, chilli and a drop of mustard oil."],
+   ["Dal bata","Moong dal:100g:G","Boil moong dal very soft and mash with green chilli, onion and mustard oil."],
+   ["Mochar bata","Mocha (banana flower):1pc:V;Mustard seeds:20g:G","Boil chopped mocha, mash with mustard paste, green chilli and a drop of mustard oil."],
+   ["Peyaj bata","Onion:3pc:V","Roasted onion mashed with green chilli, salt and a drop of mustard oil. Eat with panta bhat or dal-bhat."],
+   ["Tomato bata","Tomato:4pc:V","Roast tomatoes on the flame, peel and mash with green chilli, onion and mustard oil."],
+   ["Posto bata","Posto (poppy seeds):40g:G;Onion:1pc:V","Posto paste with raw onion, green chilli and mustard oil, eaten with hot rice."],
+   ["Alu begun phulkopi, mixed bhaja","Potato:2pc:V;Brinjal:1pc:V;Cauliflower:0.5pc:V","Slices of all three roasted on a non-stick tawa with a brush of oil, a mixed platter for dal-bhat."],
+   ["Beguni, tawa, light","Brinjal:2pc:V;Besan:60g:G","Brinjal slices in a thin besan and rice flour batter, roasted on a tawa with a brush of oil."],
+   ["Peyaji, tawa, light","Onion:3pc:V;Besan:60g:G","Onion slices in a thin besan and rice flour batter, roasted on a non-stick tawa."],
+   ["Phulkopi pakora, baked","Cauliflower:1pc:V;Besan:60g:G","Florets in a thin besan batter with spices, baked or air-fried till crisp."],
+   ["Mixed vegetable chop, tawa","Beetroot:1pc:V;Potato:2pc:V;Carrot:1pc:V","Boil and mash with ginger and chilli, shape cutlets, roast on a non-stick tawa. Kolkata style."],
+   ["Mixed veg stir fry, Bengali","Carrot:1pc:V;Beans:150g:V;Cabbage:150g:V;Green peas:80g:V","Panch phoron in 2 tsp oil, chopped vegetables, cover and cook till dry."],
+   ["Chhanar paturi, light","Paneer:250g:G;Mustard seeds:25g:G;Banana leaf:6pc:V","Mustard paste mixed with crumbled paneer, wrapped in banana leaf and steamed 12 minutes.",0],
+   ["Soya bori, mixed vegetable","Soya chunks:80g:G;Carrot:1pc:V;Potato:1pc:V","Soak the soya, cook with potato and carrot in 2 tsp oil. Mild and easy to eat."],
+   ["Mushroom posto","Mushroom:400g:V;Posto (poppy seeds):30g:G","Cook mushroom till its water dries, add posto and green chilli paste in 2 tsp mustard oil."],
+   ["Mushroom dalna, home style","Mushroom:400g:V;Potato:1pc:V;Tomato:1pc:V","Cumin and ginger gravy with potato and tomato in 2 tsp oil, add mushroom for 8 minutes."],
+   ["Corn palong","Sweet corn:150g:V;Spinach (palong):1bunch:V","Garlic in 1 tsp oil, spinach, then boiled corn. A quick lunchbox side."],
+   ["Lemon cucumber salad","Cucumber:2pc:V;Lemon:1pc:V","Cucumber slices with lemon, salt, roasted cumin and green chilli."],
+   ["Carrot cucumber kachumber","Carrot:2pc:V;Cucumber:1pc:V;Tomato:1pc:V","Chopped raw vegetables with lemon, chaat masala and coriander."],
+   ["Beetroot raita","Beetroot:1pc:V;Curd:300g:G","Grated boiled beetroot in whisked curd with roasted cumin and salt."],
+   ["Salted chaas with roasted cumin","Curd:300g:G;Lemon:1pc:V","Whisk curd with water, salt and roasted cumin. A salted chaas for lunch."]
+  ]);
+
+  add("vegmain",1,[
+   ["Tomato rice, home style","Rice:300g:G;Tomato:4pc:V;Green peas:80g:V","Mustard seeds and curry leaves in 2 tsp oil, tomato masala, cooked rice folded through. Serve with curd."],
+   ["Lemon rice with peanuts","Rice:300g:G;Lemon:2pc:V;Peanuts:40g:G","Mustard seeds, peanuts and curry leaves in 2 tsp oil, cooked rice and lemon juice folded in."],
+   ["Curd rice, home style","Rice:300g:G;Curd:300g:G","Soft rice mixed with curd, tempered with mustard seeds and curry leaves."],
+   ["Jeera rice with dal","Basmati rice:300g:G;Moong dal:100g:G","Cumin in 1 tsp ghee, rice and water, served with thin moong dal."],
+   ["Vegetable khichdi, one pot","Rice:200g:G;Moong dal:100g:G;Carrot:1pc:V;Green peas:100g:V","Pressure cook rice, dal and vegetables with turmeric and ginger. A comfort lunch with curd."],
+   ["Lau khichuri","Gobindobhog rice:250g:G;Moong dal:100g:G;Lau (bottle gourd):300g:V","Roasted moong dal, rice and lau in one pot with ginger and ghee."],
+   ["Alu khichuri","Gobindobhog rice:250g:G;Moong dal:100g:G;Potato:2pc:V","Roasted dal, rice and potato with ginger, one pot."],
+   ["Phulkopi khichuri","Gobindobhog rice:250g:G;Moong dal:100g:G;Cauliflower:1pc:V","Roasted dal, rice and cauliflower florets with ginger and ghee."],
+   ["Ruti with alu dum, light","Atta:250g:G;Baby potato:300g:V","Rutis with a spiced baby potato curry made without frying."],
+   ["Alu chop, tawa","Potato:3pc:V;Besan:40g:G","Boiled potato patties with ginger and chilli, roasted on a non-stick tawa with a brush of oil.",0],
+   ["Veg fried rice, Bengali","Basmati rice:350g:G;Carrot:1pc:V;Beans:100g:V;Green peas:80g:V","Cooled rice, stir fried with vegetables, pepper and soy in 1 tbsp oil."],
+   ["Veg pulao, home style","Basmati rice:300g:G;Carrot:1pc:V;Green peas:100g:V;Potato:1pc:V","Whole spices in 2 tsp ghee, vegetables, rice and water, cook covered."],
+   ["Paneer pulao, light","Basmati rice:300g:G;Paneer:200g:G;Green peas:100g:V","Whole spices in 2 tsp ghee, rice, peas and water, paneer cubes at the end."],
+   ["Moong dal khichuri with begun bhaja","Gobindobhog rice:250g:G;Moong dal:100g:G;Brinjal:2pc:V","Roasted dal and rice in one pot, served with brinjal bhaja on the side."],
+   ["Rajma, Bengali style","Rajma:150g:G;Potato:1pc:V;Tomato:2pc:V","Pressure cook the rajma, simmer with cumin, ginger, potato and tomato in 2 tsp oil."],
+   ["Chana ghugni with ruti","Kabuli chana:150g:G;Atta:250g:G;Onion:1pc:V","Pressure cook chana, simmer with onion, tomato and a bit of coconut. Serve with rutis."],
+   ["Sattu ruti","Atta:250g:G;Sattu:100g:G","Stuffed sattu rutis, roasted on a tawa. Serve with curd and a pickle."]
+  ]);
+
+  add("fish",0,[
+   ["Rui macher jhol with phulkopi","Rohu (rui) fish:500g:F;Cauliflower:1pc:V;Potato:1pc:V","Sear the fish. Cumin and ginger jhol with cauliflower and potato in 2 tsp oil, simmer 8 minutes."],
+   ["Rui macher jhol with beans","Rohu (rui) fish:500g:F;Beans:150g:V;Potato:1pc:V","Kalonji jhol with beans and potato, add the fish for 8 minutes."],
+   ["Rui macher shorshe jhal","Rohu (rui) fish:500g:F;Mustard seeds:30g:G","Mustard and green chilli paste with kalonji in 2 tsp mustard oil, water and fish, 8 minutes."],
+   ["Katla macher jhol with phulkopi","Katla fish:500g:F;Cauliflower:1pc:V;Potato:1pc:V","Sear the fish. Light jhol with cauliflower and potato in 2 tsp oil, 8 minutes."],
+   ["Katla macher posto","Katla fish:500g:F;Posto (poppy seeds):30g:G","Posto and green chilli paste in 2 tsp mustard oil, simmer the fish 8 minutes."],
+   ["Katla macher shorshe jhal","Katla fish:500g:F;Mustard seeds:30g:G","Mustard paste with kalonji, add water and fish, cover 8 minutes."],
+   ["Katla macher jhal, tomato","Katla fish:500g:F;Tomato:3pc:V","Sear the fish. Tomato masala in 2 tsp mustard oil with red chilli, simmer 8 minutes."],
+   ["Bhetki macher tel jhal","Bhetki fish:500g:F;Mustard seeds:20g:G","Whole green chillies, mustard oil and kalonji, add water and fish, 6 minutes."],
+   ["Bhetki fish curry with coconut","Bhetki fish:500g:F;Coconut pieces:40g:V;Tomato:1pc:V","Light coconut gravy with tomato in 2 tsp oil, simmer fish 6 minutes."],
+   ["Bhetki macher jhol with kancha kola","Bhetki fish:500g:F;Raw banana:1pc:V","Light jhol with raw banana and cumin, add fish for 6 minutes."],
+   ["Bhetki macher jhol with palong","Bhetki fish:500g:F;Spinach (palong):1bunch:V","Garlic in 2 tsp oil, wilt the palong, add water and fish, simmer 6 minutes."],
+   ["Pabda macher tel jhal with potol","Pabda fish:500g:F;Potol:6pc:V","Mustard oil, kalonji and green chilli, add potol, water and fish, 6 minutes."],
+   ["Pabda macher posto","Pabda fish:500g:F;Posto (poppy seeds):30g:G","Posto and green chilli paste, simmer fish 5 minutes. Soft fish, handle gently."],
+   ["Pabda macher doi","Pabda fish:500g:F;Curd:150g:G","Gently simmer in whisked curd with ginger and turmeric, 5 minutes."],
+   ["Parshe macher paturi","Parshe fish:500g:F;Mustard seeds:30g:G;Banana leaf:6pc:V","Mustard and green chilli paste on the fish, wrap in banana leaf and steam 12 minutes.",0],
+   ["Parshe macher jhol with begun","Parshe fish:500g:F;Brinjal:1pc:V;Potato:1pc:V","Kalonji jhol in 2 tsp oil with brinjal and potato, add fish for 6 minutes."],
+   ["Tangra macher tel jhal","Tangra fish:500g:F;Tomato:1pc:V","Mustard oil, kalonji, tomato and whole green chilli, simmer fish 6 minutes."],
+   ["Tangra macher jhol with lau","Tangra fish:500g:F;Lau (bottle gourd):300g:V","Cumin and ginger jhol with lau in 2 tsp oil, add fish for 6 minutes."],
+   ["Tangra macher jhol with phulkopi","Tangra fish:500g:F;Cauliflower:1pc:V","Cumin jhol with cauliflower and ginger, add fish for 6 minutes."],
+   ["Ilish macher jhol with kochu","Ilish (hilsa):500g:F;Gathi kochu (arbi):200g:V","Mustard oil, kalonji and green chilli with kochu, add ilish for 6 minutes."],
+   ["Ilish macher jhol with alu","Ilish (hilsa):500g:F;Potato:2pc:V","Kalonji and green chilli in 2 tsp mustard oil, potato and water, add ilish for 6 minutes."],
+   ["Ilish macher doi","Ilish (hilsa):500g:F;Curd:150g:G","Light curd gravy with ginger and mustard oil, simmer ilish 6 minutes.",0],
+   ["Ilish macher bhaja, tawa","Ilish (hilsa):500g:F","Rub the pieces with turmeric and salt, roast on a non-stick tawa with a brush of mustard oil, turning once."],
+   ["Chingri macher cutlet, tawa","Prawns (chingri):300g:F;Potato:1pc:V","Mashed prawn and potato patties roasted on a non-stick tawa with a brush of oil.",0],
+   ["Chingri macher kalia","Prawns (chingri):500g:F;Onion:2pc:V;Tomato:1pc:V;Curd:50g:G","Onion and ginger paste in 1 tbsp oil, tomato and curd, simmer prawns 5 minutes.",0],
+   ["Chingri macher bhorta","Small prawns:150g:F;Onion:1pc:V","Roast small prawns, mash with raw onion, green chilli and mustard oil. Eat with hot rice."],
+   ["Chingri dopeyaja","Prawns (chingri):500g:F;Onion:3pc:V;Tomato:1pc:V","Onion paste and slices in 1 tbsp oil, prawns for 5 minutes."],
+   ["Chingri macher jhol with lau","Prawns (chingri):400g:F;Lau (bottle gourd):300g:V","Light jhol of cumin and ginger with lau, add prawns for 5 minutes."],
+   ["Chingri macher jhol with begun","Prawns (chingri):400g:F;Brinjal:2pc:V","Kalonji jhol with brinjal, add prawns for 5 minutes."],
+   ["Chingri macher jhol with kancha kola","Prawns (chingri):400g:F;Raw banana:1pc:V","Cumin jhol with raw banana, prawns for 5 minutes."],
+   ["Chingri macher bhapa with doi","Prawns (chingri):400g:F;Curd:150g:G;Mustard seeds:20g:G","Mustard paste with curd on the prawns, steam 8 minutes.",0],
+   ["Prawn pulao with peas","Basmati rice:300g:G;Prawns (chingri):300g:F;Green peas:100g:V","Whole spices in 2 tsp ghee, rice and prawns, cook covered till done.",0],
+   ["Koi macher jhol with begun","Koi fish:500g:F;Brinjal:1pc:V","Kalonji jhol with brinjal, add koi for 6 minutes."],
+   ["Koi macher jhol with phulkopi","Koi fish:500g:F;Cauliflower:1pc:V","Cumin and ginger jhol with cauliflower, add koi for 6 minutes."],
+   ["Magur macher jhol with alu","Magur fish:500g:F;Potato:2pc:V","Cumin and ginger jhol with potato, add magur for 8 minutes."],
+   ["Magur macher shorshe","Magur fish:500g:F;Mustard seeds:30g:G","Mustard and green chilli paste, simmer fish 8 minutes."],
+   ["Shing macher jhol with alu","Shing fish:400g:F;Potato:2pc:V","Cumin and ginger jhol with potato, add fish for 6 minutes."],
+   ["Mourala macher jhol with begun","Mourala fish:300g:F;Brinjal:1pc:V","Kalonji jhol with brinjal and green chilli, add small fish for 5 minutes."],
+   ["Mourala macher tok","Mourala fish:300g:F;Raw mango:1pc:V","Mustard seeds in 1 tsp oil, raw mango and water, add fish. Thin and tangy."],
+   ["Pomfret macher jhal, light","Pomfret:600g:F;Onion:1pc:V;Tomato:1pc:V","Sear pomfret lightly. Onion and tomato masala in 1 tbsp oil, simmer 8 minutes."],
+   ["Pomfret macher doi","Pomfret:600g:F;Curd:150g:G","Sear pomfret lightly. Whisked curd with ginger and turmeric, simmer 8 minutes."],
+   ["Pomfret macher kalia, light","Pomfret:600g:F;Onion:2pc:V;Tomato:1pc:V","Sear. Onion and ginger paste in 1 tbsp oil, tomato and curd, simmer 8 minutes.",0],
+   ["Bhetki macher chop, tawa","Bhetki fillet:400g:F;Potato:1pc:V;Breadcrumbs:50g:G","Mash cooked fish with potato and spices, shape, crumb and roast on a non-stick tawa.",0],
+   ["Fish rolls, tawa","Bhetki fillet:300g:F;Atta:250g:G;Onion:1pc:V","Seared fish with onion and lemon rolled in a thin ruti.",0],
+   ["Fish kebab, tawa","Bhetki fillet:400g:F;Besan:30g:G;Onion:1pc:V","Mash cooked fish with spices and besan, shape and roast on a non-stick tawa."],
+   ["Fish stew, Bengali","Bhetki fillet:400g:F;Potato:2pc:V;Carrot:1pc:V","Clear stew with whole spices, potato and carrot, fish added in the last 8 minutes."],
+   ["Fish with kasundi, tawa","Bhetki fillet:500g:F;Mustard seeds:20g:G","Marinate with kasundi mustard, lemon and salt, roast on a non-stick tawa."],
+   ["Tel koi, home style","Koi fish:500g:F;Onion:1pc:V;Tomato:1pc:V","Sear the koi. Onion and tomato masala in 1 tbsp oil, simmer 6 minutes."],
+   ["Sardine fish fry, tawa","Sardine fish:400g:F;Lemon:1pc:V","Marinate sardines with lemon, turmeric and chilli, roast on a non-stick tawa."],
+   ["Macher dim chorchori","Fish roe:250g:F;Potato:1pc:V;Brinjal:1pc:V","Panch phoron in 2 tsp oil, brinjal and potato, add roe for 5 minutes."],
+   ["Macher matha chorchori","Fish head:1pc:F;Cabbage:200g:V;Potato:1pc:V","Roast the head, cook with cabbage and potato in 2 tsp oil, covered."],
+   ["Macher matha diye bandhakopi","Fish head:1pc:F;Cabbage:400g:V","Sear the head, break it up, cook with shredded cabbage, covered."],
+   ["Macher jhol with sojne data","Rohu (rui) fish:500g:F;Drumstick:6pc:V","Kalonji jhol with drumstick pieces, add fish for 6 minutes."],
+   ["Macher jhol with jhinge","Rohu (rui) fish:500g:F;Jhinge (ridge gourd):300g:V","Cumin and green chilli jhol with jhinge, add fish for 6 minutes."],
+   ["Macher jhol with potol","Rohu (rui) fish:500g:F;Potol:6pc:V","Cumin and ginger jhol with potol, add fish for 6 minutes."],
+   ["Macher jhol with kumro","Rohu (rui) fish:500g:F;Pumpkin:200g:V","Light jhol with pumpkin pieces, add fish for 6 minutes."],
+   ["Macher jhol with kochu","Rohu (rui) fish:500g:F;Gathi kochu (arbi):200g:V","Mustard oil, kalonji and green chilli with kochu, add fish for 6 minutes."],
+   ["Macher jhol with begun, alu","Rohu (rui) fish:500g:F;Brinjal:1pc:V;Potato:1pc:V","Kalonji jhol in 2 tsp oil with brinjal and potato, add fish for 6 minutes."],
+   ["Macher jhol with beet","Rohu (rui) fish:500g:F;Beetroot:1pc:V;Potato:1pc:V","Cumin jhol with beet and potato, add fish for 6 minutes."],
+   ["Maach ar aloo bhaate","Rohu (rui) fish:300g:F;Potato:2pc:V","Steam fish and potato on top of the rice, mash with mustard oil."],
+   ["Thin macher jhol for a light stomach","Magur fish:400g:F;Potato:1pc:V;Raw papaya:150g:V","Very thin jhol with cumin and ginger, no frying. Light and healing."]
+  ]);
+
+  add("chicken",0,[
+   ["Murgir jhol with beans","Chicken:600g:F;Beans:200g:V;Potato:1pc:V","Cumin and ginger jhol with beans and potato, simmer chicken 25 minutes."],
+   ["Murgir jhol with phulkopi","Chicken:600g:F;Cauliflower:1pc:V;Potato:1pc:V","Cumin jhol with cauliflower and potato, simmer chicken 25 minutes."],
+   ["Murgir jhol with alu and borboti","Chicken:600g:F;Borboti (long beans):200g:V;Potato:1pc:V","Kalonji and ginger jhol, add vegetables and chicken, simmer 25 minutes."],
+   ["Murgir jhol with gajor","Chicken:600g:F;Carrot:2pc:V;Potato:1pc:V","Light jhol with carrot and potato, simmer chicken 25 minutes."],
+   ["Murgir jhol with palong","Chicken:600g:F;Spinach (palong):2bunch:V","Garlic masala in 2 tsp oil, spinach, simmer chicken 25 minutes."],
+   ["Murgir jhol with tomato","Chicken:600g:F;Tomato:4pc:V","Thin tomato jhol with ginger and chilli, simmer chicken 25 minutes."],
+   ["Murgir jhol with beet","Chicken:600g:F;Beetroot:1pc:V;Potato:1pc:V","Cumin jhol with beet and potato, simmer chicken 25 minutes."],
+   ["Murgir jhol with matar","Chicken:600g:F;Green peas:150g:V;Potato:1pc:V","Cumin and ginger jhol with peas and potato, simmer chicken 25 minutes."],
+   ["Murgir jhol with mushroom","Chicken:500g:F;Mushroom:250g:V;Potato:1pc:V","Cumin and ginger jhol, add mushroom and chicken, simmer 25 minutes."],
+   ["Murgir jhol with bandhakopi","Chicken:600g:F;Cabbage:300g:V;Potato:1pc:V","Light cumin jhol with shredded cabbage and potato, simmer chicken 25 minutes."],
+   ["Murgir kosha with peyaj","Chicken:700g:F;Onion:4pc:V","Slow-cooked onion masala, covered, till the chicken is tender and the masala clings. Serve with ruti."],
+   ["Murgir curry with lau","Chicken:600g:F;Lau (bottle gourd):300g:V","Onion and ginger gravy in 2 tsp oil, lau and chicken, simmer 25 minutes."],
+   ["Murgir tak jhol","Chicken:600g:F;Tamarind::P;Potato:1pc:V","Sour jhol with tamarind, cumin and green chilli, simmer chicken 25 minutes."],
+   ["Murgir aloo jhol","Chicken:600g:F;Potato:3pc:V","Everyday chicken and potato jhol with ginger and cumin, simmer 25 minutes."],
+   ["Murgir kasha with mushroom","Chicken:600g:F;Mushroom:250g:V;Onion:2pc:V","Thick masala with mushroom, covered, in 1 tbsp oil, 25 minutes."],
+   ["Murgir kofta curry","Chicken keema:400g:F;Onion:2pc:V;Tomato:2pc:V","Steam keema koftas, simmer in a light onion tomato gravy.",0],
+   ["Chicken keema with matar, Bengali","Chicken keema:400g:F;Green peas:150g:V;Tomato:2pc:V","Cumin and ginger in 2 tsp oil, tomato, keema and peas, covered."],
+   ["Chicken keema with lau","Chicken keema:400g:F;Lau (bottle gourd):300g:V","Keema cooked with grated lau, cumin and ginger in 2 tsp oil, covered."],
+   ["Chicken keema with beans","Chicken keema:400g:F;Beans:200g:V","Keema with chopped beans, cumin and ginger in 2 tsp oil, covered."],
+   ["Chicken keema ghugni","Chicken keema:300g:F;Dried yellow peas:150g:G","Pressure cooked peas with keema in a light masala.",0],
+   ["Chicken keema paratha with curd","Chicken keema:200g:F;Atta:300g:G;Curd:150g:G","Stuff atta with spiced keema, roast on a tawa with a brush of ghee.",0],
+   ["Chicken roast, Bengali","Chicken:800g:F;Onion:3pc:V;Curd:100g:G","Slow-cooked chicken with onion, curd and whole spices, a rich roast. Serve with pulao or ruti.",0],
+   ["Chicken stew with ruti","Chicken:500g:F;Potato:2pc:V;Carrot:1pc:V;Atta:250g:G","Mild stew with whole spices and vegetables, served with dry-roasted ruti."],
+   ["Chicken soup with vegetables","Chicken:400g:F;Carrot:1pc:V;Beans:100g:V;Green peas:80g:V","Simmer chicken with vegetables, ginger and pepper. A good soup for a cold or a light dinner."],
+   ["Chicken salad with cucumber","Boneless chicken:300g:F;Cucumber:2pc:V;Tomato:1pc:V","Shredded poached chicken tossed with cucumber, tomato, lemon and pepper."],
+   ["Chicken shami kebab, tawa","Chicken keema:400g:F;Chana dal:60g:G","Boil the keema with chana dal, grind, shape and roast on a non-stick tawa.",0],
+   ["Chicken cutlet with salad","Chicken keema:300g:F;Potato:1pc:V;Cucumber:1pc:V","Roasted cutlets with a cucumber and onion salad."],
+   ["Chicken tikka salad","Boneless chicken:400g:F;Curd:100g:G;Cucumber:1pc:V","Roasted tikka pieces on a cucumber, onion and tomato salad.",0],
+   ["Chicken with baby corn","Boneless chicken:400g:F;Babycorn:150g:V;Capsicum:1pc:V","Stir fry in 1 tbsp oil with garlic, pepper and soy."],
+   ["Ginger garlic chicken, tawa","Boneless chicken:500g:F;Garlic bulb:1pc:V","Marinate in ginger garlic and pepper, roast on a non-stick tawa."],
+   ["Chicken do pyaza with ruti","Chicken:600g:F;Onion:3pc:V;Atta:250g:G","Chicken with onion paste and petals in 2 tsp oil, rutis on the side."],
+   ["Chicken curry with potato and egg","Chicken:500g:F;Potato:2pc:V;Eggs:3pc:E","Spicy chicken curry with potato and boiled eggs added at the end."],
+  ]);
+
+  add("egg",0,[
+   ["Dim ar alu bhaja","Eggs:6pc:E;Potato:3pc:V","Boiled eggs, halved, with roasted potato slices on a non-stick tawa."],
+   ["Dim torkari with phulkopi","Eggs:5pc:E;Cauliflower:1pc:V;Potato:1pc:V","Cumin and ginger in 2 tsp oil, cauliflower and potato, boiled eggs at the end."],
+   ["Dim torkari with matar","Eggs:5pc:E;Green peas:120g:V;Tomato:1pc:V","Peas and tomato in a light masala, boiled eggs at the end."],
+   ["Dimer jhol with begun","Eggs:6pc:E;Brinjal:1pc:V;Potato:1pc:V","Kalonji jhol with brinjal and potato, boiled eggs at the end."],
+   ["Dimer jhol with beans","Eggs:6pc:E;Beans:150g:V;Potato:1pc:V","Cumin and ginger jhol with beans and potato, boiled eggs at the end."],
+   ["Dimer jhol with palong","Eggs:6pc:E;Spinach (palong):1bunch:V","Garlic and spinach jhol, boiled eggs at the end."],
+   ["Dimer jhol with shim","Eggs:6pc:E;Shim (flat beans):200g:V;Potato:1pc:V","Kalonji jhol with shim and potato, boiled eggs at the end."],
+   ["Dimer jhol with tomato","Eggs:6pc:E;Tomato:4pc:V","Thin tomato jhol, boiled eggs added for 3 minutes."],
+   ["Dimer jhol with mulo","Eggs:6pc:E;Mooli:1pc:V","Cumin jhol with mooli, boiled eggs at the end."],
+   ["Dimer jhol with jhinge","Eggs:6pc:E;Jhinge (ridge gourd):300g:V","Light jhol with jhinge, boiled eggs at the end."],
+   ["Dimer jhol with kancha kola","Eggs:6pc:E;Raw banana:1pc:V;Potato:1pc:V","Light cumin jhol with raw banana and potato, boiled eggs at the end."],
+   ["Dimer jhol with gajor","Eggs:6pc:E;Carrot:2pc:V;Potato:1pc:V","Cumin jhol with carrot and potato, boiled eggs at the end."],
+   ["Dimer dalna with peas","Eggs:6pc:E;Green peas:100g:V;Potato:1pc:V","Onion tomato gravy, peas and potato, boiled eggs for 5 minutes."],
+   ["Dimer kosha with peyaj","Eggs:6pc:E;Onion:3pc:V","Boiled eggs in a thick brown onion masala, cooked slowly in 1 tbsp oil."],
+   ["Dimer kalia with potato","Eggs:6pc:E;Potato:2pc:V;Onion:2pc:V;Tomato:1pc:V","Onion and ginger paste in 1 tbsp oil, tomato and curd, simmer eggs and potato 8 minutes."],
+   ["Dim bhaja, masala","Eggs:6pc:E;Onion:1pc:V","Halved boiled eggs with onion masala, roasted on a non-stick tawa."],
+   ["Omelette with palong","Eggs:6pc:E;Spinach (palong):1bunch:V","Beat eggs with chopped palong, onion and chilli, cook on a non-stick pan."],
+   ["Omelette with tomato and onion","Eggs:6pc:E;Tomato:1pc:V;Onion:1pc:V","Beat eggs with chopped vegetables and green chilli, cook on a non-stick pan with a brush of oil."],
+   ["Omelette curry, Bengali","Eggs:6pc:E;Potato:1pc:V;Tomato:1pc:V","Thin omelettes cut in strips, simmered in a light cumin and tomato jhol."],
+   ["Egg masala, home style","Eggs:6pc:E;Onion:2pc:V;Tomato:2pc:V","Boiled eggs in an onion and tomato masala in 2 tsp oil, simmered 5 minutes."],
+   ["Egg and potato bhaja","Eggs:4pc:E;Potato:2pc:V","Beaten egg over roasted potato slices, cooked on a non-stick pan."],
+   ["Egg kosha with ruti","Eggs:6pc:E;Onion:2pc:V;Atta:250g:G","Boiled eggs in a thick onion masala, served with dry-roasted rutis."],
+   ["Boiled egg salad","Eggs:4pc:E;Cucumber:1pc:V;Tomato:1pc:V","Sliced boiled eggs, cucumber and tomato with lemon and pepper."],
+   ["Egg fried rice, Bengali","Basmati rice:350g:G;Eggs:3pc:E;Spring onion:1bunch:V","Cold rice, scrambled egg and spring onion stir fried in 1 tbsp oil."],
+   ["Dim biryani, light","Basmati rice:300g:G;Eggs:5pc:E;Onion:2pc:V;Curd:100g:G","Boiled eggs in a curd masala, layered with half-cooked rice and dum.",0],
+   ["Egg kofta curry, steamed","Eggs:4pc:E;Besan:40g:G;Tomato:2pc:V","Egg and besan koftas, steamed, in a light tomato gravy.",0],
+   ["Egg pakora, baked","Eggs:4pc:E;Besan:60g:G","Boiled eggs coated in spiced besan batter, baked or air-fried.",0],
+   ["Dim tarkari with kumro","Eggs:5pc:E;Pumpkin:300g:V","Light curry with pumpkin pieces, boiled eggs at the end."],
+   ["Dim shorshe with potol","Eggs:5pc:E;Potol:6pc:V;Mustard seeds:25g:G","Mustard and green chilli gravy with potol, boiled eggs at the end.",0],
+   ["Dim sandwich with cucumber","Brown bread:8pc:G;Eggs:4pc:E;Cucumber:1pc:V","Boiled egg and cucumber between brown bread slices with pepper and salt."]
+  ]);
+
+  add("dal",1,[
+   ["Moong dal with gajor","Moong dal:150g:G;Carrot:1pc:V","Boil roasted moong dal with grated carrot, tadka with cumin."],
+   ["Masoor dal with lau and bori","Masoor dal:150g:G;Lau (bottle gourd):300g:V;Bori:20g:G","Boil dal and lau, tadka with panch phoron, fried bori on top."],
+   ["Masoor dal with potol","Masoor dal:150g:G;Potol:4pc:V","Boil dal with potol pieces, tadka of kalonji in 1 tsp oil."],
+   ["Masoor dal with begun","Masoor dal:150g:G;Brinjal:1pc:V","Boil dal with brinjal cubes, tadka of panch phoron."],
+   ["Masoor dal with kumro","Masoor dal:150g:G;Pumpkin:200g:V","Boil dal with pumpkin, tadka of panch phoron and a pinch of sugar."],
+   ["Dal with kochu","Moong dal:100g:G;Gathi kochu (arbi):200g:V","Boil dal and peeled kochu together, tadka of kalonji."],
+   ["Dal with echor","Toor dal:100g:G;Echor (raw jackfruit):200g:V","Pressure cook dal with raw jackfruit, tadka of cumin and ginger.",0],
+   ["Chana dal with kumro","Chana dal:150g:G;Pumpkin:200g:V","Soak the dal, pressure cook with pumpkin, tadka of cumin."],
+   ["Chana dal with narkel","Chana dal:150g:G;Coconut pieces:40g:V","Slow-cooked chana dal with coconut, cumin and a pinch of sugar."],
+   ["Arhar dal, plain","Toor dal:150g:G","Pressure cooked toor dal, tadka of cumin and garlic in 1 tsp ghee."],
+   ["Sada dal with ghee","Moong dal:150g:G","Plain boiled moong dal with salt and a spoonful of ghee. For a recovering stomach."],
+   ["Tetor dal with bori","Moong dal:100g:G;Karela:1pc:V;Bori:20g:G","Boil dal with bitter gourd pieces, tadka of panch phoron, fried bori on top."],
+   ["Bhaja moong dal with alu","Moong dal:150g:G;Potato:1pc:V","Roast the dal till golden, boil with potato cubes and ginger."],
+   ["Moong dal with tomato and lemon","Moong dal:150g:G;Tomato:2pc:V;Lemon:1pc:V","Boil moong dal with tomato, finish with lemon juice and tadka of cumin."],
+   ["Dal with palong and garlic","Toor dal:150g:G;Spinach (palong):1bunch:V;Garlic bulb:1pc:V","Pressure cook dal, add chopped palong, tadka with plenty of garlic."]
+  ]);
+
+  add("bf",1,[
+   ["Ruti with kumro bhaja","Atta:250g:G;Pumpkin:300g:V","Rutis with roasted pumpkin slices."],
+   ["Ruti with potol bhaja","Atta:250g:G;Potol:6pc:V","Rutis with roasted potol."],
+   ["Ruti with chhanar bhurji","Atta:250g:G;Paneer:200g:G;Onion:1pc:V","Rutis with paneer bhurji cooked with onion, tomato and green chilli."],
+   ["Ruti with palong aloo","Atta:250g:G;Spinach (palong):1bunch:V;Potato:2pc:V","Rutis with a quick palong and potato sabzi."],
+   ["Ruti with moong dal","Atta:250g:G;Moong dal:100g:G","Rutis with thin moong dal and a drop of ghee."],
+   ["Ruti with mixed vegetable","Atta:250g:G;Carrot:1pc:V;Beans:100g:V;Green peas:80g:V","Rutis with a simple dry mixed vegetable."],
+   ["Ruti with doi and gur","Atta:250g:G;Curd:200g:G","Rutis with curd and a little jaggery. An easy sweet-and-sour breakfast."],
+   ["Suji upma with peas","Suji:200g:G;Green peas:100g:V;Onion:1pc:V","Roast suji lightly, mustard seeds in 1 tsp oil, onion, peas, water and suji, cook covered."],
+   ["Vermicelli upma, vegetables","Vermicelli:200g:G;Carrot:1pc:V;Green peas:80g:V","Roast vermicelli, cook with vegetables and water in 2 tsp oil."],
+   ["Dalia upma","Dalia:200g:G;Carrot:1pc:V;Green peas:80g:V","Roast dalia, cook with vegetables and water, tempered with mustard seeds."],
+   ["Moong dal khichuri breakfast, small","Gobindobhog rice:150g:G;Moong dal:75g:G","A small pot of khichuri with ghee and a roasted papad."],
+   ["Boiled chana chaat","Kabuli chana:150g:G;Onion:1pc:V;Tomato:1pc:V;Cucumber:1pc:V","Boiled chana with chopped vegetables, lemon and chaat masala."],
+   ["Moong sprouts salad with lemon","Moong sprouts:200g:V;Onion:1pc:V;Tomato:1pc:V","Steamed sprouts with onion, tomato, lemon and chilli."],
+   ["Besan chilla with palong","Besan:200g:G;Spinach (palong):1bunch:V","Batter with chopped palong, cook thin on a non-stick tawa with a brush of oil."],
+   ["Oats porridge with banana","Oats:100g:G;Milk:400ml:G;Banana:2pc:V","Cook oats in milk, top with sliced banana. A mild breakfast for children."],
+   ["Banana and curd bowl","Curd:300g:G;Banana:2pc:V","Curd with sliced banana and a little honey."],
+   ["Poha with curd","Chire (poha):200g:G;Curd:200g:G","Rinse the poha, toss in oil with turmeric, serve with curd."],
+   ["Stuffed ruti with alu","Atta:300g:G;Potato:3pc:V","Stuff with a thin potato filling, roast on a tawa with a brush of oil."],
+   ["Mooli paratha with curd","Atta:300g:G;Mooli:2pc:V;Curd:150g:G","Squeeze grated mooli, stuff, roast on a tawa with a brush of ghee."],
+   ["Paneer paratha with curd","Atta:300g:G;Paneer:200g:G;Curd:150g:G","Stuff with spiced crumbled paneer, roast on a tawa with a brush of ghee."]
+  ],"b");
+  add("bf",0,[
+   ["Egg paratha roll","Atta:250g:G;Eggs:4pc:E","Egg omelette in an atta paratha, with onion and lemon."],
+   ["Egg ruti roll with cucumber","Atta:250g:G;Eggs:4pc:E;Cucumber:1pc:V","Omelette in a ruti with cucumber and a little chilli sauce."],
+   ["Egg bhurji with toast","Eggs:6pc:E;Brown bread:6pc:G;Tomato:1pc:V","Scrambled eggs with onion, tomato and chilli, served with toast."],
+   ["Boiled eggs with ruti and chai","Eggs:4pc:E;Atta:250g:G","A plain breakfast: boiled eggs and rutis."],
+   ["Chicken sandwich with cucumber","Boneless chicken:200g:F;Brown bread:8pc:G;Cucumber:1pc:V","Shredded chicken, cucumber and pepper between brown bread."]
+  ],"b");
+})();
+
 /* More ready-made lists, built by rule from the dish library */
 (function(){
   const nm=(d,re)=>re.test(d.name), has=(d,re)=>d.ing.some(x=>re.test(x.n)), nt=(d,re)=>re.test(d.note);
@@ -1996,7 +2664,7 @@ function dishListHtml(){
   const q=dishQ.toLowerCase();let h="";
   Object.keys(TYPES).forEach(t=>{
     const all=allDishes().filter(d=>d.type===t&&(!q||d.name.toLowerCase().includes(q)||TYPES[t].toLowerCase().includes(q)||d.ing.some(x=>x.n.toLowerCase().includes(q))));if(!all.length)return;
-    const cap=q?80:25;const ds=all.slice(0,cap);
+    const cap=q?200:100;const ds=all.slice(0,cap);
     h+='<section class="card" style="margin-top:12px"><h2>'+TYPES[t]+' <span class="hint">('+all.length+')</span></h2>'+(all.length>cap?'<p class="hint">Showing '+cap+' of '+all.length+'. Search above to find the rest.</p>':'')+ds.map(d=>{const off=S.off.includes(d.id);
       return '<div class="lib'+(off?" off":"")+'"><button class="nm" data-act="view" data-id="'+d.id+'">'+esc(d.name)+(d.veg?'':' •')+(d.mine?' <span class="pill tag">'+(d.ai?"from Claude":"mine")+'</span>':'')+'</button>'+
       (t==="staple"?'':'<div class="chips" style="flex-wrap:nowrap"><button class="btn plain small" data-act="toMenu" data-id="'+d.id+'">+ Menu</button><button class="tog" data-act="off" data-id="'+d.id+'" aria-pressed="'+(!off)+'">'+(off?"Off":"On")+'</button></div>')+'</div>';}).join("")+'</section>';
@@ -2127,14 +2795,19 @@ function recentSet(){const s1=new Set([].concat(...S.plan.map(d=>d.b.concat(d.l,
 const CUI=[["","All"],["bn","Bengali"],["ni","North Indian"],["cn","Chinese"],["si","South Indian"]];
 const NIRE=/paratha|kulcha|thepla|chole|rajma|kadhi|makhani|tikka|tandoori|kadhai|dal tadka|dal fry|aloo gobi|jeera aloo|bharta|do pyaza|dum aloo|palak paneer|matar paneer|butter chicken|rogan|keema matar|sarson|makki|poha, indori|pindi|tinda|arbi|amritsari/i;
 function cuiOf(d){if(d.ni||NIRE.test(d.name))return "ni";if(d.type==="cncarb"||d.type==="cnmain")return "cn";if(/idli|dosa|uttapam|upma|sambar|rasam|thoran|pesarattu|curd rice|chettinad|kerala|appam/i.test(d.name))return "si";return "bn";}
-let ideaCui="";
-function slotPool(m,veg){return allDishes().filter(d=>(!ideaCui||cuiOf(d)===ideaCui)&&d.type!=="staple"&&d.type!=="snack"&&d.type!=="own"&&!S.off.includes(d.id)&&mealsOf(d).includes(m)&&d.veg===veg);}
+let ideaCui="", ideaKind="", ideaEasy=false;
+const KINDS=[["","All kinds"],["fish","Fish"],["chicken","Chicken"],["egg","Egg"],["mutton","Mutton"],["veg","Vegetables"],["dal","Dal"]];
+const IDEA_N=10, IDEA_MORE=50;
+/* Easy: marked easy in the library, or a short recipe with few ingredients */
+function isEasy(d){return d.easy===true||(d.easy===undefined&&d.ing.length<=4&&String(d.note||"").length<=150&&!["cnmain","cncarb","mutton"].includes(d.type));}
+function kindOk(d){return !ideaKind||(ideaKind==="veg"?(d.type==="side"||d.type==="vegmain"):d.type===ideaKind);}
+function slotPool(m,veg){return allDishes().filter(d=>(!ideaCui||cuiOf(d)===ideaCui)&&kindOk(d)&&(!ideaEasy||isEasy(d))&&d.type!=="staple"&&d.type!=="snack"&&d.type!=="own"&&!S.off.includes(d.id)&&mealsOf(d).includes(m)&&d.veg===veg);}
 function grab(pool,n){const r=recentSet();const f=pool.filter(d=>!r.has(d.id));return shuffle(f.length>=n?f:pool).slice(0,n).map(d=>d.id);}
 function freePick(){
   freeG=emptyG();
   ["b","l","d"].forEach(m=>{
-    freeG[m].v=grab(slotPool(m,true),5);
-    freeG[m].n=grab(slotPool(m,false),5);
+    freeG[m].v=grab(slotPool(m,true),IDEA_N);
+    freeG[m].n=grab(slotPool(m,false),IDEA_N);
   });
 }
 function groupIds(ids){
@@ -2144,23 +2817,25 @@ function groupIds(ids){
 }
 function ideaRow(id,m){const d=dish(id);if(!d)return "";
   return '<div class="lib"><button class="nm" data-act="view" data-id="'+d.id+'">'+esc(d.name)+' <span class="pill tag">'+TYPES[d.type]+'</span> <span class="kc">'+kcal(d)+' kcal</span>'+(d.ai?' <span class="pill tag">from Claude</span>':d.mine?' <span class="pill tag">mine</span>':'')+'</button><button class="btn plain small" data-act="toMenu" data-id="'+d.id+'" data-m="'+m+'">Put on menu</button></div>';}
-let ideaMeal="l", ideaAll={v:false,n:false}, ideaOwn=[];
+let ideaMeal="l", ideaAll={v:0,n:0}, ideaOwn=[];
 function ideasCard(){
   const m=ideaMeal, MN=MEALNAME[m];
   const web=webG?webG[m]:{v:[],n:[]};
   const part=(k,label,pill)=>{
     if(ideaSide==="veg"&&k==="n"||ideaSide==="non"&&k==="v")return "";
     const pool=slotPool(m,k==="v").sort((a,b)=>a.name.localeCompare(b.name)).map(d=>d.id);
-    const all=!!ideaAll[k];
+    const shown=ideaAll[k]||0, all=shown>0;
 const own=ideaOwn.filter(id=>{const d=dish(id);return d&&d.veg===(k==="v")&&mealsOf(d).includes(m);});
     const first=own.concat(web[k].filter(id=>!own.includes(id)));
-    const ids=first.concat((all?pool.slice(0,150):freeG[m][k]).filter(id=>!first.includes(id)));
+    const ids=first.concat((all?pool.slice(0,shown):freeG[m][k]).filter(id=>!first.includes(id)));
     return '<div class="card" style="margin-top:10px;padding:10px 12px"><h2 style="font-size:16px"><span class="pill '+pill+'">'+label+'</span> '+MN+' ideas</h2>'+
       (ids.length?ids.map(id=>ideaRow(id,m)).join(""):'<p class="hint">No '+label.toLowerCase()+' '+MN.toLowerCase()+' dishes saved yet. Ask Claude below.</p>')+
-      (pool.length>5?'<div class="row" style="margin-top:8px"><button class="btn plain small" data-act="iall" data-k="'+k+'">'+(all?'Show only 5':'Show more of the '+pool.length+' '+label.toLowerCase()+' '+MN.toLowerCase()+' dishes')+'</button></div>'+(all&&pool.length>150?'<p class="hint">Showing the first 150. Search in the Dishes tab for a specific dish.</p>':''):'')+'</div>';
+      '<p class="hint" style="margin-top:8px">'+(pool.length?(all?'Showing '+Math.min(shown,pool.length)+' of '+pool.length+' ':'Showing '+Math.min(ids.length,pool.length)+' of '+pool.length+' ')+label.toLowerCase()+' '+MN.toLowerCase()+' dishes':'')+'</p>'+
+      (pool.length>IDEA_N?'<div class="row" style="margin-top:4px">'+(shown<pool.length?'<button class="btn plain small" data-act="iall" data-k="'+k+'">Show '+Math.min(IDEA_MORE,pool.length-(shown||IDEA_N))+' more</button>':'')+(all?'<button class="btn plain small" data-act="ifew" data-k="'+k+'">Show fewer</button>':'')+'</div>':'')+'</div>';
   };
   return '<section class="card"><h2>Dish ideas</h2>'+
    '<div class="chips" style="margin-top:8px">'+CUI.map(([k,t])=>'<button class="tog" data-act="icui" data-k="'+k+'" aria-pressed="'+(ideaCui===k)+'">'+t+'</button>').join("")+'</div>'+
+   '<div class="chips" style="margin-top:8px">'+KINDS.map(([k,t])=>'<button class="tog" data-act="ikind" data-k="'+k+'" aria-pressed="'+(ideaKind===k)+'">'+t+'</button>').join("")+'<button class="tog" data-act="ieasy" aria-pressed="'+ideaEasy+'">Easy, quick home-style</button></div>'+
    '<div class="chips" style="margin-top:8px">'+["b","l","d"].map(k=>'<button class="tog" style="font-size:15px;padding:8px 16px" data-act="imeal" data-k="'+k+'" aria-pressed="'+(m===k)+'">'+MEALNAME[k]+'</button>').join("")+'</div>'+
    '<div class="chips" style="margin-top:8px">'+[["both","Veg and non-veg"],["veg","Veg only"],["non","Non-veg only"]].map(([k,t])=>'<button class="tog" data-act="side" data-k="'+k+'" aria-pressed="'+(ideaSide===k)+'">'+t+'</button>').join("")+'</div>'+
    '<div class="row" style="margin-top:10px"><button class="btn small" data-act="new">+ Add my own dish</button><span class="hint">Your own idea, saved with your dishes.</span></div>'+
@@ -2577,8 +3252,11 @@ document.addEventListener("click",e=>{
   else if(a==="ideas")ideas(b);
   else if(a==="side"){ideaSide=b.dataset.k;render();}
   else if(a==="bulk")bulkAdd(b);
-  else if(a==="iall"){ideaAll[b.dataset.k]=!ideaAll[b.dataset.k];render();}
-  else if(a==="icui"){ideaCui=b.dataset.k;freePick();ideaStatus="";render();}
+  else if(a==="iall"){const k=b.dataset.k;ideaAll[k]=(ideaAll[k]||IDEA_N)+IDEA_MORE;render();}
+  else if(a==="ifew"){ideaAll[b.dataset.k]=0;render();}
+  else if(a==="icui"){ideaCui=b.dataset.k;ideaAll={v:0,n:0};freePick();ideaStatus="";render();}
+  else if(a==="ikind"){ideaKind=b.dataset.k;ideaAll={v:0,n:0};freePick();ideaStatus="";render();}
+  else if(a==="ieasy"){ideaEasy=!ideaEasy;ideaAll={v:0,n:0};freePick();ideaStatus="";render();}
   else if(a==="imeal"){ideaMeal=b.dataset.k;ideaStatus="";render();}
   else if(a==="okAll"){for(let j=0;j<7;j++)setDay(j,true);save();render();toast("Whole week approved. Cook and Shop are ready.");}
   else if(a==="okNone"){S.okm={};save();render();}

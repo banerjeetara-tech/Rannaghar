@@ -2,7 +2,7 @@
 
 Weekly family meal planner: a day-wise menu (breakfast, lunch, dinner), cooking instructions for the cook, and separate bazaar and online shopping lists you can send on WhatsApp.
 
-Single HTML file with about 2,500 built-in dishes and 32 ready-made menu lists (Bengali, home-style Chinese, breakfasts, veg). Your menu and own dishes are saved in Chrome on your phone. Use **Settings > Save backup file** now and then.
+Single HTML file with about 3,000 built-in dishes and 32 ready-made menu lists (Bengali, home-style Chinese, breakfasts, veg). Your menu and own dishes are saved in Chrome on your phone. Use **Settings > Save backup file** now and then.
 
 Open the app in Chrome and choose **Add to Home screen**.
 
@@ -40,6 +40,10 @@ On the **Ideas** tab, **Diet plan with Claude** prepares a full week for a chose
 ## Calories tab
 
 Every dish shows an estimated kcal per serving, worked out from its ingredients and oil. The Menu tab shows planned calories per meal and per day. In the **Calories** tab you log servings eaten each day, add extras, enter your weekly weight and an optional daily target, and see which dishes add the most calories with lighter swaps. **Plan next week** archives the week under Earlier weeks.
+
+## Finding more dishes (Ideas tab)
+
+**Dish ideas** shows 10 at a time and **Show 50 more** keeps going through the whole library. Filter by cuisine (Bengali, North Indian, Chinese, South Indian), by kind (**Fish, Chicken, Egg, Mutton, Vegetables, Dal**), by meal, and by veg or non-veg. Tap **Easy, quick home-style** to see only simple dishes with few ingredients. The library has hundreds of real Bengali home-style dishes: vegetable torkari, bhaja, chorchori, ghonto and shorshe dishes, dals, fish by the fish (rui, katla, bhetki, pabda, tangra, ilish, chingri and more), murgir jhol, and dimer jhol.
 
 ## Menu lists (Ideas tab)
 
